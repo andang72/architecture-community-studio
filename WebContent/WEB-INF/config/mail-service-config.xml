@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config> 
+  <services name="MailService" enabled="true"> 
+    <protocol></protocol>  
+    <username>noreply@podosw.com</username>  
+    <password>podo007!!!</password>  
+    <host></host>  
+    <port>0</port>  
+    <defaultEncoding>UTF-8</defaultEncoding>  
+    <javaMailProperties>
+      <property name="mail.smtps.ssl.trust">*</property> 
+      <property name="mail.debug">true</property> 
+      <property name="mail.smtp.port">465</property> 
+      <property name="mail.smtp.auth">true</property> 
+      <property name="mail.smtp.host">smtps.hiworks.com</property> 
+      <property name="mail.smtp.ssl.enable">true</property>
+    </javaMailProperties>
+  </services> 
+</config>

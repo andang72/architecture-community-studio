@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+	<mime-type>text/html</mime-type>
+	<mapping path="/html/*" exclude="true"/>
+	<!-- <mapping path="/secure/studio/*" decorator="/decorators/studio/decorator2.jsp" /> -->
+</sitemesh>

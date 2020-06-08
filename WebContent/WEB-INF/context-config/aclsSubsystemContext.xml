@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<beans:description><![CDATA[
+       Spring Security ACLS 설정  
+	]]></beans:description>
+
+	<beans:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler" 
+		p:permissionEvaluator-ref="permissionEvaluator" p:permissionCacheOptimizer-ref="permissionCacheOptimizer" >
+	</beans:bean>
+	
+	<beans:bean id="permissionCacheOptimizer" class="org.springframework.security.acls.AclPermissionCacheOptimizer">
+		<beans:constructor-arg ref="aclService"></beans:constructor-arg>
+	</beans:bean>
+	
+	<beans:bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
+		<beans:constructor-arg ref="aclService"></beans:constructor-arg>
+	</beans:bean>
+	
+	<beans:bean id="aclService" class="architecture.community.security.spring.acls.JdbcCommunityAclService" >
+		<beans:constructor-arg ref="dataSource" />
+		<beans:constructor-arg ref="lookupStrategy" />
+		<beans:constructor-arg ref="aclCache" />
+		<beans:property name="classIdentityQuery" value="SELECT @@IDENTITY"/>
+		<beans:property name="sidIdentityQuery" value="SELECT @@IDENTITY"/>
+	</beans:bean>
+	
+	<beans:bean id="lookupStrategy" class="architecture.community.security.spring.acls.CommunityLookupStrategy">
+		<beans:constructor-arg ref="dataSource" />
+		<beans:constructor-arg ref="aclCache" />
+		<beans:constructor-arg ref="aclAuthzStrategy" />
+		<beans:constructor-arg ref="consoleAuditLogger" />
+	</beans:bean>
+	
+	<beans:bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+		<beans:constructor-arg ref="aclCacheInternal" />
+		<beans:constructor-arg ref="permissionGrantingStrategy" />
+	</beans:bean>
+ 
+ 	<beans:bean id="permissionGrantingStrategy" class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy">
+ 		<beans:constructor-arg ref="consoleAuditLogger" />
+ 	</beans:bean>
+ 	
+	<beans:bean id="aclCacheInternal" class="org.springframework.cache.ehcache.EhCacheFactoryBean"  p:cacheName="aclCache" />
+	
+	<beans:bean id="consoleAuditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger" />
+	
+	<beans:bean id="aclAuthzStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+		<beans:constructor-arg ref="adminAuthority" />
+	</beans:bean>
+	
+	<beans:bean id="adminAuthority" class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+		<beans:constructor-arg value="ROLE_ADMIN" />
+	</beans:bean>
+    
+</beans:beans> 

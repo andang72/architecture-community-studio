@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	<beans:description><![CDATA[
+    Community Defined Context ..
+	]]></beans:description>
+
+	<!-- ================================= -->
+	<!-- NAVIGATOR MENU 				   -->
+	<!-- ================================= -->
+	<beans:bean id="menuDao" class="architecture.community.navigator.menu.dao.JdbcMenuDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="menuService" class="architecture.community.navigator.menu.CommunityMenuService" />
+	
+	<!-- ================================= -->
+	<!-- IMAGE 							   -->
+	<!-- ================================= -->
+	
+	<beans:bean id="imageDao" class="architecture.community.image.dao.jdbc.JdbcImageDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="imageLinkDao" class="architecture.community.image.dao.jdbc.JdbcImageLinkDao" p:dataSource-ref="dataSource" />
+
+	<beans:bean id="logoImageIdsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+		p:cacheName="logoImageIdsCache" 
+		p:maxElementsInMemory="5000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+		p:timeToIdle="300"
+		p:timeToLive="600" 
+		p:eternal="false" 
+		p:diskExpiryThreadIntervalSeconds="0"
+		p:statisticsEnabled="true" />
+
+	<beans:bean id="logoImageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+		p:cacheName="logoImageCache" 
+		p:maxElementsInMemory="5000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+		p:timeToIdle="300"
+		p:timeToLive="600" 
+		p:eternal="false" 
+		p:diskExpiryThreadIntervalSeconds="0"
+		p:statisticsEnabled="true" />
+
+	<beans:bean id="imageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+		p:cacheName="imageCache" 
+		p:maxElementsInMemory="5000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false" 
+		p:diskExpiryThreadIntervalSeconds="0"
+		p:statisticsEnabled="true" />
+
+	<beans:bean id="imageLinkCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+		p:cacheName="imageLinkCache" 
+		p:maxElementsInMemory="5000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false" 
+		p:diskExpiryThreadIntervalSeconds="0"
+		p:statisticsEnabled="true" />
+		
+	<beans:bean id="imageLinkIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+		p:cacheName="imageLinkIdCache" 
+		p:maxElementsInMemory="5000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false" 
+		p:diskExpiryThreadIntervalSeconds="0"
+		p:statisticsEnabled="true" />	
+			
+	<beans:bean id="imageService" class="architecture.community.image.CommunityImageService" />	
+
+	<!-- ================================= -->
+	<!-- ATTACHMENT 					   -->
+	<!-- ================================= -->
+	<beans:bean id="attachmentDao" class="architecture.community.attachment.dao.jdbc.JdbcAttachmentDao" p:dataSource-ref="dataSource" p:enableSaveUserId="true"/>
+
+	<beans:bean id="attachmentCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+		p:cacheName="attachmentCache" 
+		p:maxElementsInMemory="5000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false" 
+		p:diskExpiryThreadIntervalSeconds="0"
+		p:statisticsEnabled="true" />
+	<beans:bean id="attachmentService" class="architecture.community.attachment.CommunityAttachmentService" />
+
+	<!-- ================================= -->
+	<!-- TAG 							   -->
+	<!-- ================================= -->
+	<beans:bean id="tagDao" class="architecture.community.tag.dao.jdbc.JdbcTagDao" p:dataSource-ref="dataSource" />
+	
+    <beans:bean id="tagIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="tagIdCache"  
+     	p:maxElementsInMemory="5000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />
+     	
+    <beans:bean id="tagCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="tagCache"  
+     	p:maxElementsInMemory="5000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />
+     	
+	<beans:bean id="tagContentCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="tagContentCache"  
+     	p:maxElementsInMemory="5000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" /> 
+		
+	<beans:bean id="tagService" class="architecture.community.tag.DefaultTagService"  />	
+			
+
+	<!-- ================================= -->
+	<!-- SHARED LINK SERVICE 			   -->
+	<!-- ================================= -->
+	
+	<beans:bean id="sharedLinkDao" class="architecture.community.share.dao.jdbc.JdbcSharedLinkDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="sharedLinkService" class="architecture.community.share.CommunityLInkService" />	
+	
+	
+	<!-- ================================= -->
+	<!-- USER PROFILE IMAGE SERVICE        -->
+	<!-- ================================= -->
+	
+	<beans:bean id="userAvatarDao" class="architecture.community.user.dao.jdbc.JdbcUserAvatarDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="avatarImageIdsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="avatarImageIdsCache" 
+		p:maxElementsInMemory="20000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false"
+		p:diskExpiryThreadIntervalSeconds="0" 
+		p:statisticsEnabled="true" />
+		
+	<beans:bean id="avatarImageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="avatarImageCache" 
+		p:maxElementsInMemory="20000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false"
+		p:diskExpiryThreadIntervalSeconds="0" 
+		p:statisticsEnabled="true" />
+
+	<beans:bean id="userAvatarService" class="architecture.community.user.CommunityUserAvatarService" />
+	
+	<!-- ================================= -->
+	<!-- ANNOUNCE		 				   -->
+	<!-- ================================= -->
+	
+	<beans:bean id="announceDao" class="architecture.community.announce.dao.JdbcAnnounceDao" p:dataSource-ref="dataSource" />
+ 
+	<beans:bean id="announceCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="announceCache" 
+		p:maxElementsInMemory="20000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false"
+		p:diskExpiryThreadIntervalSeconds="0" 
+		p:statisticsEnabled="true" />
+
+	<beans:bean id="announceService" class="architecture.community.announce.CommunityAnnounceService" />	
+
+	<!-- ================================= -->
+    <!-- COMMENT 						   -->
+    <!-- ================================= -->
+	<beans:bean id="commentDao" class="architecture.community.comment.dao.jdbc.JdbcCommentDao"  p:dataSource-ref="dataSource" />
+    
+    <beans:bean id="commentCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="commentCache"  
+     	p:maxElementsInMemory="20000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />
+     	
+    <beans:bean id="commentTreeWalkerCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="commentTreeWalkerCache"  
+     	p:maxElementsInMemory="1000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />	
+     		
+	<beans:bean id="commentService" class="architecture.community.comment.CommunityCommentService"  />	
+		
+				
+</beans:beans> 

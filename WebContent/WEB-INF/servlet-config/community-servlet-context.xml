@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: 서블릿의 요청 처리를 위한 것들을 정의 -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->		
+	<mvc:view-controller path="/index.html" view-name="index"/>
+
+	<!-- 이미지, 자바스클립트, CSS 와 같은 정적 컨텐츠 요청(GET) 을 처리하기 위하여 설정 -->
+	<mvc:resources mapping="/favicon.ico" 	location="/images/ico/favicon.ico" />
+	<mvc:resources mapping="/images/**" 	location="/images/" />
+	<mvc:resources mapping="/assets/**" 	location="/assets/" />
+	<mvc:resources mapping="/js/**" 		location="/js/" />
+	<mvc:resources mapping="/fonts/**" 		location="/fonts/" />
+	<mvc:resources mapping="/css/**" 		location="/css/" />
+	<mvc:resources mapping="/html/**" 		location="/html/" />  
+			
+	<!-- 뷰처리 위한 ViewResolver 정의  -->
+	<beans:bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<beans:property name="order" value="0"/>
+	</beans:bean>
+	
+	<beans:bean id="freeMarkerViewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver" >
+		<beans:property name="order" value="0"/>
+	    <beans:property name="cache" value="true"/>
+	    <beans:property name="prefix" value=""/>
+	    <beans:property name="suffix" value=".ftl"/>
+	    <beans:property name="viewClass" value="architecture.community.web.spring.freemarker.CommunityFreeMarkerView" />
+	    <beans:property name="exposeSessionAttributes" value="true" />
+		<beans:property name="requestContextAttribute" value="rc" />
+		<beans:property name="exposeSpringMacroHelpers" value="true" />
+		<beans:property name="exposeRequestAttributes"  value="true" />		
+	</beans:bean>	
+
+    
+    <beans:bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="order" value="1"/>
+        <beans:property name="prefix" value="/WEB-INF/jsp/" />
+    	<beans:property name="suffix" value=".jsp" />
+    </beans:bean>
+    
+    
+    <beans:bean id="htmlViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="order" value="2"/>
+        <beans:property name="prefix" value="/"/>
+    	<beans:property name="suffix" value=".html" />
+    </beans:bean>
+    
+</beans:beans>
