@@ -1,0 +1,1219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>COMMUNITY_WEB</name>
+	<description>VIEWCOUNT, IMAGE, ATTACHMENT 쿼리</description> 
+	
+	<!-- ==================== -->
+	<!--  MENU		 		 -->
+	<!-- ==================== -->
+
+ 	<sql-query name="CREATE_MENU" description="MENU 생성"><![CDATA[
+	INSERT INTO AC_UI_MENU (
+		MENU_ID,
+		NAME,
+		DESCRIPTION,
+		CREATION_DATE,
+		MODIFIED_DATE
+	) VALUES ( ?, ?, ?, ?, ? )
+    ]]></sql-query>	
+	<sql-query name="UPDATE_MENU" description="MENU 업데이트"><![CDATA[    
+	UPDATE AC_UI_MENU SET 
+		NAME = ?,
+		DESCRIPTION = ?,
+		MODIFIED_DATE = ?		 
+	WHERE MENU_ID = ?
+ 	]]></sql-query> 
+ 	
+	<sql-query name="SELECT_ALL_MENU_IDS" description="모든 MENU 아이디 조회"><![CDATA[
+		SELECT MENU_ID FROM AC_UI_MENU
+    ]]></sql-query>	
+
+	<sql-query name="SELECT_MENU_IDS_BY_REQUEST" description="특정 일자 이전까지 미처리 건수 조회"><![CDATA[
+	SELECT  
+		MENU_ID      	
+	FROM AC_UI_MENU
+	]]><dynamic><![CDATA[    
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list></#if>
+    ]]></dynamic></sql-query>
+    
+
+	<sql-query name="SELECT_MENU_ID_BY_NAME" description="MENU_ID 조회"><![CDATA[
+		SELECT
+		  MENU_ID
+		FROM AC_UI_MENU WHERE NAME = ?
+    ]]></sql-query>	
+    
+	<sql-query name="SELECT_MENU_BY_ID" description="MENU 조회"><![CDATA[
+		SELECT
+		  MENU_ID,
+		  NAME,
+		  DESCRIPTION,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+		FROM AC_UI_MENU WHERE MENU_ID = ?
+    ]]></sql-query>	
+
+	<sql-query name="DELETE_MENU_BY_ID" description="MENU 삭제"><![CDATA[
+		DELETE FROM AC_UI_MENU WHERE MENU_ID = ?
+    ]]></sql-query>		
+
+ 	<sql-query name="CREATE_MENU_ITEM" description="MENU ITEM 생성"><![CDATA[
+	INSERT INTO AC_UI_MENU_ITEM (
+		MENU_ID,
+		PARENT_ID,
+		MENU_ITEM_ID,
+		SORT_ORDER,
+		NAME,
+		DESCRIPTION,
+		PAGE,
+		LINK_URL,
+		ROLES,
+		CREATION_DATE,
+		MODIFIED_DATE
+	) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
+    ]]></sql-query>	
+	<sql-query name="UPDATE_MENU_ITEM" description="MENU ITEM 업데이트"><![CDATA[    
+	UPDATE AC_UI_MENU_ITEM SET 
+	    PARENT_ID = ?,
+	    SORT_ORDER = ?,
+		NAME = ?,
+		DESCRIPTION = ?,
+		PAGE = ?,
+		LINK_URL = ?,
+		ROLES = ?,
+		MODIFIED_DATE = ?		 
+	WHERE MENU_ITEM_ID = ?
+ 	]]></sql-query> 
+ 	
+	<sql-query name="DELETE_MENU_ITEM" description="MENU ITEM 업데이트"><![CDATA[    
+	DELETE FROM AC_UI_MENU_ITEM WHERE MENU_ITEM_ID = ?
+ 	]]></sql-query> 
+ 	 	
+    <sql-query name="SELECT_MENU_ITEM_BY_ID" description="SELECT_MENU_ITEM_BY_ID"><![CDATA[
+	SELECT  
+		MENU_ID,
+		PARENT_ID,
+		MENU_ITEM_ID,
+		SORT_ORDER,
+		NAME,
+		DESCRIPTION,
+		PAGE,
+		LINK_URL,
+		ROLES,
+		CREATION_DATE,
+		MODIFIED_DATE
+	FROM AC_UI_MENU_ITEM 
+	WHERE MENU_ITEM_ID = ?
+    ]]></sql-query>	
+    
+    <sql-query name="SELECT_MENU_ITEMS_BY_MENU_ID" description="SELECT_MENU_ITEMS_BY_MENU_ID"><![CDATA[
+	SELECT  
+		MENU_ID,
+		PARENT_ID,
+		MENU_ITEM_ID,
+		SORT_ORDER,
+		NAME,
+		DESCRIPTION,
+		PAGE,
+		LINK_URL,
+		ROLES,
+		CREATION_DATE,
+		MODIFIED_DATE
+	FROM AC_UI_MENU_ITEM 
+	WHERE MENU_ID = ?
+	ORDER BY MENU_ID , PARENT_ID, SORT_ORDER
+    ]]></sql-query>	
+
+	<sql-query name="COUNT_MENU_ITEM_IDS_BY_MENU_ID" description="MENU ITEM 생성"><![CDATA[
+	SELECT
+		COUNT(MENU_ITEM_ID)
+	FROM AC_UI_MENU_ITEM 
+	WHERE MENU_ID = ?
+    ]]></sql-query>	
+ 
+ 	<sql-query name="SELECT_MENU_ITEM_IDS_BY_MENU_ID_2" description="MENU ITEM 생성"><![CDATA[
+	SELECT
+		MENU_ITEM_ID
+	FROM AC_UI_MENU_ITEM 
+	WHERE MENU_ID = ?
+	ORDER BY MENU_ID , PARENT_ID, SORT_ORDER
+    ]]></sql-query>	
+       
+	<sql-query name="SELECT_MENU_ITEM_IDS_BY_MENU_ID" description="MENU ITEM 생성"><![CDATA[
+	SELECT
+		PARENT_ID,
+		MENU_ITEM_ID,
+		SORT_ORDER
+	FROM AC_UI_MENU_ITEM 
+	WHERE MENU_ID = ?
+	ORDER BY MENU_ID , PARENT_ID, SORT_ORDER
+    ]]></sql-query>	
+        
+    <sql-query name="SELECT_MENU_ITEM_IDS_BY_MENU_ID_AND_REQUEST" description="SELECT_MENU_ITEM_IDS_BY_MENU_ID_AND_REQUEST"><![CDATA[
+	SELECT  
+		MENU_ITEM_ID      	
+	FROM AC_UI_MENU_ITEM
+	WHERE MENU_ID = ?
+	]]><dynamic><![CDATA[    
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list></#if>
+    ]]></dynamic></sql-query>
+    
+    
+    <sql-query name="SELECT_ALL_API_PATTERN_AND_ID" description="SELECT_ALL_API_PATTERN_AND_ID"><![CDATA[
+	SELECT API_ID , PATTERN 
+	FROM AC_UI_API 
+	WHERE PATTERN IS NOT NULL
+	]]></sql-query> 
+	
+	<!-- ==================== -->
+	<!--  VIEW  COUNT 		 -->
+	<!-- ==================== -->
+	<sql-query name="COUNT_VIEWCOUNT_BY_REQUEST" description="COUNT_VIEWCOUNT_BY_REQUEST"><![CDATA[
+	-- COUNT_VIEWCOUNT_BY_REQUEST
+	SELECT 
+		COUNT( * )
+	FROM AC_UI_VIEWCOUNT 
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list>
+	</#if>
+    ]]></dynamic></sql-query>
+
+	<sql-query name="SELECT_VIEWCOUNT_REQUEST" description="SELECT_VIEWCOUNT_REQUEST"><![CDATA[
+	-- SELECT_VIEWCOUNT_BY_REQUEST
+	SELECT 
+		T2.NAME, T2.DISPLAY_NAME, ENTITY_TYPE, ENTITY_ID , VIEWCOUNT 
+	FROM AC_UI_VIEWCOUNT 
+    LEFT JOIN AC_UI_SEQUENCER T2 
+    ON T2.SEQUENCER_ID = ENTITY_TYPE
+    ]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list></#if>
+    ]]></dynamic></sql-query>
+    
+	<sql-query name="VIEW_COUNT_BY_ENTITY_TYPE_AND_ENTITY_ID" description="VIEW_COUNT_BY_ENTITY_TYPE_AND_ENTITY_ID"><![CDATA[
+	SELECT 
+		VIEWCOUNT FROM AC_UI_VIEWCOUNT 
+	WHERE ENTITY_TYPE = ? AND ENTITY_ID = ? 
+	]]></sql-query>		
+	
+	<sql-query name="DELETE_VIEW_COUNT" description="DELETE_VIEW_COUNT"><![CDATA[
+	DELETE FROM AC_UI_VIEWCOUNT 
+	WHERE ENTITY_TYPE = ? AND ENTITY_ID = ? 
+	]]></sql-query>	
+	
+	<sql-query name="UPDATE_VIEW_COUNT" description="UPDATE_VIEW_COUNT"><![CDATA[
+	UPDATE  
+		AC_UI_VIEWCOUNT SET VIEWCOUNT = ?
+	WHERE ENTITY_TYPE = ? AND ENTITY_ID = ? 
+	]]></sql-query>	
+	
+	<sql-query name="CREATE_VIEW_COUNT"  description="CREATE_VIEW_COUNT"><![CDATA[
+	INSERT INTO AC_UI_VIEWCOUNT ( ENTITY_TYPE, ENTITY_ID, VIEWCOUNT )  VALUES (?, ?, ?)
+	]]></sql-query>	
+	
+ 
+	<!-- ==================== -->
+	<!--  USER AVATAR 		  -->
+	<!-- ==================== -->	
+	
+	<sql-query name="DELETE_AVATAR_IMAGE_BY_ID" description=""><![CDATA[
+	DELETE FROM AC_UI_AVATAR_IMAGE  
+	WHERE AVATAR_IMAGE_ID = ?
+	]]></sql-query>       
+
+	<sql-query name="DELETE_AVATAR_IMAGE_DATA_BY_ID" description=""><![CDATA[
+	DELETE FROM AC_UI_AVATAR_IMAGE_DATA  
+	WHERE AVATAR_IMAGE_ID = ?	
+	]]></sql-query>
+	
+	<sql-query name="INSERT_AVATAR_IMAGE" description=""><![CDATA[
+	INSERT INTO AC_UI_AVATAR_IMAGE (
+		AVATAR_IMAGE_ID,
+		USER_ID,
+		FILE_NAME,
+		FILE_SIZE,
+		CONTENT_TYPE,
+		CREATION_DATE,
+		MODIFIED_DATE
+	) VALUES ( ?,?,?,?,?,?,? )
+		
+	]]></sql-query>
+	
+	<sql-query name="INSERT_EMPTY_AVATAR_IMAGE_DATA" description=""><![CDATA[
+	INSERT INTO AC_UI_AVATAR_IMAGE_DATA (AVATAR_IMAGE_ID, AVATAR_IMAGE_DATA) VALUES (?, EMPTY_BLOB())
+	]]></sql-query>
+	
+	<sql-query name="INSERT_AVATAR_IMAGE_DATA" description=""><![CDATA[
+	INSERT AC_UI_AVATAR_IMAGE_DATA  (AVATAR_IMAGE_ID, AVATAR_IMAGE_DATA) VALUES (?, ?)
+	]]></sql-query>
+	
+	<sql-query name="UPDATE_AVATAR_IMAGE_DATA" description=""><![CDATA[
+	UPDATE AC_UI_AVATAR_IMAGE_DATA SET AVATAR_IMAGE_DATA = ? WHERE AVATAR_IMAGE_ID = ?
+	]]></sql-query>
+	
+	<sql-query name="SELECT_PRIMARY_AVATAR_IMAGE_ID_BY_USER" description=""><![CDATA[
+	SELECT 
+		AVATAR_IMAGE_ID
+	FROM AC_UI_AVATAR_IMAGE 
+	WHERE 
+		PRIMARY_IMAGE = 1 AND
+		USER_ID = ?			
+	]]></sql-query>	
+			
+	<sql-query name="SELECT_AVATAR_IMAGE_BY_ID" description=""><![CDATA[
+	SELECT 
+		AVATAR_IMAGE_ID,
+		USER_ID,
+		PRIMARY_IMAGE,
+		FILE_NAME,
+		FILE_SIZE,
+		CONTENT_TYPE,
+		CREATION_DATE,
+		MODIFIED_DATE	
+	FROM AC_UI_AVATAR_IMAGE WHERE AVATAR_IMAGE_ID = ?	
+	]]></sql-query>						
+
+	<sql-query name="SELECT_AVATAR_IMAGE_IDS_BY_USER" description=""><![CDATA[
+	SELECT AVATAR_IMAGE_ID FROM AC_UI_AVATAR_IMAGE WHERE USER_ID = ?
+	]]></sql-query>		
+	
+	<sql-query name="COUNT_AVATAR_IMAGE_BY_USER" description=""><![CDATA[
+	SELECT COUNT(AVATAR_IMAGE_ID) FROM AC_UI_AVATAR_IMAGE WHERE USER_ID = ?
+	]]></sql-query>			
+
+	<sql-query name="SELECT_AVATAR_IMAGE_DATA_BY_ID" description=""><![CDATA[
+	SELECT AVATAR_IMAGE_DATA FROM AC_UI_AVATAR_IMAGE_DATA WHERE AVATAR_IMAGE_ID = ?
+	]]></sql-query>		
+
+	<sql-query name="RESET_AVATAR_IMAGE_BY_USER" description=""><![CDATA[
+	UPDATE AC_UI_AVATAR_IMAGE 
+	SET PRIMARY_IMAGE = 0  
+	WHERE USER_ID = ?
+	]]></sql-query>	
+	 
+	<!-- ==================== -->
+	<!-- ATTACHMENT 		  -->
+	<!-- ==================== -->	
+	<sql-query name="COUNT_ATTACHMENT_BY_REQUEST" description="COUNT_ATTACHMENT_BY_REQUEST"><![CDATA[
+	-- COUNT_ATTACHMENT_BY_REQUEST
+	SELECT 
+		COUNT( ATTACHMENT_ID )
+	FROM AC_UI_ATTACHMENT 
+	]]><dynamic><![CDATA[    
+	<#if data.tags?? && (data.tags?size > 0) >
+	INNER JOIN AC_UI_OBJECT_TAG T2 
+	ON T2.OBJECT_TYPE = ( SELECT  SEQUENCER_ID FROM AC_UI_SEQUENCER WHERE NAME = 'IMAGE' )
+	AND T2.OBJECT_ID = IMAGE_ID
+	AND T2.TAG_ID IN (
+	<#list data.tags as tag >
+	${tag}<#if tag?is_last == false >,</#if>
+	</#list>
+	)
+	</#if>	
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>
+    ]]></dynamic></sql-query> 
+    
+	<sql-query name="SELECT_ATTACHMENT_IDS_BY_REQUEST" description="SELECT_ATTACHMENT_IDS_BY_REQUEST"><![CDATA[
+	-- SELECT_ATTACHMENT_IDS_BY_REQUEST
+	SELECT 
+		ATTACHMENT_ID
+	FROM AC_UI_ATTACHMENT 
+	]]><dynamic><![CDATA[
+	<#if data.tags?? && (data.tags?size > 0) >
+	INNER JOIN AC_UI_OBJECT_TAG T2 
+	ON T2.OBJECT_TYPE = ( SELECT  SEQUENCER_ID FROM AC_UI_SEQUENCER WHERE NAME = 'IMAGE' )
+	AND T2.OBJECT_ID = IMAGE_ID
+	AND T2.TAG_ID IN (
+	<#list data.tags as tag >
+	${tag}<#if tag?is_last == false >,</#if>
+	</#list>
+	)
+	</#if>	
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>
+    ]]></dynamic></sql-query>
+     
+	
+	<sql-query name="SELECT_ALL_ATTACHMENTS" description="전체 첨부파일 조회"><![CDATA[    
+    SELECT 
+		ATTACHMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		CONTENT_TYPE,
+		FILE_NAME,
+		FILE_SIZE,
+		USER_ID,
+		CREATION_DATE,
+		MODIFIED_DATE
+    FROM 
+    	AC_UI_ATTACHMENT
+    ]]></sql-query>
+    
+	<sql-query name="SELECT_ATTACHMENT_BY_ID" description="ID로 첨부파일  조회"><![CDATA[    
+    SELECT 
+		ATTACHMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		CONTENT_TYPE,
+		FILE_NAME,
+		FILE_SIZE,
+		USER_ID,
+		CREATION_DATE,
+		MODIFIED_DATE
+    FROM 
+    	AC_UI_ATTACHMENT
+    WHERE 
+    	ATTACHMENT_ID = ?	    
+    ]]></sql-query>
+	<sql-query name="SELECT_ATTACHMENT_BY_OBJECT_TYPE_AND_OBJECT_ID" description="OBJECT_TYPE 와 OBJECT_ID 값으로 첨부파일  조회"><![CDATA[    
+    SELECT 
+		ATTACHMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		CONTENT_TYPE,
+		FILE_NAME,
+		FILE_SIZE,
+		USER_ID,
+		CREATION_DATE,
+		MODIFIED_DATE
+    FROM 
+    	AC_UI_ATTACHMENT
+    WHERE 
+    	OBJECT_TYPE = ?	AND
+    	OBJECT_ID = ?
+    ]]></sql-query>
+	<sql-query name="SELECT_ATTACHMENT_DATA_BY_ID" description="ID 값으로 첨부파일 데이터 조회"><![CDATA[    
+    SELECT 
+		ATTACHMENT_ID,
+		ATTACHMENT_DATA
+    FROM 
+    	AC_UI_ATTACHMENT_DATA
+    WHERE 
+    	ATTACHMENT_ID = ?
+    ]]></sql-query>
+	<sql-query name="INSERT_ATTACHMENT" description="첨부파일  생성"><![CDATA[    
+    INSERT INTO AC_UI_ATTACHMENT (
+		ATTACHMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		CONTENT_TYPE,
+		FILE_NAME,
+		FILE_SIZE,
+		USER_ID,
+		CREATION_DATE,
+		MODIFIED_DATE
+	) VALUES ( 	?,?,?,?,?,?,?,?, ? )
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_ATTACHMENT" description="첨부파일  생성"><![CDATA[    
+    UPDATE AC_UI_ATTACHMENT SET 		
+		OBJECT_TYPE = ?,
+		OBJECT_ID = ?,
+		CONTENT_TYPE = ?,
+		FILE_NAME = ?,
+		FILE_SIZE = ?,
+		CREATION_DATE = ?,
+		MODIFIED_DATE = ?
+	WHERE ATTACHMENT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_ATTACHMENT" description="첨부파일  삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_ATTACHMENT WHERE ATTACHMENT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="SELECT_ATTACHMENT_IDS" description="첨부파일 아이디 조회"><![CDATA[    
+ 		SELECT ATTACHMENT_ID FROM  AC_UI_ATTACHMENT_DATA
+    ]]></sql-query>
+
+	<sql-query name="CREATE_EMPTY_ATTACHMENT_DATA" description="첨부파일 데이터 생성"><![CDATA[    
+ 		INSERT INTO AC_UI_ATTACHMENT_DATA (ATTACHMENT_ID, ATTACHMENT_DATA) VALUES (?, EMPTY_BLOB())
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_ATTACHMENT_DATA" description="첨부파일 데이터 업데이트"><![CDATA[    
+ 		UPDATE AC_UI_ATTACHMENT_DATA  SET ATTACHMENT_DATA = ? WHERE ATTACHMENT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="CREATE_ATTACHMENT_DATA" description="첨부파일 데이터 생성"><![CDATA[    
+ 		INSERT AC_UI_ATTACHMENT_DATA  (ATTACHMENT_ID, ATTACHMENT_DATA) VALUES (?, ?)
+    ]]></sql-query>
+
+	<sql-query name="SELECT_ATTACHMENT_DATA_BY_ID" description="첨부파일 데이터 조회"><![CDATA[    
+ 		SELECT ATTACHMENT_DATA FROM AC_UI_ATTACHMENT_DATA WHERE ATTACHMENT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_ATTACHMENT_DATA_BY_ID" description="첨부파일 데이터 삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_ATTACHMENT_DATA WHERE ATTACHMENT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_ALL_ATTACHMENT_DATAS" description="전체 첨부파일 데이터 삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_ATTACHMENT_DATA
+    ]]></sql-query>
+
+	<sql-query name="SELECT_ATTACHMENT_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID" description="전체 첨부파일 수 조회"><![CDATA[    
+	SELECT ATTACHMENT_ID FROM AC_UI_ATTACHMENT        
+	WHERE OBJECT_TYPE = ?	AND OBJECT_ID = ?
+    ]]></sql-query>
+    
+	<sql-query name="COUNT_ATTACHMENT_BY_OBJECT_TYPE_AND_OBJECT_ID" description="전체 첨부파일 수 조회"><![CDATA[    
+	SELECT COUNT(ATTACHMENT_ID)
+	FROM AC_UI_ATTACHMENT        
+	WHERE 
+    	OBJECT_TYPE = ?	AND OBJECT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="USAGE_ATTACHMENT_BY_OBJECT_TYPE_AND_OBJECT_ID" description="OBJECT_TYPE 와 OBJECT_ID 해당 이미지 크기 조회"><![CDATA[    
+	SELECT SUM(FILE_SIZE) FROM AC_UI_ATTACHMENT
+	WHERE 
+		OBJECT_TYPE = ?	AND OBJECT_ID = ?
+	]]></sql-query>
+	
+	<!-- ==================== -->
+	<!-- IMAGE 				 -->
+	<!-- ==================== -->
+	<sql-query name="COUNT_IMAGE_BY_REQUEST" description="COUNT_IMAGE_BY_REQUEST"><![CDATA[
+	-- COUNT_IMAGE_BY_REQUEST
+	SELECT 
+		COUNT( IMAGE_ID )
+	FROM AC_UI_IMAGE 
+	]]><dynamic><![CDATA[
+	<#if data.tags?? && (data.tags?size > 0) >
+	INNER JOIN AC_UI_OBJECT_TAG T2 
+	ON T2.OBJECT_TYPE = ( SELECT  SEQUENCER_ID FROM AC_UI_SEQUENCER WHERE NAME = 'IMAGE' )
+	AND T2.OBJECT_ID = IMAGE_ID
+	AND T2.TAG_ID IN (
+	<#list data.tags as tag >
+	${tag}<#if tag?is_last == false >,</#if>
+	</#list>
+	)
+	</#if>
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if data.objectType?? && data.objectId?? && (data.objectId > 0) >
+	<#if filter?? && ( filter.filters?size > 0 ) ><#else>WHERE</#if>
+	OBJECT_TYPE = ${data.objectType} AND OBJECT_ID = ${data.objectId}
+	</#if>
+    ]]></dynamic></sql-query>
+
+	<sql-query name="SELECT_IMAGE_IDS_BY_REQUEST" description="SELECT_IMAGE_IDS_BY_REQUEST"><![CDATA[
+	-- SELECT_IMAGE_IDS_BY_REQUEST
+	SELECT 
+		IMAGE_ID
+	FROM AC_UI_IMAGE 
+	]]><dynamic><![CDATA[  
+	<#if data.tags?? && (data.tags?size > 0) >
+	INNER JOIN AC_UI_OBJECT_TAG T2 
+	ON T2.OBJECT_TYPE = ( SELECT  SEQUENCER_ID FROM AC_UI_SEQUENCER WHERE NAME = 'IMAGE' )
+	AND T2.OBJECT_ID = IMAGE_ID
+	AND T2.TAG_ID IN (
+	<#list data.tags as tag >
+	${tag}<#if tag?is_last == false >,</#if>
+	</#list>
+	)
+	</#if>
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if data.objectType?? && data.objectId?? && (data.objectId > 0)  >
+	<#if filter?? && ( filter.filters?size > 0 ) ><#else>WHERE</#if>
+	OBJECT_TYPE = ${data.objectType} AND OBJECT_ID = ${data.objectId}
+	</#if>
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY IMAGE_ID DESC </#if>
+	]]></dynamic></sql-query>
+    
+
+	<sql-query name="CREATE_IMAGE" description="ID로 IMAGE 조회"><![CDATA[    
+  		INSERT INTO AC_UI_IMAGE (
+	  		IMAGE_ID,
+			OBJECT_TYPE,
+			OBJECT_ID,
+			FILE_NAME,
+			FILE_SIZE,
+			CONTENT_TYPE,
+			USER_ID,
+			CREATION_DATE,
+			MODIFIED_DATE
+		) VALUES ( ?, ? ,?, ?, ?, ?, ?, ? , ?)
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_IMAGE" description="ID로 IMAGE 조회"><![CDATA[    
+  		UPDATE AC_UI_IMAGE SET
+	  		OBJECT_TYPE = ?,
+			OBJECT_ID = ?,
+			FILE_NAME = ?,
+			FILE_SIZE = ?,
+			CONTENT_TYPE = ?,
+			MODIFIED_DATE = ?
+		WHERE IMAGE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="SELECT_IMAGE_BY_ID" description="ID로 IMAGE 조회"><![CDATA[    
+  		SELECT
+	  		IMAGE_ID,
+			OBJECT_TYPE,
+			OBJECT_ID,
+			FILE_NAME,
+			FILE_SIZE,
+			CONTENT_TYPE,
+			USER_ID,
+			CREATION_DATE,
+			MODIFIED_DATE
+		FROM AC_UI_IMAGE WHERE IMAGE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_IMAGE_BY_ID" description="IMAGE  삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_IMAGE WHERE IMAGE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="CREATE_EMPTY_IMAGE_DATA" description="IMAGE 데이터 생성"><![CDATA[    
+ 		INSERT INTO AC_UI_IMAGE_DATA (IMAGE_ID, IMAGE_DATA) VALUES (?, EMPTY_BLOB())
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_IMAGE_DATA" description="IMAGE 데이터 생성"><![CDATA[    
+ 		UPDATE AC_UI_IMAGE_DATA  SET IMAGE_DATA = ? WHERE IMAGE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="CREATE_IMAGE_DATA" description="IMAGE 데이터 생성"><![CDATA[    
+ 		INSERT AC_UI_IMAGE_DATA (IMAGE_ID, IMAGE_DATA) VALUES (?, ?)
+    ]]></sql-query>
+
+	<sql-query name="SELECT_IMAGE_DATA_BY_ID" description="IMAGE 데이터 조회"><![CDATA[    
+ 		SELECT IMAGE_DATA FROM AC_UI_IMAGE_DATA WHERE IMAGE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_IMAGE_DATA_BY_ID" description="IMAGE 데이터 삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_IMAGE_DATA WHERE IMAGE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="SELECT_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="OBJECT_TYPE 와 OBJECT_ID 값으로 이미지  조회"><![CDATA[    
+    SELECT 
+	  		IMAGE_ID,
+			OBJECT_TYPE,
+			OBJECT_ID,
+			FILE_NAME,
+			FILE_SIZE,
+			CONTENT_TYPE,
+			USER_ID,
+			CREATION_DATE,
+			MODIFIED_DATE
+    FROM 
+    	AC_UI_IMAGE
+    WHERE 
+    	OBJECT_TYPE = ?	AND OBJECT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="SELECT_IMAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="OBJECT_TYPE 와 OBJECT_ID 값으로 이미지  아이디 조회"><![CDATA[    
+    SELECT 
+	  		IMAGE_ID
+    FROM 
+    	AC_UI_IMAGE
+    WHERE 
+    	OBJECT_TYPE = ?	AND OBJECT_ID = ?
+    order by MODIFIED_DATE desc	
+    ]]></sql-query>
+
+	<sql-query name="COUNT_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="OBJECT_TYPE 와 OBJECT_ID 해당 이미지 수 조회"><![CDATA[    
+	SELECT COUNT(IMAGE_ID)
+	FROM AC_UI_IMAGE        
+	WHERE 
+    	OBJECT_TYPE = ?	AND OBJECT_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="USAGE_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="OBJECT_TYPE 와 OBJECT_ID 해당 이미지 크기 조회"><![CDATA[    
+	SELECT SUM(FILE_SIZE)
+	FROM AC_UI_IMAGE
+	WHERE 
+		OBJECT_TYPE = ?	AND OBJECT_ID = ?
+	]]></sql-query>
+
+    <sql-query name="UPDATE_IMAGE_OBJECT_TYPE_AND_OBJECT_ID" description="UPDATE_IMAGE_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+    -- UPDATE_IMAGE_OBJECT_TYPE_AND_OBJECT_ID
+    
+  	UPDATE AC_UI_IMAGE SET
+	  	OBJECT_TYPE = ?,
+		OBJECT_ID = ?
+	WHERE IMAGE_ID = ?
+    ]]></sql-query>
+
+
+	<!-- ==================== -->
+	<!--  IMAGE LINK 		  -->
+	<!-- ==================== -->
+	<sql-query name="SELECT_IMAGE_LINK_BY_LINK_ID" description="SELECT_IMAGE_LINK_BY_LINK_ID"><![CDATA[    
+	SELECT 
+		LINK_ID,
+		IMAGE_ID,
+		PUBLIC_SHARED
+	FROM AC_UI_IMAGE_LINK 
+	WHERE LINK_ID = ? 
+    ]]></sql-query>
+
+	<sql-query name="SELECT_IMAGE_LINK_BY_IMAGE_ID" description="SELECT_IMAGE_LINK_BY_IMAGE_ID"><![CDATA[    
+	SELECT 
+		LINK_ID,
+		IMAGE_ID,
+		PUBLIC_SHARED
+	FROM AC_UI_IMAGE_LINK 
+	WHERE IMAGE_ID = ? 	
+    ]]></sql-query>
+
+	<sql-query name="INSERT_IMAGE_LINK" description="INSERT_IMAGE_LINK"><![CDATA[    
+	INSERT INTO AC_UI_IMAGE_LINK (
+		LINK_ID,
+		IMAGE_ID,
+		PUBLIC_SHARED
+	) VALUES ( ?, ? ,? )	
+    ]]></sql-query>
+    
+	<sql-query name="UPDATE_IMAGE_LINK" description="UPDATE_IMAGE_LINK"><![CDATA[    
+	-- UPDATE_IMAGE_LINK
+  		UPDATE AC_UI_IMAGE_LINK SET PUBLIC_SHARED = ?
+		WHERE IMAGE_ID = ?
+    ]]></sql-query>
+    
+	<sql-query name="DELETE_IMAGE_LINK_BY_LINK_ID" description="DELETE_IMAGE_LINK_BY_LINK_ID"><![CDATA[    
+	DELETE FROM AC_UI_IMAGE_LINK WHERE LINK_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_IMAGE_LINK_BY_IMAGE_ID" description="DELETE_IMAGE_LINK_BY_IMAGE_ID"><![CDATA[    
+	DELETE FROM AC_UI_IMAGE_LINK WHERE IMAGE_ID = ?
+    ]]></sql-query>
+    
+	<!-- ==================== -->
+	<!-- SHARED LINK          -->
+	<!-- ==================== -->
+	
+	<sql-query name="INSERT_SHARED_LINK"
+		description="INSERT_SHARED_LINK"><![CDATA[
+	-- INSERT_SHARED_LINK
+	INSERT INTO AC_UI_SHARED_LINK (LINK_ID, OBJECT_TYPE, OBJECT_ID, PUBLIC_SHARED )
+	VALUES (?,?,?,?)
+	]]></sql-query>	
+	
+	
+	<sql-query name="SELECT_SHARED_LINK_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="SELECT_SHARED_LINK_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+	-- SELECT_SHARED_LINK_BY_OBJECT_TYPE_AND_OBJECT_ID
+	SELECT 
+	LINK_ID, OBJECT_TYPE, OBJECT_ID, PUBLIC_SHARED
+	FROM AC_UI_SHARED_LINK
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
+	]]></sql-query>	
+	
+	<sql-query name="SELECT_SHARED_LINK_BY_LINK_ID"
+		description="SELECT_SHARED_LINK_BY_LINK_ID"><![CDATA[
+	-- SELECT_SHARED_LINK_BY_LINK_ID
+	SELECT 
+	LINK_ID, OBJECT_TYPE, OBJECT_ID, PUBLIC_SHARED
+	FROM AC_UI_SHARED_LINK
+	WHERE LINK_ID = ?
+	]]></sql-query>	
+
+	<sql-query name="DELETE_SHARED_LINK_BY_LINK_ID"
+		description="DELETE_SHARED_LINK_BY_LINK_ID"><![CDATA[
+	-- DELETE_SHARED_LINK_BY_LINK_ID
+	DELETE FROM AC_UI_SHARED_LINK WHERE LINK_ID = ?	
+	]]></sql-query>	
+	
+	<sql-query name="DELETE_SHARED_LINK_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="DELETE_SHARED_LINK_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+	-- DELETE_SHARED_LINK_BY_OBJECT_TYPE_AND_OBJECT_ID
+	DELETE FROM AC_UI_SHARED_LINK WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
+	]]></sql-query>	
+				
+	<!-- ==================== -->
+	<!-- LOGO 				  -->
+	<!-- ==================== -->
+	<sql-query name="RESET_LOGO_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="RESET_LOGO_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[    	
+	UPDATE REP_LOGO 
+	SET PRIMARY_IMAGE = 0  
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
+	]]></sql-query>
+	<sql-query name="CREATE_LOGO_IMAGE" description="CREATE_LOGO_IMAGE"><![CDATA[
+		INSERT INTO REP_LOGO (
+			LOGO_ID,
+			OBJECT_TYPE,
+			OBJECT_ID,
+			PRIMARY_IMAGE,
+			FILE_NAME,
+			FILE_SIZE,
+			CONTENT_TYPE,
+			CREATION_DATE,
+			MODIFIED_DATE
+		) VALUES (
+			?, ?, ?, ?, ?, ?, ?, ?, ?
+		)
+	]]></sql-query>
+	<sql-query name="UPDATE_LOGO_IMAGE" description="UPDATE_LOGO_IMAGE"><![CDATA[
+		UPDATE REP_LOGO SET
+			OBJECT_TYPE = ?,
+			OBJECT_ID = ?,
+			PRIMARY_IMAGE = ?,
+			FILE_NAME = ?,
+			FILE_SIZE = ?,
+			CONTENT_TYPE = ?,
+			MODIFIED_DATE = ?
+		WHERE
+			LOGO_ID = ?	
+	]]></sql-query>
+	<sql-query name="DELETE_LOGO_IMAGE_DATA_BY_ID" description="DELETE_LOGO_IMAGE_DATA_BY_ID"><![CDATA[    	
+	DELETE FROM REP_LOGO_DATA
+	WHERE
+		LOGO_ID = ?	
+	]]></sql-query>
+	<sql-query name="INSERT_EMPTY_LOGO_IMAGE_DATA" description="INSERT_EMPTY_LOGO_IMAGE_DATA"><![CDATA[    	
+	INSERT INTO REP_LOGO_DATA (LOGO_ID, LOGO_DATA) VALUES (?, EMPTY_BLOB())
+	]]></sql-query>
+	<sql-query name="UPDATE_LOGO_IMAGE_DATA" description="UPDATE_LOGO_IMAGE_DATA"><![CDATA[    	
+		UPDATE REP_LOGO_DATA
+		SET 
+			LOGO_DATA = ?
+		WHERE
+			LOGO_ID = ?	
+	]]></sql-query>
+	<sql-query name="INSERT_LOGO_IMAGE_DATA" description="INSERT_LOGO_IMAGE_DATA"><![CDATA[    	
+	INSERT INTO REP_LOGO_DATA ( LOGO_ID, LOGO_DATA ) VALUES (?, ?)
+	]]></sql-query>
+	<sql-query name="DELETE_LOGO_IMAGE_BY_ID" description="DELETE_LOGO_IMAGE_BY_ID"><![CDATA[    	
+	DELETE FROM REP_LOGO
+	WHERE
+		LOGO_ID = ?	
+	]]></sql-query>
+	<sql-query name="SELECT_LOGO_IMAGE_DATA_BY_ID" description="SELECT_LOGO_IMAGE_DATA_BY_ID"><![CDATA[    	
+	SELECT LOGO_DATA FROM REP_LOGO_DATA WHERE LOGO_ID = ?	
+	]]></sql-query>
+	<sql-query name="SELECT_PRIMARY_LOGO_IMAGE_ID_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="SELECT_PRIMARY_LOGO_IMAGE_ID_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[ 
+	SELECT LOGO_ID 
+	FROM REP_LOGO 
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ? AND  PRIMARY_IMAGE = 1	
+	]]></sql-query>
+	<sql-query name="SELECT_LOGO_IMAGE_BY_ID" description="SELECT_LOGO_IMAGE_BY_ID"><![CDATA[    	
+	SELECT 
+		LOGO_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		PRIMARY_IMAGE,
+		FILE_NAME,
+		FILE_SIZE,
+		CONTENT_TYPE,
+		CREATION_DATE,
+		MODIFIED_DATE
+	FROM REP_LOGO 	
+	WHERE LOGO_ID = ?	
+	]]></sql-query>
+	<sql-query name="SELECT_LOGO_IMAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="SELECT_LOGO_IMAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[    	
+	SELECT 
+		LOGO_ID 
+	FROM REP_LOGO 
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
+	]]></sql-query>
+	<sql-query name="COUNT_LOGO_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"
+		description="COUNT_LOGO_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[    	
+	SELECT 
+		COUNT(LOGO_ID)
+	FROM REP_LOGO 
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
+	]]></sql-query>
+ 
+ 
+
+	<!--  ====================================  -->
+	<!--  TAG						 		   -->
+	<!--  ====================================  -->
+
+ 	<sql-query name="SELECT_CONTENT_TAGS" description="SELECT_CONTENT_TAG_IDS"><![CDATA[    	
+  	SELECT 
+		TAG_ID,
+		TAG_NAME,
+		CREATION_DATE
+	 FROM AC_UI_TAG    
+ 	]]><dynamic><![CDATA[    	
+	<#compress>
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item.logic??>${item.logic}</#if> ${item.field} 
+	<#if item.value?? >
+	<#if item.operator == "startswith" && item.value?? > LIKE '${item.value}%'
+	<#elseif item.operator == "eq" > = '${item.value}'
+	<#elseif item.operator == "neq"> != '${item.value}'
+	<#elseif item.operator == "gte"> >= ${item.value}
+	<#elseif item.operator == 'lte'> <= ${item.value}</#if>
+	<#else>
+	<#if item.operator == "eq" > IS NULL <#elseif item.operator == "neq"> IS NOT NULL </#if>
+	</#if>
+ 	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else>
+	ORDER BY CREATION_DATE DESC 	
+	</#if>
+	</#compress>
+ 	 ]]></dynamic>    
+    </sql-query>	
+ 
+ 	<sql-query name="SELECT_TAG_OBJECTS" description="SELECT_TAG_OBJECTS"><![CDATA[    	
+  	SELECT 		
+		OBJECT_TYPE,
+		OBJECT_ID,
+		TAG_ID
+	FROM AC_UI_OBJECT_TAG  
+	]]><dynamic><![CDATA[    	
+	<#compress>
+	WHERE
+	<#if data.tagId??>
+	TAG_ID = ${data.tagId}
+	</#if>
+	<#if filter?? && ( filter.filters?size > 0 ) > 
+	<#list filter.filters as item >
+	<#if item.logic??>${item.logic}</#if> ${item.field} 
+	<#if item.value?? >
+	<#if item.operator == "startswith" && item.value?? > LIKE '${item.value}%'
+	<#elseif item.operator == "eq" > = '${item.value}'
+	<#elseif item.operator == "neq"> != '${item.value}'
+	<#elseif item.operator == "gte"> >= ${item.value}
+	<#elseif item.operator == 'lte'> <= ${item.value}</#if>
+	<#else>
+	<#if item.operator == "eq" > IS NULL <#elseif item.operator == "neq"> IS NOT NULL </#if>
+	</#if>
+ 	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else>
+	ORDER BY CREATION_DATE DESC 	
+	</#if>
+	</#compress>
+ 	 ]]></dynamic>    
+    </sql-query>   	
+	<sql-query name="INSERT_TAG" description="INSERT_TAG"><![CDATA[
+	INSERT INTO AC_UI_OBJECT_TAG (
+		TAG_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		CREATION_DATE
+	) VALUES (?,?,?,?)
+	]]></sql-query>	
+	
+	<sql-query name="DELETE_TAG" description="DELETE_TAG"><![CDATA[
+	DELETE FROM AC_UI_OBJECT_TAG 
+	WHERE OBJECT_TYPE = ?		
+	AND  OBJECT_ID = ?		
+	AND  TAG_ID = ?		
+	]]></sql-query>		
+	
+	<sql-query name="COUNT_TAG" description="COUNT_TAG"><![CDATA[
+	SELECT COUNT(*) 
+	FROM AC_UI_OBJECT_TAG
+	WHERE TAG_ID = ?		 
+	]]></sql-query>	
+	
+	<sql-query name="SELECT_TAG_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID" description="SELECT_TAG_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+	SELECT 
+		TAG_ID
+	FROM AC_UI_OBJECT_TAG
+	WHERE OBJECT_TYPE = ?
+	AND  OBJECT_ID = ?
+	]]></sql-query>			
+	
+	<sql-query name="DELETE_ALL_TAGS_BY_OBJECT_TYPE_AND_OBJECT_ID" description="DELETE_ALL_TAGS_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+	DELETE FROM AC_UI_OBJECT_TAG
+	WHERE OBJECT_TYPE = ?
+	AND  OBJECT_ID = ?
+	]]></sql-query>	
+		
+	
+	<sql-query name="SELECT_CONTENT_TAG_BY_ID" description="SELECT_CONTENT_TAG_BY_ID"><![CDATA[
+	SELECT 
+		TAG_ID,
+		TAG_NAME,
+		CREATION_DATE
+	FROM AC_UI_TAG
+	WHERE TAG_ID = ?
+	]]></sql-query>			
+	
+	<sql-query name="SELECT_CONTENT_TAG_BY_NAME" description="SELECT_CONTENT_TAG_BY_NAME"><![CDATA[
+	SELECT 
+		TAG_ID,
+		TAG_NAME,
+		CREATION_DATE
+	FROM AC_UI_TAG
+	WHERE TAG_NAME = ?
+	]]></sql-query>		
+	
+	<sql-query name="CREATE_CONTENT_TAG" description="CREATE_CONTENT_TAG"><![CDATA[
+	INSERT INTO AC_UI_TAG
+	(
+		TAG_ID,
+		TAG_NAME,
+		CREATION_DATE
+	) VALUES (?,?,?) 
+	]]></sql-query>	
+	
+	<sql-query name="DELETE_CONTENT_TAG" description="DELETE_CONTENT_TAG"><![CDATA[
+	DELETE FROM AC_UI_TAG
+	WHERE TAG_ID = ?
+	]]></sql-query>	 
+	
+	
+
+    <!--  ANNOUNCE -->	
+	<sql-query name="SELECT_ANNOUNCE_BY_ID" description="SELECT_ANNOUNCE_BY_ID"><![CDATA[
+	SELECT 
+		ANNOUNCE_ID,
+		OBJECT_TYPE,
+		OBJECT_ID, 		
+		USER_ID,	 		
+		SUBJECT,
+		BODY,
+		START_DATE,
+		END_DATE,
+		STATUS,
+		CREATION_DATE,
+		MODIFIED_DATE
+	FROM AC_UI_ANNOUNCE
+	WHERE ANNOUNCE_ID = ?
+	]]></sql-query>
+	
+	<sql-query name="UPDATE_ANNOUNCE" description="UPDATE_ANNOUNCE"><![CDATA[
+ 	UPDATE AC_UI_ANNOUNCE SET 		
+		SUBJECT = ?,
+		BODY = ?,
+	  	START_DATE = ?,
+	  	END_DATE = ?,
+		MODIFIED_DATE = ?
+	WHERE ANNOUNCE_ID = ?	
+	]]></sql-query>
+	
+	<sql-query name="INSERT_ANNOUNCE" description="INSERT ANNOUNCE"><![CDATA[
+    INSERT INTO AC_UI_ANNOUNCE (
+		ANNOUNCE_ID,
+		OBJECT_TYPE,
+		OBJECT_ID, 		
+		USER_ID,	 		
+		SUBJECT,
+		BODY,
+		START_DATE,
+		END_DATE,
+		STATUS,
+		CREATION_DATE,
+		MODIFIED_DATE
+	) VALUES ( ?,?,?,?,?,?,?,?,0,?,? )    	
+	]]></sql-query>
+	
+	<sql-query name="DELETE_ANNOUNCE" description="DELETE_ANNOUNCE"><![CDATA[
+	DELETE FROM AC_UI_ANNOUNCE WHERE ANNOUNCE_ID = ?
+	]]></sql-query>		
+		
+	<sql-query name="SELECT_ANNOUNCE_IDS_BY_USER_ID" description="SELECT_ANNOUNCE_IDS_BY_USER_ID"><![CDATA[
+	SELECT ANNOUNCE_ID FROM AC_UI_ANNOUNCE WHERE USER_ID = ? 
+	order by MODIFIED_DATE desc
+	]]></sql-query>		
+	
+	<sql-query name="SELECT_ANNOUNCE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID" description="SELECT_ANNOUNCE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+	SELECT ANNOUNCE_ID FROM AC_UI_ANNOUNCE WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
+	order by MODIFIED_DATE desc
+	]]></sql-query>		
+	
+	<sql-query name="SELECT_ALL_ANNOUNCE_IDS" description="SELECT_ALL_ANNOUNCE_IDS"><![CDATA[
+	SELECT ANNOUNCE_ID FROM AC_UI_ANNOUNCE 
+	order by MODIFIED_DATE desc
+	]]></sql-query>			
+	
+	<sql-query name="COUNT_ANNOUNCE_BY_OBJECT_TYPE_AND_OBJECT_ID" description="COUNT_ANNOUNCE_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+	SELECT COUNT(ANNOUNCE_ID) FROM AC_UI_ANNOUNCE WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
+	]]></sql-query>	
+	
+	<sql-query name="COUNT_ANNOUNCE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_END_DATE" description="COUNT_ANNOUNCE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_END_DATE"><![CDATA[
+	SELECT 
+		COUNT(ANNOUNCE_ID) FROM AC_UI_ANNOUNCE 
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ? AND END_DATE >=  ?
+	]]></sql-query>	
+
+	<sql-query name="COUNT_ANNOUNCE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_START_DATE_AND_END_DATE" description="COUNT_ANNOUNCE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_START_DATE_AND_END_DATE"><![CDATA[
+	SELECT 
+		COUNT(ANNOUNCE_ID) FROM AC_UI_ANNOUNCE 
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ? 
+	AND START_DATE >=  ?
+	AND END_DATE >=  ?
+	]]></sql-query>			
+ 
+    <sql-query name="COUNT_ANNOUNCE_BY_REQUEST" description="COUNT_ANNOUNCE_BY_REQUEST"><![CDATA[
+	SELECT  
+		COUNT(ANNOUNCE_ID)      	
+	FROM AC_UI_ANNOUNCE
+	]]><dynamic><![CDATA[   
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list></#if>
+ 	]]></dynamic></sql-query>	
+    	
+    <sql-query name="SELECT_ANNOUNCE_IDS_BY_REQUEST" description="SELECT_ANNOUNCE_IDS_BY_REQUEST"><![CDATA[
+	SELECT  
+		ANNOUNCE_ID      	
+	FROM AC_UI_ANNOUNCE
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list></#if>
+    ]]></dynamic></sql-query>
+    
+    
+	
+	<!-- ==================== -->
+	<!--  COMMENT 			  -->
+	<!-- ==================== -->
+	<sql-query name="SELECT_COMMENT_BY_ID" description="SELECT_COMMENT_BY_ID"><![CDATA[
+	SELECT
+		COMMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		PARENT_COMMENT_ID,
+		PARENT_OBJECT_TYPE,
+		PARENT_OBJECT_ID,
+		USER_ID,
+		NAME,
+		EMAIL,
+		URL,
+		IP,
+		BODY,
+		STATUS,
+		CREATION_DATE,
+		MODIFIED_DATE
+	FROM AC_UI_COMMENT
+	WHERE 
+		COMMENT_ID = ?
+	]]></sql-query>	
+	
+	<sql-query name="SELECT_COMMENTS_BY_USER" description="SELECT_COMMENTS_BY_USER"><![CDATA[
+	SELECT
+		COMMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		PARENT_COMMENT_ID,
+		PARENT_OBJECT_TYPE,
+		PARENT_OBJECT_ID,
+		USER_ID,
+		NAME,
+		EMAIL,
+		URL,
+		IP,
+		BODY,
+		STATUS,
+		CREATION_DATE,
+		MODIFIED_DATE
+	FROM AC_UI_COMMENT
+	WHERE 
+		USER_ID = ?
+	]]></sql-query>		
+
+	<sql-query name="SELECT_COMMENTS_BY_UPDATED" description="SELECT_COMMENTS_BY_UPDATED"><![CDATA[
+	SELECT
+		COMMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		PARENT_COMMENT_ID,
+		PARENT_OBJECT_TYPE,
+		PARENT_OBJECT_ID,
+		USER_ID,
+		NAME,
+		EMAIL,
+		URL,
+		IP,
+		BODY,
+		STATUS,
+		CREATION_DATE,
+		MODIFIED_DATE
+	FROM AC_UI_COMMENT
+	WHERE 
+		MODIFIED_DATE >= ?
+	]]></sql-query>	
+		
+	<sql-query name="CREATE_COMMENT" description="CREATE_COMMENT"><![CDATA[
+	INSERT INTO AC_UI_COMMENT (
+		COMMENT_ID,
+		OBJECT_TYPE,
+		OBJECT_ID,
+		PARENT_COMMENT_ID,
+		PARENT_OBJECT_TYPE,
+		PARENT_OBJECT_ID,
+		USER_ID,
+		NAME,
+		EMAIL,
+		URL,
+		IP,
+		BODY,
+		STATUS,
+		CREATION_DATE,
+		MODIFIED_DATE
+	) VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)
+	]]></sql-query>	
+		
+	<sql-query name="UPDATE_COMMENT" description="UPDATE_COMMENT"><![CDATA[
+	UPDATE AC_UI_COMMENT SET
+		PARENT_COMMENT_ID = ?,
+		NAME = ?,
+		EMAIL = ?,
+		URL = ?,
+		IP = ?,
+		BODY = ?,
+		STATUS = ?,
+		MODIFIED_DATE = ?
+	WHERE COMMENT_ID = ?		
+	]]></sql-query>	
+	
+	<sql-query name="DELETE_COMMENT" description="UPDATE_COMMENT"><![CDATA[
+	DELETE FROM AC_UI_COMMENT 
+	WHERE COMMENT_ID = ?		
+	]]></sql-query>	
+				
+	<sql-query name="COUNT_COMMENT_BY_OBJECT_TYPE_AND_OBJECT_ID" description="COUNT_COMMENT_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[
+	SELECT COUNT(COMMENT_ID) FROM AC_UI_COMMENT 
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?		
+	]]></sql-query>			
+	
+	<sql-query name="SELECT_ROOT_COMMENT" description="SELECT_ROOT_COMMENT"><![CDATA[
+	SELECT COMMENT_ID, CREATION_DATE FROM AC_UI_COMMENT 
+	WHERE 
+		OBJECT_TYPE = ? AND 
+		OBJECT_ID = ?	AND 
+		( PARENT_COMMENT_ID IS NULL OR PARENT_COMMENT_ID = -1 ) 
+	ORDER BY CREATION_DATE ASC
+	]]></sql-query>			
+	
+	<sql-query name="SELECT_CHILD_COMMENT" description="SELECT_CHILD_COMMENT"><![CDATA[
+	SELECT 
+		COMMENT_ID, PARENT_COMMENT_ID 
+	FROM AC_UI_COMMENT 
+	WHERE 
+		OBJECT_TYPE = ? 
+		AND OBJECT_ID = ?	
+		AND PARENT_COMMENT_ID IS NOT NULL 
+		AND PARENT_COMMENT_ID > 0
+	ORDER BY 
+		CREATION_DATE, 
+		COMMENT_ID ASC	
+	]]></sql-query>	
+	
+    
+    
+    
+</sqlset>	

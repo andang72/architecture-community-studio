@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>COMMUNITY_CUSTOM</name>
+	<description>VIEWCOUNT, IMAGE, ATTACHMENT 쿼리</description> 
+	
+	
+</sqlset>	

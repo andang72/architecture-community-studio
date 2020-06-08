@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>COMMUNITY_PAGE</name>
+	<description>COMMUNITY PAGE SUBSYSTEM QUERIES</description>	
+	
+	<!--  ====================================  -->
+	<!--  PAGE						 		   -->
+	<!--  ====================================  --> 
+	
+	<sql-query name="SELECT_ALL_PATTERN_AND_ID" description="SELECT_ALL_PATTERN_AND_ID"><![CDATA[    	
+ 		SELECT 
+ 			PAGE_ID, PATTERN
+		FROM AC_UI_PAGE
+		WHERE PATTERN IS NOT NULL
+    ]]></sql-query>
+    
+	<sql-query name="COUNT_PAGE_BY_OBJECT_TYPE_AND_OBJECT_ID" description="COUNT_PAGE_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[    	
+ 	SELECT count( PAGE_ID ) FROM AC_UI_PAGE 
+ 	WHERE 
+ 		OBJECT_TYPE = ? 
+ 		AND OBJECT_ID = ?
+    ]]></sql-query>	
+	
+ 	<sql-query name="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID" description="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID"><![CDATA[    	
+ 	SELECT PAGE_ID FROM AC_UI_PAGE 
+ 	WHERE 
+ 		OBJECT_TYPE = ? 
+ 		AND OBJECT_ID = ?
+ 	ORDER BY MODIFIED_DATE DESC	
+    ]]></sql-query>		
+ 	<sql-query name="COUNT_PAGE_BY_OBJECT_TYPE_AND_STATE" description="COUNT_PAGE_BY_OBJECT_TYPE_AND_STATE"><![CDATA[    	
+ 	SELECT COUNT( T1.PAGE_ID ) FROM AC_UI_PAGE T1, AC_UI_PAGE_VERSION T2
+ 	WHERE 
+	    T1.OBJECT_TYPE = ?
+	    AND T2.STATE = ?
+	    AND T1.PAGE_ID = T2.PAGE_ID 
+	    AND T1.VERSION_ID = T2.VERSION_ID	  	
+    ]]></sql-query>	
+	
+ 	<sql-query name="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_STATE" description="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_STATE"><![CDATA[    	
+  	SELECT T1.PAGE_ID FROM AC_UI_PAGE T1, AC_UI_PAGE_VERSION t2
+ 	WHERE 	    
+	    T1.OBJECT_TYPE = ?
+	    AND T2.STATE = ?
+	    AND T1.PAGE_ID = T2.PAGE_ID 
+	    AND T1.VERSION_ID = T2.VERSION_ID	    
+ 	ORDER BY 	T1.MODIFIED_DATE DESC 		
+    ]]></sql-query>		    
+ 
+  	<sql-query name="COUNT_PAGE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_STATE" description="COUNT_PAGE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_STATE"><![CDATA[    	
+ 	SELECT COUNT( T1.PAGE_ID ) FROM AC_UI_PAGE T1, AC_UI_PAGE_VERSION T2
+ 	WHERE 
+	    T1.OBJECT_TYPE = ?
+	    AND T1.OBJECT_ID = ?
+	    AND T2.STATE = ?
+	    AND T1.PAGE_ID = T2.PAGE_ID 
+	    AND T1.VERSION_ID = T2.VERSION_ID	  	
+    ]]></sql-query>	
+ 
+  	<sql-query name="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_STATE" description="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_STATE"><![CDATA[    	
+  	SELECT T1.PAGE_ID FROM AC_UI_PAGE T1, AC_UI_PAGE_VERSION T2
+ 	WHERE 	    
+	    T1.OBJECT_TYPE = ?
+	    AND T2.STATE = ?
+	    AND T1.PAGE_ID = T2.PAGE_ID 
+	    AND T1.VERSION_ID = T2.VERSION_ID	    
+ 	ORDER BY 	T1.MODIFIED_DATE DESC 		
+    ]]></sql-query>		
+    
+  	<sql-query name="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_STATE" description="SELECT_PAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_STATE"><![CDATA[    	
+  	SELECT T1.PAGE_ID FROM AC_UI_PAGE T1, AC_UI_PAGE_VERSION T2
+ 	WHERE 	    
+	    T1.OBJECT_TYPE = ?
+	    AND T1.OBJECT_ID = ?
+	    AND T2.STATE = ?
+	    AND T1.PAGE_ID = T2.PAGE_ID 
+	    AND T1.VERSION_ID = T2.VERSION_ID	    
+ 	ORDER BY 	T1.MODIFIED_DATE DESC 		
+    ]]></sql-query>	
+    
+              
+ 	<sql-query name="CREATE_PAGE" description="CREATE_PAGE"><![CDATA[    	
+		INSERT INTO AC_UI_PAGE (
+			PAGE_ID,
+			OBJECT_TYPE,
+			OBJECT_ID,
+			NAME,
+			PATTERN,
+			VERSION_ID,
+			USER_ID,
+			CREATION_DATE,
+			MODIFIED_DATE
+		) VALUES (
+			?, ?, ?, ?, ?, ?, ?, ?, ?
+		)
+    ]]></sql-query>	
+ 	<sql-query name="UPDATE_PAGE" description="UPDATE_PAGE"><![CDATA[    	
+		UPDATE AC_UI_PAGE
+		SET 
+			PAGE_ID = ?,
+			OBJECT_TYPE = ?,
+			OBJECT_ID = ?,
+			NAME = ?,
+			PATTERN = ?,
+			VERSION_ID = ?,
+			USER_ID = ?,
+			MODIFIED_DATE = ?
+		WHERE
+			PAGE_ID = ?
+    ]]></sql-query>	
+ 	<sql-query name="DELETE_PAGE" description="DELETE_PAGE"><![CDATA[    	
+		DELETE FROM AC_UI_PAGE
+		WHERE
+			PAGE_ID = ?
+    ]]></sql-query>	    
+    
+    <sql-query name="SELECT_PAGE_BY_ID_AND_VERSION" description="SELECT_PAGE_BY_IN_AND_VERSION"><![CDATA[    	
+    	SELECT 
+			p.PAGE_ID,
+			p.OBJECT_TYPE,
+			p.OBJECT_ID,
+			p.NAME,
+			p.VERSION_ID,
+			p.USER_ID,
+			p.CREATION_DATE,
+			pv.MODIFIED_DATE,
+			pv.STATE,
+			pv.TITLE,
+			pv.SUMMARY,
+			pv.TEMPLATE,
+			p.PATTERN,
+			pv.SCRIPT,
+			pv.SECURED
+    	FROM 
+    		AC_UI_PAGE p, AC_UI_PAGE_VERSION pv
+    	WHERE
+    		p.PAGE_ID = ?
+    		AND pv.VERSION_ID = ?
+    		AND p.PAGE_ID = pv.PAGE_ID     
+     ]]></sql-query>	       
+ 	<sql-query name="INSERT_PAGE_VERSION" description="INSERT_PAGE_VERSION"><![CDATA[    	
+ 		INSERT INTO AC_UI_PAGE_VERSION (
+			PAGE_ID,
+			VERSION_ID,
+			STATE,
+			TITLE,
+			SUMMARY,
+			TEMPLATE, 
+			SCRIPT,
+			SECURED,
+			USER_ID,
+			CREATION_DATE,
+			MODIFIED_DATE		
+ 		) VALUES (
+ 			?,?,?,?,?,?,?,?,?,?,?
+ 		)
+    ]]></sql-query>	
+ 	
+ 	<sql-query name="UPDATE_PAGE_VERSION" description="INSERT_PAGE_VERSION"><![CDATA[    	
+ 		UPDATE  AC_UI_PAGE_VERSION 
+		SET
+			STATE = ?,
+			TITLE = ?,
+			SUMMARY = ?,
+			TEMPLATE = ?, 
+			SCRIPT = ?, 
+			SECURED = ?,
+			USER_ID = ?,
+			MODIFIED_DATE = ?		
+ 		WHERE
+ 			PAGE_ID = ? AND VERSION_ID = ?
+    ]]></sql-query>	
+
+ 	<sql-query name="UPDATE_PAGE_STATE" description="UPDATE_PAGE_STATE"><![CDATA[    	
+ 		UPDATE  AC_UI_PAGE_VERSION 
+		SET
+			USER_ID = ?,
+			CREATION_DATE = ?,
+			MODIFIED_DATE = ?,
+			STATE = ?
+ 		WHERE
+ 			PAGE_ID = ? AND VERSION_ID = ?
+    ]]></sql-query>	
+            
+ 	<sql-query name="DELETE_PAGE_VERSIONS" description="DELETE_PAGE_VERSIONS"><![CDATA[    	
+ 		DELETE FROM AC_UI_PAGE_VERSION 
+ 		WHERE
+ 			PAGE_ID = ?
+    ]]></sql-query>	
+
+ 	<sql-query name="SELECT_PAGE_VERSION_IDS" description="SELECT_PAGE_VERSION_IDS"><![CDATA[    	
+ 		SELECT 
+			VERSION_ID	
+ 		FROM AC_UI_PAGE_VERSION 
+ 		WHERE PAGE_ID = ? 
+ 		ORDER BY VERSION_ID DESC
+    ]]></sql-query>	
+ 	     
+ 	<sql-query name="SELECT_PAGE_VERSIONS" description="SELECT_PAGE_VERSIONS"><![CDATA[    	
+ 		SELECT 
+			PAGE_ID,
+			VERSION_ID,
+			STATE,
+			TITLE,
+			SUMMARY,
+			TEMPLATE,
+			SCRIPT,
+			SECURED,
+			USER_ID,
+			CREATION_DATE,
+			MODIFIED_DATE		
+ 		FROM AC_UI_PAGE_VERSION 
+ 		WHERE PAGE_ID = ? 
+ 		ORDER BY VERSION_ID DESC
+    ]]></sql-query>	
+    
+ 	<sql-query name="SELECT_PAGE_PROPERTIES" description="SELECT_PAGE_PROPERTIES"><![CDATA[    	
+ 		SELECT 
+			PROPERTY_NAME,
+			PROPERTY_VALUE 			
+ 		FROM 
+ 			AC_UI_PAGE_PROPERTY 
+  		WHERE 
+ 			PAGE_ID = ? 
+ 			AND 	VERSION_ID = ? 			
+    ]]></sql-query>	   
+    
+ 	<sql-query name="INSERT_PAGE_PROPERTY" description="INSERT_PAGE_PROPERTIES"><![CDATA[    	
+ 		INSERT INTO AC_UI_PAGE_PROPERTY (
+			PAGE_ID,
+			VERSION_ID,
+			PROPERTY_NAME,
+			PROPERTY_VALUE
+ 		) VALUES (
+ 			?,?,?,?
+ 		)
+    ]]></sql-query>	    
+
+ 	<sql-query name="DELETE_PAGE_PROPERTIES" description="DELETE_PAGE_PROPERTY"><![CDATA[    	
+ 		DELETE FROM AC_UI_PAGE_PROPERTY 
+ 		WHERE 
+ 			PAGE_ID = ?
+    ]]></sql-query>	
+    
+ 	<sql-query name="DELETE_PAGE_PROPERTY_BY_NAME" description="DELETE_PAGE_PROPERTY_BY_NAME"><![CDATA[    	
+ 		DELETE FROM AC_UI_PAGE_PROPERTY 
+ 		WHERE 
+ 			PAGE_ID = ? 
+ 			AND 	VERSION_ID = ?
+			AND PROPERTY_NAME = ?
+    ]]></sql-query>	
+
+ 	<sql-query name="UPDATE_PAGE_PROPERTY_BY_NAME" description="UPDATE_PAGE_PROPERTY_BY_NAME"><![CDATA[    	
+ 		UPDATE AC_UI_PAGE_PROPERTY 
+ 		SET  			
+ 			PROPERTY_VALUE = ?
+ 		WHERE 
+ 			PAGE_ID = ? AND
+ 			VERSION_ID = ? AND
+ 			PROPERTY_NAME = ?
+    ]]></sql-query>        
+
+ 	<sql-query name="SELECT_PAGE_ID_BY_NAME" description="SELECT_PAGE_BY_NAME"><![CDATA[    	
+ 		SELECT 
+ 			PAGE_ID
+		FROM AC_UI_PAGE
+ 		WHERE 
+ 			NAME = ?
+    ]]></sql-query>
+    
+ 	<sql-query name="SELECT_PAGE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_TITLE" description="SELECT_PAGE_BY_OBJECT_TYPE_AND_OBJECT_ID_AND_TITLE"><![CDATA[    	
+ 		SELECT 
+ 			p.PAGE_ID
+			v.VERSION_ID
+		FROM AC_UI_PAGE p , AC_UI_PAGE_VERSION v 		 
+ 		WHERE 
+ 			p.PAGE_ID = v.PAGE_ID
+ 			AND p.OBJECT_TYPE = ?
+ 			AND p.OBJECT_ID = ?
+ 			AND v.STATE = 'published'
+ 			AND v.TITLE = ?
+    ]]></sql-query>
+    
+ 	<sql-query name="SELECT_PUBLISHED_PAGE_VERSION_NUMBER" description="SELECT_PUBLISHED_PAGE_VERSION_NUMBER"><![CDATA[    	
+ 		SELECT VERSION_ID FROM AC_UI_PAGE_VERSION 
+ 		WHERE STATE  = 'published' AND PAGE_ID = ? 
+    ]]></sql-query>	
+    
+ 	<sql-query name="SELECT_MAX_ARCHIVED_PAGE_VERSION_NUMBER" description="SELECT_MAX_ARCHIVED_PAGE_VERSION_NUMBER"><![CDATA[    	
+ 		SELECT max(VERSION_ID) FROM AC_UI_PAGE_VERSION 
+ 		WHERE PAGE_ID = ? AND STATE  = 'archived' 	
+    ]]></sql-query>	
+    
+ 	<sql-query name="SELECT_DRAFT_PAGE_VERSIONS" description="SELECT_DRAFT_PAGE_VERSIONS"><![CDATA[    	
+ 		SELECT VERSION_ID FROM AC_UI_PAGE_VERSION 
+ 		WHERE 
+ 			( STATE = 'incomplete' OR STATE = 'approval' OR  STATE = 'rejected' ) 		
+ 			AND PAGE_ID = ?
+    ]]></sql-query>	   
+ 	
+ 	<sql-query name="SELECT_MAX_PAGE_VERSION_NUMBER" description="SELECT_MAX_PAGE_VERSION_NUMBER"><![CDATA[    	
+ 		SELECT max(VERSION_ID) FROM AC_UI_PAGE_VERSION 
+ 		WHERE PAGE_ID = ?
+    ]]></sql-query>	
+
+ 	<sql-query name="UPDATE_PAGE_STATE_TO_ARCHIVED" description="UPDATE_PAGE_STATE_TO_ARCHIVED"><![CDATA[    	
+ 		UPDATE AC_UI_PAGE_VERSION SET STATE = 'archived' 
+ 		WHERE
+ 			PAGE_ID = ?
+ 			AND STATE = 'published' 
+ 			AND VERSION_ID <> ?
+    ]]></sql-query>	    
+    
+ 	<sql-query name="UPDATE_PAGE_VISION_NUMBER" description="UPDATE_PAGE_VISION_NUMBER"><![CDATA[    	
+ 	UPDATE AC_UI_PAGE SET VERSION_ID = ? 
+ 	WHERE PAGE_ID = ?
+    ]]></sql-query>	                    
+
+ 	<sql-query name="SELETE_PAGE_BODY_ID" description="SELETE_PAGE_BODY_ID"><![CDATA[    	
+	 	SELECT
+	 		BODY_ID
+	 	FROM AC_UI_PAGE_BODY_VERSION 
+	 	WHERE  PAGE_ID = ? AND VERSION_ID = ?
+    ]]></sql-query>	
+
+ 	<sql-query name="SELETE_PAGE_BODY_IDS" description="SELETE_PAGE_BODY_IDS"><![CDATA[    	
+	 	SELECT
+	 		BODY_ID
+	 	FROM AC_UI_PAGE_BODY_VERSION 
+	 	WHERE  PAGE_ID = ?
+    ]]></sql-query>	
+
+
+ 	<sql-query name="DELETE_PAGE_ALL_BODY_VERSIONS" description="DELETE_PAGE_BODY_VERSIONS"><![CDATA[    	
+	 	DELETE FROM AC_UI_PAGE_BODY_VERSION 
+	 	WHERE  PAGE_ID = ?
+    ]]></sql-query>	  
+            
+ 	<sql-query name="DELETE_PAGE_BODY_VERSION" description="DELETE_PAGE_BODY_VERSION"><![CDATA[    	
+	 	DELETE FROM AC_UI_PAGE_BODY_VERSION 
+	 	WHERE  PAGE_ID = ? AND VERSION_ID = ?
+    ]]></sql-query>	  
+    
+ 	<sql-query name="DELETE_PAGE_VERSION" description="UPDATE_PAGE_VISION_NUMBER"><![CDATA[    	
+	  	DELETE FROM AC_UI_PAGE_VERSION 
+	 	WHERE  PAGE_ID = ? AND VERSION_ID = ?	
+    ]]></sql-query>	        
+    
+ 	<sql-query name="SELECT_PAGE_BODY" description="SELECT_PAGE_BODY"><![CDATA[    	
+ 		SELECT 
+ 			b.BODY_ID,
+			b.PAGE_ID,
+			b.BODY_TYPE,
+			b.BODY_TEXT 
+		FROM AC_UI_PAGE_BODY b , AC_UI_PAGE_BODY_VERSION bv 		 
+ 		WHERE 
+ 			b.BODY_ID = bv.BODY_ID
+ 			AND bv.PAGE_ID = ? 
+ 			AND bv.VERSION_ID = ?
+    ]]></sql-query>	
+    
+    <sql-query name="UPDATE_PAGE_BODY" description="UPDATE_PAGE_BODY"><![CDATA[    	
+    	UPDATE AC_UI_PAGE_BODY 
+    	SET 
+    		BODY_TYPE = ?,
+    		BODY_TEXT = ?
+    	WHERE 
+    		BODY_ID = ?
+    ]]></sql-query>	
+    
+ 	<sql-query name="INSERT_PAGE_BODY" description="INSERT_PAGE_BODY"><![CDATA[    	
+		INSERT INTO AC_UI_PAGE_BODY (
+			BODY_ID,
+			PAGE_ID,
+			BODY_TYPE,
+			BODY_TEXT
+		)VALUES (
+			?, ? , ?, ?
+		)
+    ]]></sql-query>	
+
+ 	<sql-query name="DELETE_PAGE_BODY" description="DELETE_PAGE_BODY"><![CDATA[    	
+	 	DELETE FROM AC_UI_PAGE_BODY 
+	 	WHERE  BODY_ID = ?
+    ]]></sql-query>	  
+        
+ 	<sql-query name="INSERT_PAGE_BODY_VERSION" description="INSERT_PAGE_BODY_VERSION"><![CDATA[    	
+ 		INSERT INTO AC_UI_PAGE_BODY_VERSION (
+			BODY_ID,
+			PAGE_ID,
+			VERSION_ID 		
+ 		) VALUES (
+ 			? , ? , ?
+ 		)
+    ]]></sql-query> 
+    
+	<!--  ====================================  -->
+	<!--  API						 		   -->
+	<!--  ====================================  -->
+	<sql-query name="SELECT_ALL_API_PATTERN_AND_ID" description="SELECT_ALL_API_PATTERN_AND_ID"><![CDATA[    	
+ 		SELECT 
+ 			API_ID, PATTERN
+		FROM AC_UI_API
+		WHERE PATTERN IS NOT NULL
+    ]]></sql-query>
+    	
+	<sql-query name="COUNT_SERVICE_BY_REQUEST" description="특정 일자 이전까지 미처리 건수 조회"><![CDATA[
+	SELECT  
+		COUNT(API_ID)      	
+	FROM AC_UI_API
+	]]><dynamic><![CDATA[    
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list></#if>
+    ]]></dynamic></sql-query>
+    
+	<sql-query name="SELECT_SERVICE_IDS_BY_REQUEST" description="특정 일자 이전까지 미처리 건수 조회"><![CDATA[
+	SELECT  
+		API_ID      	
+	FROM AC_UI_API
+	]]><dynamic><![CDATA[    
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list></#if>
+    ]]></dynamic></sql-query>    
+    	
+	<sql-query name="SELECT_API_ID_BY_NAME" description="특정 일자 이전까지 미처리 건수 조회"><![CDATA[
+	SELECT  
+		API_ID	
+	FROM AC_UI_API
+	WHERE 
+		API_NAME = ?
+	]]></sql-query>
+	
+	<sql-query name="INSERT_API" description="특정 일자 이전까지 미처리 건수 조회"><![CDATA[
+	INSERT INTO AC_UI_API (
+		OBJECT_TYPE,
+		OBJECT_ID, 
+		API_ID,
+		TITLE,
+		API_NAME,
+		API_VERSION,
+		DESCRIPTION,
+		CONTENT_TYPE,
+		SCRIPT,
+		PATTERN,
+		SECURED,
+		ENABLED,
+		CREATOR_ID,
+		CREATION_DATE,
+		MODIFIED_DATE
+ 		) VALUES (
+ 			?,?,?,?,?,?,?,?,?,?,?,?,?, ?,?
+ 		)
+	]]></sql-query>    
+    
+	<sql-query name="UPDATE_API" description="특정 일자 이전까지 미처리 건수 조회"><![CDATA[
+	UPDATE AC_UI_API SET  
+		TITLE = ?,
+		API_NAME = ?,
+		API_VERSION = ?,
+		DESCRIPTION = ?,
+		CONTENT_TYPE = ?,
+		SCRIPT = ?,
+		PATTERN = ?,
+		SECURED = ?,
+		ENABLED = ?,	
+		MODIFIED_DATE = ?	      	
+	WHERE 
+		API_ID = ?
+	]]></sql-query>    
+	<sql-query name="SELECT_API_BY_ID" description="특정 일자 이전까지 미처리 건수 조회"><![CDATA[
+	SELECT  
+		OBJECT_TYPE,
+		OBJECT_ID,
+		API_ID,
+		TITLE,
+		API_NAME,
+		API_VERSION,
+		DESCRIPTION,
+		CONTENT_TYPE,
+		SCRIPT,
+		PATTERN,
+		SECURED,
+		ENABLED,
+		CREATOR_ID,
+		CREATION_DATE,
+		MODIFIED_DATE     	
+	FROM AC_UI_API
+	WHERE API_ID = ?
+	]]></sql-query>		
+		
+</sqlset>

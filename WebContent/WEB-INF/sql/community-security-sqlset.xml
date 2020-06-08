@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>COMMUNITY_SECURITY</name>
+	<description>AUDIT</description> 
+    	
+	<sql-query name="COUNT_AUDIT_TRAIL_BY_REQUEST" description="COUNT_IMAGE_BY_REQUEST"><![CDATA[
+	-- COUNT_AUDIT_TRAIL_BY_REQUEST
+	SELECT 
+		COUNT( AUD_DATE )
+	FROM AC_UI_AUDIT_TRAIL 
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+    ]]></dynamic></sql-query>
+
+	<sql-query name="SELECT_AUDIT_TRAIL_BY_REQUEST" description="SELECT_IMAGE_IDS_BY_REQUEST"><![CDATA[
+	-- SELECT_AUDIT_TRAIL_BY_REQUEST
+	SELECT * FROM AC_UI_AUDIT_TRAIL 
+	]]><dynamic><![CDATA[  
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY AUD_DATE DESC </#if>
+	]]></dynamic></sql-query>
+    	
+</sqlset>	

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>EXTERNAL_USER</name>
+	<description>
+	외부에 위치한 사용자 정보를 사용하는 경우에 이용.
+	</description>	 
+	
+	<!--  USER ROW MAPPER -->	 
+	<row-mapper name="USER_ROWMAPPER" class="architecture.community.user.UserTemplate" > 
+		<parameterMapping name="userId" column="USER_ID" javaType="long" />	
+		<parameterMapping name="username" column="USERNAME" javaType="string" />	
+		<parameterMapping name="passwordHash" column="PASSWORD_HASH" javaType="string" />	
+		<parameterMapping name="name" column="NAME" javaType="string" />	 
+		<parameterMapping name="nameVisible" column="NAME_VISIBLE" javaType="boolean" />	
+		<parameterMapping name="email" column="EMAIL" javaType="string" />	  
+		<parameterMapping name="emailVisible" column="EMAIL_VISIBLE" javaType="boolean" />	 
+		<parameterMapping name="enabled" column="USER_ENABLED" javaType="boolean" />	 
+		<parameterMapping name="creationDate" column="CREATION_DATE" javaType="date" />
+		<parameterMapping name="modifiedDate" column="MODIFIED_DATE" javaType="date" />
+    </row-mapper> 
+    
+	<sql-query name="SELECT_USER_BY" description="JDBC USERPROVIDER 를 통하여 제공되는 사용자를 조회"><![CDATA[
+	-- SELECT_USER_FROM_PROVIDER
+	SELECT 
+		  USER_ID,
+		  USERNAME,
+		  PASSWORD_HASH,
+		  NAME,
+		  NAME_VISIBLE,
+		  FIRST_NAME,
+		  LAST_NAME,
+		  EMAIL,
+		  EMAIL_VISIBLE,
+		  USER_ENABLED,
+		  STATUS,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+	FROM REP_USER
+    ]]><dynamic><![CDATA[
+	<#if _user??>
+	WHERE 
+	<#if _user.username?? > USERNAME = '${ _user.username }'</#if>
+	<#if _user.email?? > <#if _user.username?? > OR </#if> EMAIL = '${ _user.email }' </#if>
+	</#if>
+    ]]></dynamic></sql-query>
+    
+	<sql-query name="COUNT_USERS_BY_REQUEST" description="사용자 수를 조회"><![CDATA[
+	-- COUNT_USERS_BY_REQUEST
+	SELECT 
+		COUNT( USERNAME )
+	FROM REP_USER 
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>
+    ]]></dynamic></sql-query>
+	
+	<sql-query name="FIND_USERNAMES_BY_REQUEST" description="사용자 USERNAME 를 조회"><![CDATA[
+	-- FIND_USERNAMES_BY_REQUEST
+	SELECT 
+		 USERNAME
+	FROM REP_USER 
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>
+	ORDER BY 
+	<#if sort??  && ( sort?size > 0 ) > <#list sort as item > ${item.field} ${item.dir} </#list><#else> NAME </#if>
+    ]]></dynamic></sql-query>
+     
+	<sql-query name="FIND_USER_IDS_BY_REQUEST" description="사용자 ID 를 조회"><![CDATA[
+	-- FIND_USER_IDS_BY_REQUEST
+	SELECT 
+		 USER_ID
+	FROM REP_USER 
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item ><#if item.logic??>${item.logic}</#if> ${item.field} <#if item.operator == "startswith" && item.value?? > LIKE '${item.value}%' </#if>
+ 	</#list></#if>
+	ORDER BY 
+	<#if sort??  && ( sort?size > 0 ) > <#list sort as item > ${item.field} ${item.dir} </#list><#else> NAME </#if>
+	]]></dynamic></sql-query> 
+	
+</sqlset>
