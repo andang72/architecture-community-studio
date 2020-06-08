@@ -56,8 +56,7 @@
 		<default>
 			<beanName>dataSource</beanName>
 			<pooledDataSourceProvider>
-				<driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
-				<!-- <url>jdbc:mysql://222.122.47.195:3306/studiodb</url> -->
+				<driverClassName>com.mysql.cj.jdbc.Driver</driverClassName> 
 				<url>jdbc:mysql://192.168.29.192:3306/islanddb?serverTimezone=Asia/Seoul</url>
 				<username>studio</username>
 				<password>studio007A@</password>
@@ -74,33 +73,5 @@
 				</connectionProperties>
 			</pooledDataSourceProvider>
 		</default>
-		<external1>
-			<beanName>externalDataSource</beanName>
-			<pooledDataSourceProvider>
-				<driverClassName>oracle.jdbc.OracleDriver</driverClassName>
-				<url>jdbc:oracle:thin:@//222.122.47.196:1521/PODODB</url>
-				<username>U_PORTAL</username>
-				<password>podoq23$</password>
-				<connectionProperties>
-					<minIdle>0</minIdle>
-					<maxIdle>4</maxIdle>
-					<testOnBorrow>false</testOnBorrow>
-					<testWhileIdle>false</testWhileIdle>
-					<validationQuery>select 1 from dual</validationQuery>
-					<initialSize>1</initialSize>
-					<testOnReturn>false</testOnReturn>
-					<maxWait>-1</maxWait>
-					<maxActive>4</maxActive>
-				</connectionProperties>
-			</pooledDataSourceProvider>
-		</external1>
-		<!-- <default> <pooledDataSourceProvider> <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName> 
-			<url>jdbc:mysql://222.122.47.195:3306/studiodb</url> <username>studio</username> 
-			<password>studio007A@</password> <connectionProperties> <initialSize>1</initialSize> 
-			<maxActive>8</maxActive> <maxIdle>8</maxIdle> <maxWait>-1</maxWait> <minIdle>0</minIdle> 
-			<testOnBorrow>false</testOnBorrow> <testOnReturn>false</testOnReturn> <testWhileIdle>false</testWhileIdle> 
-			<validationQuery>select 1</validationQuery> </connectionProperties> </pooledDataSourceProvider> 
-			</default> -->
-
 	</database>
 </startup-config>
