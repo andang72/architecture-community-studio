@@ -75,9 +75,7 @@
         </session-management>
         
         <!-- 접근 불허시 보여줄 페이지 설정 -->         
-        <access-denied-handler error-page="/error/unauthorized" />
-        
-        <http-basic /><http-basic />
+        <access-denied-handler error-page="/error/unauthorized" /><http-basic /><http-basic />
 		
 	</http>
 	
@@ -111,8 +109,6 @@
 							<beans:list>
 								<beans:value>Authorization</beans:value>
 								<beans:value>Content-Type</beans:value>
-								<beans:value>responseType</beans:value>
-								<beans:value>encoding</beans:value>
 							</beans:list>
 						</beans:property>
 						<beans:property name="allowedMethods">
@@ -136,4 +132,4 @@
 			</util:map>
 		</beans:property>
 	</beans:bean>  
-</beans:beans>
+</beans:beans> 
