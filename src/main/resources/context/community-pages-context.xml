@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+       http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- ================================= -->
+    <!-- PAGE							   -->
+    <!-- ================================= -->
+    
+    <beans:bean id="pageDao" class="architecture.community.page.dao.jdbc.JdbcPageDao" p:dataSource-ref="dataSource" />
+	<beans:bean id="pageVersionDao" class="architecture.community.page.dao.jdbc.JdbcPageVersionDao" p:dataSource-ref="dataSource" />
+
+    <beans:bean id="pageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="pageCache"  
+     	p:maxElementsInMemory="5000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />
+     	
+    <beans:bean id="pageIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="pageIdCache"  
+     	p:maxElementsInMemory="5000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />
+     	
+    <beans:bean id="pageVersionCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="pageVersionCache"  
+     	p:maxElementsInMemory="5000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />
+     	
+    <beans:bean id="pageVersionsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="pageVersionsCache"  
+     	p:maxElementsInMemory="5000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />     
+     		     	     	   
+    <beans:bean id="pageService" class="architecture.community.page.CommunityPageService"  />	
+
+	<!-- ================================= -->
+    <!-- VIEW COUNT						   -->
+    <!-- ================================= -->
+	<beans:bean id="viewCountDao" class="architecture.community.viewcount.dao.jdbc.JdbcViewCountDao"  p:dataSource-ref="dataSource" />
+    
+    <beans:bean id="viewCountCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+     	p:cacheName="viewCountCache"  
+     	p:maxElementsInMemory="20000"  
+     	p:diskPersistent="false" 
+     	p:overflowToDisk="false"  
+     	p:timeToIdle="30"  
+     	p:timeToLive="600" 
+     	p:eternal="false"  
+     	p:diskExpiryThreadIntervalSeconds="0"  
+     	p:statisticsEnabled="true" />
+		
+	<beans:bean id="viewCountService" class="architecture.community.viewcount.CommunityViewCountService"  />	
+
+	<beans:bean id="viewCountEventListener" class="architecture.community.viewcount.event.listener.ViewCountEventListener"  />
+	
+	<!-- ================================= -->
+    <!-- API							   -->
+    <!-- ================================= -->
+    <beans:bean id="apiDao" class="architecture.community.page.api.dao.jdbc.JdbcApiDao" p:dataSource-ref="dataSource" />
+    
+    <beans:bean id="apiService"	class="architecture.community.page.api.CommunityApiService	" />
+    
+</beans:beans> 

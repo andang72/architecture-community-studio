@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<beans:description><![CDATA[
+       Spring Security Context  
+	]]></beans:description>
+
+	<global-method-security secured-annotations="enabled" pre-post-annotations="enabled" >
+		<expression-handler ref="expressionHandler"/>
+	</global-method-security>
+	
+	<http pattern="/assets/**" security="none" />
+	<http pattern="/js/**" security="none" />
+	<http pattern="/images/**" security="none" />
+	<http pattern="/css/**" security="none" />
+	<http pattern="/setup/local.jsp" security="none" />
+	
+	<http auto-config="true" use-expressions="true" disable-url-rewriting="true">
+	
+		<cors configuration-source-ref="corsSource"/> 
+	
+		<headers>
+			<frame-options policy="SAMEORIGIN" />
+		</headers>
+		<intercept-url pattern="/*"						    access="permitAll"/>
+		<intercept-url pattern="/error/*"				    access="permitAll"/>
+		<intercept-url pattern="/data/**"					access="permitAll"/>
+		<intercept-url pattern="/display/**"				access="permitAll"/>
+		<intercept-url pattern="/accounts/**"				access="permitAll"/>
+		
+		
+		<intercept-url pattern="/secure/studio/**" 			access="hasRole('ROLE_ADMINISTRATOR') or hasRole('ROLE_SYSTEM') or hasRole('ROLE_DEVELOPER')" />
+		<!-- <intercept-url pattern="/secure/display/**" 	access="hasRole('ROLE_ADMINISTRATOR') and hasIpAddress('192.168.1.0/24')" />-->
+		<intercept-url pattern="/secure/data/**" 			access="hasRole('ROLE_USER') or hasRole('ROLE_SYSTEM')" /> 
+		
+		<!-- Form Long Page Setting -->
+		<form-login login-page="/accounts/login"
+			username-parameter="username" 
+			password-parameter="password"
+			login-processing-url="/accounts/auth/login_check"
+			authentication-success-handler-ref="authenticationSuccessHandler"
+			authentication-failure-handler-ref="authenticationFailureHandler" />
+		<http-basic />
+		
+		<custom-filter before="BASIC_AUTH_FILTER" ref="jwtFilter" />
+
+		<!-- Logout URL Setting  -->
+        <logout invalidate-session="true" logout-url="/accounts/logout" logout-success-url="/" delete-cookies="JSESSIONID" />
+        <remember-me  token-repository-ref="rememberMeDao" user-service-ref="userDetailsService" token-validity-seconds="1209600" />
+        
+        <!-- CSRF ATTACK Setting  disabled="true" --> 
+        <csrf disabled="true"/> 
+ 
+        <anonymous enabled="true" username="ANONYMOUS" />        
+        
+        <!-- 중복 로그인 방지 설정 -->
+        <session-management session-fixation-protection="newSession" >
+			<concurrency-control max-sessions="1" expired-url="/error/login_duplicate"/>
+        </session-management>
+        
+        <!-- 접근 불허시 보여줄 페이지 설정 -->         
+        <access-denied-handler error-page="/error/unauthorized" />
+        
+        <http-basic /><http-basic />
+		
+	</http>
+	
+	<authentication-manager id="authenticationManager">
+		<authentication-provider ref="authenticationProvider"/>
+	</authentication-manager>
+	
+	<beans:bean id="authenticationProvider" class="architecture.community.security.spring.authentication.CommunityAuthenticationProvider" p:passwordEncoder-ref="passwordEncoder" p:userDetailsService-ref="userDetailsService" />
+	
+	<beans:bean id="authenticationSuccessHandler" class="architecture.community.security.spring.authentication.CommunityAuthenticationSuccessHandler" p:targetUrlParameter="targetUrl" />
+	
+	<beans:bean id="authenticationFailureHandler" class="architecture.community.security.spring.authentication.CommunityAuthenticationFailureHandler" p:defaultFailureUrl="/accounts/login?error" />
+	
+	<beans:bean id="userDetailsService" class="architecture.community.security.spring.userdetails.CommunityUserDetailsService" />
+	
+	<beans:bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></beans:bean>
+	
+	<beans:bean id="jwtTokenProvider" class="architecture.community.security.spring.authentication.jwt.JwtTokenProvider"></beans:bean>
+	
+	<beans:bean id="jwtFilter" class="architecture.community.security.spring.authentication.jwt.JWTFilter">
+		<beans:constructor-arg ref="jwtTokenProvider" />
+	</beans:bean>
+	
+	<beans:bean id="corsSource" class="org.springframework.web.cors.UrlBasedCorsConfigurationSource">
+		<beans:property name="corsConfigurations">
+			<util:map>
+				<beans:entry key="/**">
+					<beans:bean class="org.springframework.web.cors.CorsConfiguration">
+						<beans:property name="allowCredentials" value="true"/>
+						<beans:property name="allowedHeaders">
+							<beans:list>
+								<beans:value>Authorization</beans:value>
+								<beans:value>Content-Type</beans:value>
+								<beans:value>responseType</beans:value>
+								<beans:value>encoding</beans:value>
+							</beans:list>
+						</beans:property>
+						<beans:property name="allowedMethods">
+							<beans:list>
+								<beans:value>POST</beans:value>
+								<beans:value>GET</beans:value>
+								<beans:value>PUT</beans:value>
+								<beans:value>DELETE</beans:value>
+								<beans:value>OPTIONS</beans:value>
+							</beans:list>
+						</beans:property>
+					<beans:property name="allowedOrigins" value="*" />
+					<beans:property name="exposedHeaders">
+						<beans:list>
+							<beans:value>Location</beans:value>
+							<beans:value>Content-Disposition</beans:value>
+						</beans:list>
+					</beans:property>
+					<beans:property name="maxAge" value="86400" /></beans:bean>
+				</beans:entry>
+			</util:map>
+		</beans:property>
+	</beans:bean>  
+</beans:beans>

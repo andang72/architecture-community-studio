@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>COMMUNITY_USER</name>
+	<description>COMMUNITY USER SUBSYSTEM QUERIES</description>	
+	
+	<!--  COMPANY -->	 
+	<row-mapper name="COMPANY_ROWMAPPER" class="architecture.community.user.DefaultCompany" >		
+		<parameterMapping name="companyId" column="COMPANY_ID" javaType="long" />	
+		<parameterMapping name="displayName" column="DISPLAY_NAME" javaType="string" />	
+		<parameterMapping name="name" column="NAME" javaType="string" />	
+		<parameterMapping name="domain" column="DOMAIN_NAME" javaType="string" />	
+		<parameterMapping name="description" column="DESCRIPTION" javaType="string" />
+		<parameterMapping name="creationDate" column="CREATION_DATE" javaType="date" />
+		<parameterMapping name="modifiedDate" column="MODIFIED_DATE" javaType="date" />			
+    </row-mapper> 
+    
+	<sql-query name="CREATE_COMPANY" description="COMPANY 생성"><![CDATA[    
+    	INSERT INTO AC_UI_COMPANY (
+   			COMPANY_ID, 
+   			NAME, 
+   			DISPLAY_NAME,
+   			DOMAIN_NAME,
+   			DESCRIPTION, 
+  			CREATION_DATE, 
+  			MODIFIED_DATE
+  		) VALUES ( ?, ?, ?, ?, ?, ?, ?)
+    ]]></sql-query>
+
+	<sql-query name="SELECT_All_COMPANY_DOMAIN_AND_ID" description="SELECT_All_COMPANY_DOMAIN_AND_ID 조회"><![CDATA[    
+        SELECT
+   			COMPANY_ID, 
+   			DOMAIN_NAME
+  		FROM AC_UI_COMPANY
+    ]]></sql-query>
+    
+	<sql-query name="SELECT_COMPANY_BY_ID" description="COMPANY 조회"><![CDATA[    
+        SELECT
+   			COMPANY_ID, 
+   			NAME,
+   			DISPLAY_NAME, 
+   			DOMAIN_NAME,
+   			DESCRIPTION, 
+  			CREATION_DATE, 
+  			MODIFIED_DATE
+  		FROM AC_UI_COMPANY WHERE COMPANY_ID = ?
+    ]]></sql-query>
+
+
+	<sql-query name="UPDATE_COMPANY" description="COMPANY  수정"><![CDATA[        
+        UPDATE AC_UI_COMPANY
+            SET NAME = ?, DISPLAY_NAME = ?, DOMAIN_NAME = ?, DESCRIPTION = ? , MODIFIED_DATE = ?
+        WHERE COMPANY_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_COMPANY" description="COMPANY 삭제"><![CDATA[        
+        DELETE FROM AC_UI_COMPANY
+        WHERE COMPANY_ID = ?
+    ]]></sql-query>
+    
+	<sql-query name="SELECT_COMPANY_BY_DOMAIN_NAME" description="COMPANY 조회">
+		<dynamic><![CDATA[
+        SELECT
+   			COMPANY_ID, 
+   			NAME, 
+   			DISPLAY_NAME,
+   			DOMAIN_NAME,
+   			DESCRIPTION, 
+  			CREATION_DATE, 
+  			MODIFIED_DATE
+  		FROM AC_UI_COMPANY
+  		WHERE DOMAIN_NAME LIKE '%'|| ? ||'%'
+    ]]></dynamic>
+	</sql-query>
+		
+	<sql-query name="SELECT_COMPANY_BY_NAME" description="COMPANY 조회">
+		<dynamic><![CDATA[
+        SELECT
+   			COMPANY_ID, 
+   			NAME, 
+   			DISPLAY_NAME,
+   			DOMAIN_NAME,
+   			DESCRIPTION, 
+  			CREATION_DATE, 
+  			MODIFIED_DATE
+  		FROM AC_UI_COMPANY
+  		WHERE <#if additional_parameter > LOWER(NAME) = ? <#else> NAME = ? </#if>
+    ]]></dynamic>
+	</sql-query>
+		
+	<sql-query name="COUNT_ALL_COMPANY" description="전체 COMPANY 수를 조회"><![CDATA[
+		SELECT COUNT(COMPANY_ID)
+		FROM AC_UI_COMPANY
+    ]]></sql-query>
+    
+    <sql-query name="SELECT_ALL_COMPANY_IDS" description="모든 COMPANY 아이디를 조회"><![CDATA[
+		SELECT COMPANY_ID FROM AC_UI_COMPANY ORDER BY COMPANY_ID
+    ]]></sql-query>
+    
+	<sql-query name="DELETE_COMPANY" description="COMPANY 삭제"><![CDATA[
+		DELETE FROM AC_UI_COMPANY WHERE COMPANY_ID = ?
+    ]]></sql-query>
+	 
+	<sql-query name="UPDATE_COMPANY_MODIFIED_DATE" description="COMPANY 수정일 업데이트"><![CDATA[        
+        UPDATE AC_UI_COMPANY
+        SET MODIFIED_DATE = ?
+        WHERE COMPANY_ID = ?
+    ]]></sql-query>
+        	     	
+	<sql-query name="COUNT_COMPANY_GROUPS" description="COMPANY 그룹 수를 조회"><![CDATA[
+		SELECT COUNT(COMPANY_ID)
+		FROM V2_GROUP  WHERE COMPANY_ID = ?
+    ]]></sql-query>        	     	
+
+	<sql-query name="SELECT_COMPANY_GROUP_IDS" description="COMPANY 그룹 ID를 조회"><![CDATA[
+		SELECT GROUP_ID
+		FROM V2_GROUP  WHERE COMPANY_ID = ?
+		ORDER BY GROUP_ID
+    ]]></sql-query>    
+    	
+    	
+    	
+	<!-- USER -->
+	<sql-query name="ALL_COUNT_USERS" description="모든 사용자 수를 조회"><![CDATA[
+	SELECT 
+		 COUNT( USER_ID )
+	FROM AC_UI_USER  
+	 ]]></sql-query>
+	 
+	 <sql-query name="SELECT_ALL_USER_IDS" description="모든 사용자 ID 를 조회"><![CDATA[
+	SELECT 
+		 USER_ID
+	FROM AC_UI_USER 
+	ORDER BY NAME 
+	 ]]></sql-query>
+	 
+	<sql-query name="COUNT_USERS_BY_REQUEST" description="사용자 수를 조회"><![CDATA[
+	SELECT 
+		COUNT( USER_ID )
+	FROM AC_UI_USER 
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item ><#if item.logic??>${item.logic}</#if> ${item.field} <#if item.operator == "startswith" && item.value?? > LIKE '${item.value}%' </#if>
+ 	</#list></#if>	
+    ]]></dynamic></sql-query>
+    	 
+	<sql-query name="FIND_USER_IDS_BY_REQUEST" description="사용자 ID 를 조회"><![CDATA[
+	SELECT 
+		 USER_ID
+	FROM AC_UI_USER 
+	]]><dynamic><![CDATA[    
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item ><#if item.logic??>${item.logic}</#if> ${item.field} <#if item.operator == "startswith" && item.value?? > LIKE '${item.value}%' </#if>
+ 	</#list></#if>
+	ORDER BY 
+	<#if sort??  && ( sort?size > 0 ) > <#list sort as item > ${item.field} ${item.dir} </#list><#else> NAME </#if>
+    ]]></dynamic></sql-query>
+	 	 
+	 
+	<sql-query name="COUNT_USERS_BY_EMAIL_OR_NAME" description="메일 또는 이름에 해당하는 모든 사용자 수를 조회"><![CDATA[
+	SELECT 
+		 COUNT( USER_ID )
+	FROM AC_UI_USER WHERE USER_ENABLED = 1 AND ( EMAIL LIKE ? OR NAME LIKE ? )		  
+	 ]]></sql-query>
+	 	
+	<sql-query name="SELECT_USER_IDS_BY_EMAIL_OR_NAME" description="메일 또는 이름에 해당하는 모든 사용자 아이디를 조회"><![CDATA[
+	SELECT 
+		  USER_ID
+	FROM AC_UI_USER WHERE USER_ENABLED = 1 AND ( EMAIL LIKE ? OR NAME LIKE ? )		  
+	 ]]></sql-query>
+	 
+	<sql-query name="SELECT_USER_BY_EMAIL_OR_NAME" description="메일 또는 이름에 해당하는 모든 사용자를 조회"><![CDATA[
+	SELECT 
+		  USER_ID,
+		  USERNAME,
+		  PASSWORD_HASH,
+		  NAME,
+		  NAME_VISIBLE,
+		  FIRST_NAME,
+		  LAST_NAME,
+		  EMAIL,
+		  EMAIL_VISIBLE,
+		  USER_ENABLED,
+		  STATUS,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+	FROM AC_UI_USER WHERE USER_ENABLED = 1 AND ( EMAIL LIKE ? OR NAME LIKE ? )		  
+	 ]]></sql-query>
+	 	 
+	<sql-query name="SELECT_USER_BY_ID" description="USER_ID 에 해당하는 사용자를 조회"><![CDATA[
+	SELECT 
+		  USER_ID,
+		  USERNAME,
+		  PASSWORD_HASH,
+		  NAME,
+		  NAME_VISIBLE,
+		  FIRST_NAME,
+		  LAST_NAME,
+		  EMAIL,
+		  EMAIL_VISIBLE,
+		  USER_ENABLED,
+		  STATUS,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+	FROM AC_UI_USER WHERE USER_ID = ?
+    ]]></sql-query>	
+
+	<sql-query name="SELECT_USER_BY_USERNAME" description="USERNAME 에 해당하는 사용자를 조회"><![CDATA[
+	SELECT 
+		  USER_ID,
+		  USERNAME,
+		  PASSWORD_HASH,
+		  NAME,
+		  NAME_VISIBLE,
+		  FIRST_NAME,
+		  LAST_NAME,
+		  EMAIL,
+		  EMAIL_VISIBLE,
+		  USER_ENABLED,
+		  STATUS,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+	FROM AC_UI_USER WHERE USERNAME = ?
+    ]]></sql-query>	
+
+	<sql-query name="SELECT_USER_BY_USERNAME_LOWERCASE" description="USERNAME 에 해당하는 사용자를 조회"><![CDATA[
+	SELECT 
+		  USER_ID,
+		  USERNAME,
+		  PASSWORD_HASH,
+		  NAME,
+		  NAME_VISIBLE,
+		  FIRST_NAME,
+		  LAST_NAME,
+		  EMAIL,
+		  EMAIL_VISIBLE,
+		  USER_ENABLED,
+		  STATUS,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+	FROM AC_UI_USER WHERE LOWER( USERNAME ) = ?
+    ]]></sql-query>	
+
+	<sql-query name="SELECT_USER_BY_EMAIL" description="EMAIL 에 해당하는 사용자를 조회"><![CDATA[
+	SELECT 
+		  USER_ID,
+		  USERNAME,
+		  PASSWORD_HASH,
+		  NAME,
+		  NAME_VISIBLE,
+		  FIRST_NAME,
+		  LAST_NAME,
+		  EMAIL,
+		  EMAIL_VISIBLE,
+		  USER_ENABLED,
+		  STATUS,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+	FROM AC_UI_USER WHERE USER_ENABLED = 1 AND EMAIL LIKE ?
+    ]]></sql-query>	    
+    
+ 	<sql-query name="CREATE_USER" description="사용자 생성"><![CDATA[
+	INSERT INTO AC_UI_USER (
+		  USER_ID,
+		  USERNAME,
+		  PASSWORD_HASH,
+		  NAME,
+		  NAME_VISIBLE,
+		  FIRST_NAME,
+		  LAST_NAME,
+		  EMAIL,
+		  EMAIL_VISIBLE,
+		  USER_ENABLED,
+		  STATUS,
+		  CREATION_DATE,
+		  MODIFIED_DATE
+	) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
+    ]]></sql-query>	
+ 
+
+ 	<sql-query name="UPDATE_USER" description="사용자 변경"><![CDATA[
+	UPDATE AC_UI_USER 
+    SET   USERNAME = ?,
+		  PASSWORD_HASH = ?,
+		  NAME = ?,
+		  NAME_VISIBLE = ?,
+		  FIRST_NAME = ?,
+		  LAST_NAME = ?,
+		  EMAIL = ?,
+		  EMAIL_VISIBLE = ?,
+		  USER_ENABLED = ?,
+		  STATUS = ?,
+		  MODIFIED_DATE = ?
+	WHERE USER_ID = ?
+    ]]></sql-query>	
+    
+ 
+    <sql-query name="DELETE_USER_BY_ID" description="사용자 삭제"><![CDATA[
+    DELETE FROM AC_UI_USER WHERE USER_ID = ?
+     ]]></sql-query> 
+     
+	<sql-query name="CREATE_ROLE" description="CREATE_ROLE"><![CDATA[                 
+    INSERT INTO AC_UI_ROLE ( 
+	    	ROLE_ID, 
+	    	NAME,
+	    	DESCRIPTION, 
+	    	CREATION_DATE, 
+	    	MODIFIED_DATE 
+    ) VALUES ( ?, ?, ?, ?, ? )
+    ]]></sql-query>
+
+	<sql-query name="DELETE_ROLE" description="DELETE_ROLE"><![CDATA[                 
+    DELETE FROM AC_UI_ROLE WHERE ROLE_ID = ? 
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_ROLE" description="CREATE_ROLE"><![CDATA[                 
+    UPDATE AC_UI_ROLE
+	SET  NAME          = ?,
+	       DESCRIPTION   = ?,
+	       MODIFIED_DATE = ?
+	WHERE  ROLE_ID       = ?
+    ]]></sql-query>
+
+	<sql-query name="SELECT_ROLE_BY_ID" description="SELECT_ROLE_BY_ID"><![CDATA[                 
+    SELECT 
+        ROLE_ID, 
+        NAME,  
+        DESCRIPTION, 
+        CREATION_DATE, 
+        MODIFIED_DATE
+	FROM AC_UI_ROLE 
+	WHERE ROLE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="SELECT_ROLE_BY_NAME" description="SELECT_ROLE_BY_NAME"><dynamic><![CDATA[
+    SELECT
+   		ROLE_ID, 
+   		NAME, 
+   		DESCRIPTION, 
+  		CREATION_DATE, 
+  		MODIFIED_DATE
+  	FROM AC_UI_ROLE 
+  	WHERE <#if additional_parameter > LOWER(NAME) = ? <#else> NAME = ? </#if>
+    ]]></dynamic></sql-query>
+
+	<sql-query name="COUNT_ALL_ROLES" description="COUNT_ALL_ROLES"><![CDATA[
+    SELECT count(ROLE_ID) FROM AC_UI_ROLE
+    ]]></sql-query>
+
+	<sql-query name="SELECT_ALL_ROLE_IDS" description="SELECT_ALL_ROLE_IDS"><![CDATA[
+    SELECT ROLE_ID FROM AC_UI_ROLE
+    ]]></sql-query>
+
+    <sql-query name="DELETE_ALL_USER_ROLES" description="DELETE_ALL_USER_ROLES"><![CDATA[
+    DELETE FROM AC_UI_USER_ROLES WHERE ROLE_ID = ?
+    ]]></sql-query>
+        
+    <sql-query name="SELECT_USER_ROLE_IDS" description="SELECT_USER_ROLE_IDS"><![CDATA[
+    SELECT ROLE_ID FROM AC_UI_USER_ROLES WHERE USER_ID = ?
+    ]]></sql-query>
+    
+   	<sql-query name="REMOVE_USER_ROLES" description="REMOVE_USER_ROLES"><![CDATA[
+   	DELETE FROM AC_UI_USER_ROLES WHERE USER_ID = ?
+    ]]></sql-query>
+        
+   	<sql-query name="REMOVE_USER_ROLE" description="REMOVE_USER_ROLE"><![CDATA[
+   	DELETE FROM AC_UI_USER_ROLES WHERE ROLE_ID = ? AND USER_ID = ?
+    ]]></sql-query>
+    
+    <sql-query name="ADD_USER_ROLE" description="ADD_USER_ROLE"><![CDATA[
+     INSERT INTO AC_UI_USER_ROLES ( 
+    	ROLE_ID, 
+    	USER_ID
+    ) VALUES ( ?, ? )
+    ]]></sql-query>
+                   	
+    <!-- REMEMBER_USER_TOKEN  -->    
+    <sql-query name="CREATE_REMEMBER_USER_TOKEN" description="REMEMBER_USER_TOKEN"><![CDATA[
+    INSERT INTO AC_UI_USER_LOGIN_TOKEN ( 
+	    	UUID, 
+	    	USERNAME,
+	    	TOKEN,
+	    	LAST_USE_DATE
+    ) VALUES ( ?, ?, ? ,? )
+    ]]></sql-query>
+    
+    <sql-query name="UPDATE_REMEMBER_USER_TOKEN" description="UPDATE_REMEMBER_USER_TOKEN"><![CDATA[
+    UPDATE AC_UI_USER_LOGIN_TOKEN
+    SET TOKEN = ? , LAST_USE_DATE = ? 
+    WHERE UUID = ?
+    ]]></sql-query>
+    
+    <sql-query name="SELECT_REMEMBER_USER_TOKEN_BY_UUID" description="SELECT_REMEMBER_USER_TOKEN_BY_UUID"><![CDATA[
+    SELECT 
+	    USERNAME,
+	    UUID,
+	    TOKEN,
+	    LAST_USE_DATE
+    FROM AC_UI_USER_LOGIN_TOKEN WHERE UUID = ?
+    ]]></sql-query>
+    
+    <sql-query name="DELETE_REMEMBER_USER_TOKEN_BY_USERNAME" description="DELETE_REMEMBER_USER_TOKEN"><![CDATA[
+    DELETE FROM AC_UI_USER_LOGIN_TOKEN WHERE USERNAME = ?
+    ]]></sql-query>              	
+</sqlset>

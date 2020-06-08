@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<MenuConfig>
+	<Menus>
+		<!-- ==================== Admin Side Menus =========================== -->
+		<Menu name="STUDIO.SIDEBAR" title="Studio Sidebar Nav" description="" width="50"> 
+			<Item name="SIDEBAR_01" title="정보" icon="hs-admin-pie-chart" location="status"  roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER,ROLE_OPERATOR" /> 
+			<Item name="SIDEBAR_02" title="설정" >
+				<Item name="SIDEBAR_02_01" title="프로퍼티" icon="hs-admin-settings" location="setting-properties" />
+				<Item name="SIDEBAR_02_02" title="언어 및 지역" icon="hs-admin-settings" location="setting-locale" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_02_03" title="데이터소스 " icon="hs-admin-server" location="setting-datasource" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+			</Item>
+			<Item name="SIDEBAR_03" title="보안">
+				<Item name="SIDEBAR_03_01" title="권한" icon="hs-admin-layout-list-thumb" location="security-permissions" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<!-- <Item name="SIDEBAR_03_02" title="그룹" icon="hs-admin-layout-list-thumb" location="security-groups" />-->
+				<Item name="SIDEBAR_03_03" title="사용자" icon="hs-admin-user" location="security-users" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER,ROLE_OPERATOR" />
+				<Item name="SIDEBAR_03_04" title="AUDIT" icon="hs-admin-settings" location="security-audit" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR" />
+			</Item>
+			<Item name="SIDEBAR_04" title="서비스">
+				<Item name="SIDEBAR_04_01" title="메일" icon="hs-admin-email" location="services-mail" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_04_02" title="사용자 프로필" icon="hs-admin-user" location="services-profile" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_04_03" title="태그" icon="hs-admin-tag" location="services-tags" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_04_04" title="공지" icon="hs-admin-announcement" location="services-announces" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER,ROLE_OPERATOR" />
+				<Item name="SIDEBAR_04_06" title="뷰 카운트" icon="hs-admin-email" location="services-viewcounts" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_04_07" title="시퀀서" icon="hs-admin-files" location="services-sequencers" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+			</Item>	
+			<Item name="SIDEBAR_05" title="리소스" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" >
+				<Item name="SIDEBAR_05_01" title="페이지" icon="hs-admin-html-5" location="resource-pages" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_05_02" title="API" icon="hs-admin-files" location="resource-apis" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_05_03" title="데코레이터" icon="hs-admin-layout" location="resource-decorators" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_05_04" title="템플릿" icon="hs-admin-files" location="resource-templates" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_05_05" title="스크립트" icon="hs-admin-files" location="resource-scripts" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_05_06" title="SQL" icon="hs-admin-files" location="resource-sqls" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				<Item name="SIDEBAR_05_07" title="Web" icon="hs-admin-folder" >
+					<Item name="SIDEBAR_05_07_01" title="메뉴" icon="hs-admin-layout-menu-full" location="resource-menus" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" /> 
+					<Item name="SIDEBAR_05_07_02" title="파일" icon=hs-admin-files" location="resource-files" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+					<Item name="SIDEBAR_05_07_03" title="이미지" icon="hs-admin-image" location="resource-images" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" />
+				</Item>
+			</Item>
+			<Item name="SIDEBAR_99" title="가이드" roles="ROLE_SYSTEM,ROLE_ADMINISTRATOR,ROLE_DEVELOPER" >
+				<Item name="SIDEBAR_99_01" title="Working with Pages" icon="hs-admin-help" location="guide/pages"/>
+				<Item name="SIDEBAR_99_02" title="Working with APIs" icon="hs-admin-help" location="guide/apis"/>
+				<Item name="SIDEBAR_99_03" title="Working with Scripts" icon="hs-admin-help" location="guide/scripts"/>
+				<Item name="SIDEBAR_99_04" title="Working with Resources" icon="hs-admin-files" >
+					<Item name="SIDEBAR_99_04_01" title="Working with Menu" icon="hs-admin-help" location="guide/resources/menu"/> 
+					<Item name="SIDEBAR_99_04_02" title="Working with Attachment" icon="hs-admin-help" location="guide/resources/files"/> 
+					<Item name="SIDEBAR_99_04_03" title="Working with Image" icon="hs-admin-help" location="guide/resources/images"/>  
+				</Item>
+				<Item name="SIDEBAR_99_03" title="Working with Services" icon="hs-admin-files" >
+					<Item name="SIDEBAR_99_03_01" title="Working with Mail" icon="hs-admin-help" location="guide/services/mail"/> 
+					<Item name="SIDEBAR_99_03_02" title="Working with User Profile" icon="hs-admin-help" location="guide/services/custom-profile"/> 
+					<Item name="SIDEBAR_99_03_03" title="Working with Sequencer" icon="hs-admin-help" location="guide/services/sequencer"/> 
+					<Item name="SIDEBAR_99_03_04" title="Working with ViewCount" icon="hs-admin-help" location="guide/services/viewcount"/> 
+					<Item name="SIDEBAR_99_03_05" title="Working with Tag" icon="hs-admin-help" location="guide/services/tags"/> 
+					<Item name="SIDEBAR_99_03_06" title="Working with Comment" icon="hs-admin-help" location="guide/services/comment"/> 
+				</Item>
+				<!-- 
+				<Item name="SIDEBAR_99_04" title="Working with Security" icon="hs-admin-files" location="guides/services/security"/>
+				<Item name="SIDEBAR_99_05" title="Working with Sequencer" icon="hs-admin-files" location="guides/services/sequencer"/>
+				<Item name="SIDEBAR_99_06" title="Working with Config" icon="hs-admin-files" location="guides/services/config"/>
+				<Item name="SIDEBAR_99_07" title="Working with Email" icon="hs-admin-files" location="guides/services/email"/>
+				<Item name="SIDEBAR_99_08" title="Working with User" icon="hs-admin-files" location="guides/services/user"/>
+				<Item name="SIDEBAR_99_09" title="Working with Profile" icon="hs-admin-files" location="guides/services/profile"/>
+				<Item name="SIDEBAR_99_10" title="Working with Images" icon="hs-admin-files" location="guides/services/images"/>
+				<Item name="SIDEBAR_99_11" title="Working with Files" icon="hs-admin-files" location="guides/services/files"/>
+				<Item name="SIDEBAR_99_12" title="Working with Links" icon="hs-admin-files" location="guides/services/links"/>
+				<Item name="SIDEBAR_99_13" title="Working with Tags" icon="hs-admin-files" location="guides/services/tags"/>
+				<Item name="SIDEBAR_99_14" title="Working with View Counts" icon="hs-admin-files" location="guides/services/counts"/>
+				<Item name="SIDEBAR_99_15" title="Working with Announces" icon="hs-admin-files" location="guides/services/announces"/>
+				<Item name="SIDEBAR_99_16" title="Working with Comments" icon="hs-admin-files" location="guides/services/comments"/>  -->
+			</Item>
+		</Menu>
+	</Menus>
+</MenuConfig>

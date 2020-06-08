@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+       http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	
+	<!--  CACHE  -->    
+	<beans:bean id="userIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="userIdCache"  
+		p:maxElementsInMemory="5000" 
+		p:diskPersistent="false"  
+		p:overflowToDisk="false" 
+		p:timeToIdle="30" 
+		p:timeToLive="60"  
+		p:eternal="false"  
+		p:diskExpiryThreadIntervalSeconds="0" 
+		p:statisticsEnabled="true"  />
+	
+	<beans:bean id="userCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="userCache"  
+		p:maxElementsInMemory="5000"  
+		p:diskPersistent="false" 
+		p:overflowToDisk="false"  
+		p:timeToIdle="30"  
+		p:timeToLive="60" 
+		p:eternal="false"  
+		p:diskExpiryThreadIntervalSeconds="0"  
+		p:statisticsEnabled="true" />
+
+
+	<beans:bean id="userProviderCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="userProviderCache"  
+		p:maxElementsInMemory="5000"  
+		p:diskPersistent="false" 
+		p:overflowToDisk="false"  
+		p:timeToIdle="30"  
+		p:timeToLive="60" 
+		p:eternal="false"  
+		p:diskExpiryThreadIntervalSeconds="0"  
+		p:statisticsEnabled="true" />
+		
+	<beans:bean id="companyIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="companyIdCache"  
+		p:maxElementsInMemory="50" 
+		p:diskPersistent="false"  
+		p:overflowToDisk="false" 
+		p:timeToIdle="30" 
+		p:timeToLive="60"  
+		p:eternal="false"  
+		p:diskExpiryThreadIntervalSeconds="0" 
+		p:statisticsEnabled="true"  />
+	
+	<beans:bean id="companyCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
+		p:cacheName="companyCache"  
+		p:maxElementsInMemory="50"  
+		p:diskPersistent="false" 
+		p:overflowToDisk="false"  
+		p:timeToIdle="30"  
+		p:timeToLive="60" 
+		p:eternal="false"  
+		p:diskExpiryThreadIntervalSeconds="0"  
+		p:statisticsEnabled="true" />
+				
+	<!--  DAO  -->  
+	<beans:bean id="userDao" class="architecture.community.user.dao.JdbcUserDao" p:dataSource-ref="dataSource" />
+    <beans:bean id="companyDao" class="architecture.community.user.dao.JdbcCompanyDao" p:dataSource-ref="dataSource" />
+    <beans:bean id="roleDao" class="architecture.community.user.dao.JdbcRoleDao" p:dataSource-ref="dataSource" /> 
+    			
+	<!-- SERVICE & MANAGER -->			
+	<beans:bean id="userManager" class="architecture.community.user.CommunityUserManager"  />	 
+ 	<beans:bean id="companyService" class="architecture.community.user.CommunityCompanyService"  />		 
+    <beans:bean id="roleManager" class="architecture.community.user.CommunityRoleManager"  />		
+	
+	<!-- USER PROVIDER -->
+	<beans:bean id="externalJdbcUserProvider" class="architecture.community.user.provider.JdbcUserProviderService"  init-method="initialize" />
+
+	<!--  UTILS  -->	
+	<beans:bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></beans:bean>
+
+</beans:beans> 
