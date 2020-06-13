@@ -240,9 +240,11 @@ public abstract class AbstractResourcesDataController {
 		private long size;
 		private Date lastModifiedDate;
 		private String fileContent;
+		private boolean backup ;
 
 		public FileInfo() {
 			this.directory = false;
+			this.backup = false;
 		}
 
 		public FileInfo(File file) {
@@ -256,6 +258,7 @@ public abstract class AbstractResourcesDataController {
 			} else {
 				this.size = FileUtils.sizeOf(file);
 			}
+			this.backup = false;
 		}
 
 		public FileInfo(File root, File file) {
@@ -269,6 +272,7 @@ public abstract class AbstractResourcesDataController {
 			} else {
 				this.size = FileUtils.sizeOf(file);
 			}
+			this.backup = false;
 		}
 
 		/**

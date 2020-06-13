@@ -75,7 +75,6 @@ public class DownloadDataController {
 	private ViewCountService viewCountService;
 
 	private boolean isAllowed(Image image) throws NotFoundException {
-		
 		User currentUser = SecurityHelper.getUser();
 		if( image.getUser() != null && image.getUser().getUserId() > 0 && currentUser.getUserId() == image.getUser().getUserId() )
 		{
@@ -83,15 +82,18 @@ public class DownloadDataController {
 		}
 		if (SecurityHelper.isUserInRole("ROLE_DEVELOPER, ROLE_ADMINISTRATOR, ROLE_SYSTEM")) {
 			return true;
-		}
+		} 
+		try {
+			ImageLink link = imageService.getImageLink(image);
+			if (link.isPublicShared()) {
+				return true;
+			}
+		} catch (Throwable e) {
+		} 
+		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(), Models.IMAGE.getObjectClass(), image.getImageId()); 
+		if (bundle != null && bundle.isRead())
+			return true;
 		
-		ImageLink link = imageService.getImageLink(image);
-		if (link.isPublicShared()) {
-			return true;
-		}
-		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(), Models.IMAGE.getObjectClass(), image.getImageId());
-		if (bundle.isRead())
-			return true;
 		return false;
 	}
 

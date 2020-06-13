@@ -170,10 +170,14 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 		
 		ResourceType resourceType = getResourceType(type);
 		File targetFile = getResourceByType(resourceType, path).getFile();
+		
+		log.debug("target : {} ({})", targetFile.getAbsolutePath() , targetFile.isDirectory());
+		
 		FileInfo fileInfo = new FileInfo(targetFile); 
 		fileInfo.setFileContent(targetFile.isDirectory() ? "" : FileUtils.readFileToString(targetFile, "UTF-8")); 
 		return fileInfo;
     } 
+	
 	/**
 	 * 파일 내용을 업데이트 한다. 동일경로에 파일이름 + .[yyyyMMddHHmmss] 형식으로 백업을 생성한 다음 저장한다.
 	 * 

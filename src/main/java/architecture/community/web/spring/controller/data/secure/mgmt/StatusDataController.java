@@ -61,6 +61,7 @@ public class StatusDataController {
 	 */
 	public static class ApplicationProperty {
 		
+		
 		private Boolean datasourceEnabled = false ;
 		private Boolean databaseInitialized = false;
 		private Boolean viewCountEnabled = false;
@@ -90,6 +91,7 @@ public class StatusDataController {
 
 		public static ApplicationProperty build(ConfigService configService) {
 			ApplicationProperty props = new ApplicationProperty();
+			 
 			props.datasourceEnabled = configService.getApplicationBooleanProperty(CommunityConstants.SERVICES_SETUP_DATASOURCES_ENABLED_PROP_NAME, false);
 			props.databaseInitialized = configService.isDatabaseInitialized();
 			props.language = configService.getLocale().getLanguage();
