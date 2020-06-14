@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import architecture.community.attachment.Attachment;
 import architecture.community.exception.NotFoundException;
 import architecture.community.exception.UnAuthorizedException;
 import architecture.community.image.DefaultImage;
@@ -461,7 +462,18 @@ public class ResourcesImagesDataController {
 	}	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/delete-link.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/cache/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@ResponseBody
+	public Result clearCache (
+		@PathVariable Long imageId,
+		NativeWebRequest request) throws NotFoundException { 
+		Image image = 	imageService.getImage(imageId); 
+		imageService.clearCache(image); 
+		return Result.newResult();
+	}	
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = {"/images/{imageId:[\\p{Digit}]+}/delete-link.json", "/images/{imageId:[\\p{Digit}]+}/link/delete.json"}, method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Result removeLink (
 		@PathVariable Long imageId,

@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
@@ -116,6 +117,8 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		imageConfig = new ImageConfig();
 	}
 
+	
+	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void addLogoImage(LogoImage logoImage, File file) {
 		if (logoImage.getImageId() < 1) {
@@ -912,6 +915,42 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 			}
 		}
 		return list;
+	}
+
+ 
+	public void clearCache(Image image) {
+		File dir = getImageCacheDir();
+		StringBuilder sb = new StringBuilder();
+		sb.append(image.getImageId()).append(".bin");
+		String cached = sb.toString();
+		
+		sb = new StringBuilder();
+		sb.append(image.getImageId()).append("_");
+		String prefix = sb.toString();
+
+		Collection<File> list = FileUtils.listFiles(dir, new IOFileFilter() { 
+			@Override
+			public boolean accept(File file) {
+				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), file.getName());
+				boolean accept = false;
+				if (StringUtils.equals(file.getName(), cached))
+					accept = true;
+				if (StringUtils.startsWithIgnoreCase(file.getName(), prefix))
+					accept = true;
+				return accept;
+			}
+
+			@Override
+			public boolean accept(File dir, String name) {
+				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), name);
+				return false;
+			}
+		}, null);
+
+		for (File file : list)
+			FileUtils.deleteQuietly(file); 
+		
+		imageCache.remove(image.getImageId()); 
 	}
 
 }

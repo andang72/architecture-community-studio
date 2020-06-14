@@ -230,15 +230,14 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 	}	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/refresh.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = {"/{attachmentId:[\\p{Digit}]+}/refresh.json", "/{attachmentId:[\\p{Digit}]+}/cache/delete.json" }, method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Result refreshAttachment (
 		@PathVariable Long attachmentId,
 		NativeWebRequest request) throws NotFoundException {
 		
 		Attachment attachment = attachmentService.getAttachment(attachmentId);
-		attachmentService.refresh(attachment);
-		
+		attachmentService.refresh(attachment); 
 		return Result.newResult();
 	}
 	

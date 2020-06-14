@@ -87,6 +87,21 @@ public class ConfigDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/properties/get.json", method = RequestMethod.POST)
+	@ResponseBody
+	public Property getProperty( 
+			@RequestBody Property property, 
+			NativeWebRequest request) throws NotFoundException { 
+		
+		if(!configService.isDatabaseInitialized())
+		{
+			return property;
+		} 
+		property.setValue( configService.getApplicationProperty(property.getName()) );
+		return property;
+	}
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/properties/delete.json", method = { RequestMethod.POST, RequestMethod.DELETE })
 	@ResponseBody
 	public List<Property> delete(  

@@ -75,7 +75,19 @@ public class DownloadDataController {
 	private ViewCountService viewCountService;
 
 	private boolean isAllowed(Image image) throws NotFoundException {
-		User currentUser = SecurityHelper.getUser();
+		User currentUser = SecurityHelper.getUser(); 
+		
+		ImageLink link = image.getImageLink();
+		
+		if( link == null)
+		try {
+			link = imageService.getImageLink(image);
+		} catch (Throwable e) { } 
+		
+		if (link != null && link.isPublicShared()) {
+			return true;
+		}
+		
 		if( image.getUser() != null && image.getUser().getUserId() > 0 && currentUser.getUserId() == image.getUser().getUserId() )
 		{
 			return true;
@@ -83,13 +95,7 @@ public class DownloadDataController {
 		if (SecurityHelper.isUserInRole("ROLE_DEVELOPER, ROLE_ADMINISTRATOR, ROLE_SYSTEM")) {
 			return true;
 		} 
-		try {
-			ImageLink link = imageService.getImageLink(image);
-			if (link.isPublicShared()) {
-				return true;
-			}
-		} catch (Throwable e) {
-		} 
+
 		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(), Models.IMAGE.getObjectClass(), image.getImageId()); 
 		if (bundle != null && bundle.isRead())
 			return true;
@@ -99,6 +105,7 @@ public class DownloadDataController {
 
 	private boolean isAllowed(Attachment attachment) throws NotFoundException {
 		User currentUser = SecurityHelper.getUser();
+		
 		if( attachment.getUser() != null && attachment.getUser().getUserId() > 0 && currentUser.getUserId() == attachment.getUser().getUserId() )
 		{
 			return true;
@@ -157,15 +164,12 @@ public class DownloadDataController {
 			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
 			@RequestParam(value = "encode", defaultValue = "false", required = false) boolean encode,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		try {
-
+		try { 
 			Image image = imageService.getImageByImageLink(linkId);
 			// checking security ..
-			if (image != null) {
-				
+			if (image != null) { 
 				if ( !thumbnail && !isAllowed(image))
-					throw new UnAuthorizedException(); 
-				
+					throw new UnAuthorizedException();   
 				InputStream input;
 				String contentType;
 				int contentLength;
@@ -182,8 +186,7 @@ public class DownloadDataController {
 				response.setContentType(contentType);
 				response.setContentLength(contentLength);
 				IOUtils.copy(input, response.getOutputStream());
-				response.flushBuffer();
-				
+				response.flushBuffer(); 
 			} 
 		} catch (UnAuthorizedException uae ) {
 			response.setStatus( HttpStatus.UNAUTHORIZED.value() );
@@ -289,6 +292,7 @@ public class DownloadDataController {
 			ResourceUtils.notAavaliable(request, response);
 		}
 	}	
+	
 	
 	@RequestMapping(value = "/files/{linkId}/{filename:.+}", method = RequestMethod.GET)
 	@ResponseBody
