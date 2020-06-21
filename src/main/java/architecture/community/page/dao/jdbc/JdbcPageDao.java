@@ -268,7 +268,8 @@ public class JdbcPageDao extends ExtendedJdbcDaoSupport implements PageDao {
 			page.getSummary() == null ? new SqlParameterValue(Types.NULL, null) : new SqlParameterValue(Types.VARCHAR, page.getSummary()),
 			page.getTemplate() == null ? new SqlParameterValue(Types.NULL, null) : new SqlParameterValue(Types.VARCHAR, page.getTemplate()), 
 			page.getScript() == null ? new SqlParameterValue(Types.NULL, null) : new SqlParameterValue(Types.VARCHAR, page.getScript()), 
-			new SqlParameterValue(Types.NUMERIC, page.isSecured() ? 1 : 0 ),								
+			new SqlParameterValue(Types.NUMERIC, page.isSecured() ? 1 : 0 ),		
+			new SqlParameterValue(Types.VARCHAR, page.getContentType() ),
 			new SqlParameterValue(Types.NUMERIC, page.getVersionId() <= 1 ? page.getUser().getUserId() : SecurityHelper.getUser().getUserId()),
 			new SqlParameterValue(Types.DATE, page.getCreationDate()),
 			new SqlParameterValue(Types.DATE, page.getModifiedDate()));
@@ -404,7 +405,8 @@ public class JdbcPageDao extends ExtendedJdbcDaoSupport implements PageDao {
 				new SqlParameterValue(Types.VARCHAR, page.getSummary()),
 				page.getTemplate() == null ? new SqlParameterValue(Types.NULL, null) : new SqlParameterValue(Types.VARCHAR, page.getTemplate()), 
 				page.getScript() == null ? new SqlParameterValue(Types.NULL, null) : new SqlParameterValue(Types.VARCHAR, page.getScript()), 		
-				new SqlParameterValue(Types.NUMERIC, page.isSecured() ? 1 : 0 ),			
+				new SqlParameterValue(Types.NUMERIC, page.isSecured() ? 1 : 0 ),		
+				new SqlParameterValue(Types.VARCHAR, page.getContentType() ),
 				new SqlParameterValue(Types.NUMERIC, modifierId),
 				new SqlParameterValue(Types.DATE, page.getModifiedDate()),
 				new SqlParameterValue(Types.NUMERIC, page.getPageId()),
@@ -499,6 +501,7 @@ public class JdbcPageDao extends ExtendedJdbcDaoSupport implements PageDao {
 						page.setScript(rs.getString("SCRIPT"));
 					}
 					page.setSecured(rs.getInt("SECURED") == 1 ? true : false);
+					page.setContentType( rs.getString("CONTENT_TYPE") );
 					page.setCreationDate(rs.getTimestamp("CREATION_DATE"));
 					page.setModifiedDate(rs.getTimestamp("MODIFIED_DATE"));
 					return page;

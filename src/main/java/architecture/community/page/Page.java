@@ -30,6 +30,10 @@ public interface Page extends PropertyModelObjectAware {
 
     public void setSummary(String summary);
 
+    public String getContentType();
+    
+    public abstract void setContentType(String contentType) ;  
+    
     public String getBodyText();
 
     public void setBodyText(String body);

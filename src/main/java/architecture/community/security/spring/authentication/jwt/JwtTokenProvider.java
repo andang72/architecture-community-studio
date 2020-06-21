@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,12 +47,12 @@ public class JwtTokenProvider {
 	/**
 	 * JWT Token prefix
 	 */
-	static final String TOKEN_PREFIX = "Bearer";
+	public static final String TOKEN_PREFIX = "Bearer";
 
 	/**
 	 * Header key for JWT Token
 	 */
-	static final String HEADER_STRING = "Authorization";
+	public static final String HEADER_STRING = "Authorization";
 
 	public String createToken(Authentication authentication) {
 		String authorities = authentication.getAuthorities().stream().map(authority -> authority.getAuthority())
@@ -73,18 +76,17 @@ public class JwtTokenProvider {
 	}
 
 	public Authentication getAuthentication(String token) {
-
 		Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
 		Collection<? extends GrantedAuthority> authorities = Arrays
 				.asList(claims.get(AUTHORITIES_KEY).toString().split(",")).stream()
 				.map(authority -> new SimpleGrantedAuthority(authority)).collect(Collectors.toList());
 
 		User principal = new User(claims.getSubject(), "", authorities);
-
 		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-
 	}
-
+	
+	
+	
 	public boolean validateToken(String authToken) {
 		try {
 			Jwts.parser().setSigningKey(SECRET).parseClaimsJws(authToken);
@@ -100,6 +102,16 @@ public class JwtTokenProvider {
 			logger.error("JWT token is unsupported: {}", e.getMessage());
 		} catch (IllegalArgumentException e) {
 			logger.error("JWT claims string is empty: {}", e.getMessage());
+		}
+		return false;
+	}
+	
+	
+	public boolean verify (HttpServletRequest request) {
+		String bearerToken = request.getHeader(JwtTokenProvider.HEADER_STRING);
+		if (StringUtils.isNotBlank(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
+			String jwt = bearerToken.substring(7, bearerToken.length());
+			return validateToken(jwt);
 		}
 		return false;
 	}

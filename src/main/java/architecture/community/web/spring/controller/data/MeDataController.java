@@ -24,7 +24,7 @@ public class MeDataController {
 	public MeDataController() { 
 	} 
 	
-    @RequestMapping(value = "/data/users/me.json", method = { RequestMethod.POST, RequestMethod.GET })
+    @RequestMapping(value = {"/data/users/me.json" }, method = { RequestMethod.POST, RequestMethod.GET })
     @ResponseBody
     public UserDetails getUserDetails(Authentication authentication, NativeWebRequest request) {	
 		//Authentication authentication = SecurityHelper.getAuthentication();

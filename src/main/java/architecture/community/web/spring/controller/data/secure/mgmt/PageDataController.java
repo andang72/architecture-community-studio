@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import architecture.community.exception.NotFoundException;
+import architecture.community.image.DefaultImage;
+import architecture.community.image.Image;
 import architecture.community.model.Models;
 import architecture.community.model.Property;
 import architecture.community.page.DefaultBodyContent;
@@ -186,6 +188,21 @@ public class PageDataController {
 		return PageView.build(page, includeBodyContent);
 	}	
 	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/pages/delete.json", method = { RequestMethod.POST })
+	@ResponseBody
+	public Result deletePages(@RequestBody List<DefaultPage> pages, NativeWebRequest request) throws NotFoundException { 
+		
+		Result result = Result.newResult();
+		for( Page page : pages ) {
+			pageService.deletePage(page);
+			ObjectIdentity identity = new ObjectIdentityImpl(Models.PAGE.getObjectClass(), page.getPageId()); 
+			communityAclService.deleteAcl(identity, true); 
+			result.setCount( result.getCount() + 1 );
+		}
+		
+		return result;
+	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
@@ -193,17 +210,13 @@ public class PageDataController {
 	public Result deletePage(@PathVariable Long pageId,
 			@RequestParam(value = "versionId", defaultValue = "1") Integer versionId,  
 			NativeWebRequest request)
-			throws NotFoundException {
-		
-		Result result = Result.newResult(); 
-		
+			throws NotFoundException { 
+		Result result = Result.newResult();  
 		Page page = pageService.getPage(pageId, versionId);
 		log.debug("delete page by id : {}", page.getPageId());
-		pageService.deletePage(page); 
-		
+		pageService.deletePage(page);  
 		ObjectIdentity identity = new ObjectIdentityImpl(Models.PAGE.getObjectClass(), page.getPageId()); 
-		communityAclService.deleteAcl(identity, true);
-		
+		communityAclService.deleteAcl(identity, true); 
 		return result;
 	
 	}		

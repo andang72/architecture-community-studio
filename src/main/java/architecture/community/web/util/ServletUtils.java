@@ -47,6 +47,7 @@ public class ServletUtils {
 	public static ResponseEntity<String> doResponseAsHtml(Page page){
 		log.debug("reseponse as html.");
 		HttpHeaders httpHeaders = new HttpHeaders();
+		
 		httpHeaders.setContentType(org.springframework.http.MediaType.TEXT_HTML);
 		return new ResponseEntity( page.getBodyHtml(), httpHeaders, HttpStatus.OK);
 	}

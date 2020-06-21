@@ -99,10 +99,9 @@ public class DisplayController implements ServletContextAware {
 		Model model) 
 		throws NotFoundException, UnAuthorizedException {	
 		
-		log.debug("loading page : {} ({})", filename, version );
+		log.debug("Preparing : {} ({})", filename, version );
 		Page page = pageService.getPage(filename, version);	
-		model.addAttribute("__page", page);  
-		
+		model.addAttribute("__page", page);   
 		if( page.getPageId() > 0 ) {
 			if( page.isSecured() ) {
 				PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(), Models.PAGE.getObjectClass(), page.getPageId());
@@ -114,7 +113,7 @@ public class DisplayController implements ServletContextAware {
 		} 
 		
 		if(StringUtils.isNotEmpty(page.getScript())) {
-			log.debug("page script view : {}", page.getScript() );
+			log.debug("excute script : {}", page.getScript() );
 			try {
 				boolean useCache = page.getPageState() == PageState.PUBLISHED ? true : false ;
 				View _view = communityGroovyService.getService(page.getScript(), View.class, useCache);

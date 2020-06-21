@@ -41,8 +41,8 @@ public class ExceptionHandlerAdvice {
 		if( e instanceof org.springframework.security.authentication.BadCredentialsException ){
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		}
-		else if( e instanceof org.springframework.security.access.AccessDeniedException ){
-			response.setStatus(HttpStatus.FORBIDDEN.value());
+		else if( e instanceof org.springframework.security.access.AccessDeniedException ){ 
+			response.setStatus(HttpStatus.FORBIDDEN.value()); 
 		}else{
 			response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		} 
