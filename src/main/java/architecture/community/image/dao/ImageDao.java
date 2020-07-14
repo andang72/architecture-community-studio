@@ -21,12 +21,29 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import architecture.community.image.Album;
+import architecture.community.image.AlbumImage;
+import architecture.community.image.AlbumNotFoundException;
 import architecture.community.image.Image;
 import architecture.community.image.ImageNotFoundException;
 import architecture.community.image.LogoImage;
 
 public interface ImageDao {
-
+	
+	
+	public abstract Album getById(long albumId) throws AlbumNotFoundException;
+	
+	public abstract Album create(Album album);
+	
+	public abstract Album update(Album album);
+	
+	public abstract void delete(Album album);
+	
+	public abstract void update(Album album, List<Image> images );
+	
+	public abstract List<AlbumImage> getImages(Album album); 
+	
+	
     public void addLogoImage(LogoImage logoImage, File file);
 
     public void addLogoImage(LogoImage logoImage, InputStream is);

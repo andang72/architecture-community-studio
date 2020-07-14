@@ -34,6 +34,8 @@ import architecture.community.util.SecurityHelper;
 
 public class DefaultImage extends PropertyModelObjectAwareSupport implements Image {
 	
+	private Integer order ;
+	
 	private Long imageId;
 	
 	private String name;
@@ -58,6 +60,8 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 	
 	private String tags;
 	
+	private Image coverImage;
+	
 	public DefaultImage() {
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
 		this.user = SecurityHelper.ANONYMOUS;
@@ -67,6 +71,7 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 		this.thumbnailSize = 0 ;
 		this.imageLink = null;
 		this.tags = null;
+		this.order = 0 ;
 	}
 
 	public DefaultImage(Integer objectType, Long objectId) {
@@ -78,6 +83,18 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 		this.user = SecurityHelper.ANONYMOUS;
 		this.imageLink = null;
 		this.tags = null;
+		this.order = 0 ;
+		this.order = 0 ;
+	}
+
+	
+	
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 
 	public String getName() {
@@ -186,6 +203,15 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 
 	public void setTags(String tags) {
 		this.tags = tags;
+	}
+
+	
+	public Image getCoverImage() {
+		return coverImage;
+	}
+
+	public void setCoverImage(Image coverImage) {
+		this.coverImage = coverImage;
 	}
 
 	@Override

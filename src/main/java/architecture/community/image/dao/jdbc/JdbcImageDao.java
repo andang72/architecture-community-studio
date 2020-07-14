@@ -19,12 +19,13 @@ package architecture.community.image.dao.jdbc;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 
@@ -33,10 +34,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.support.SqlLobValue;
 
+import architecture.community.image.Album;
+import architecture.community.image.AlbumImage;
+import architecture.community.image.AlbumNotFoundException;
+import architecture.community.image.DefaultAlbum;
 import architecture.community.image.DefaultImage;
 import architecture.community.image.DefaultLogoImage;
 import architecture.community.image.Image;
@@ -51,63 +57,87 @@ import architecture.ee.spring.jdbc.ExtendedJdbcDaoSupport;
 import architecture.ee.spring.jdbc.ExtendedJdbcUtils.DB;
 import architecture.ee.spring.jdbc.InputStreamRowMapper;
 
-public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao { 
-	
+public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
+
 	@Inject
 	@Qualifier("sequencerFactory")
 	private SequencerFactory sequencerFactory;
-	
+
 	@Inject
 	@Qualifier("propertyDao")
-	private PropertyDao propertyDao;	
-	
+	private PropertyDao propertyDao;
+
 	private String propertyTableName = "AC_UI_IMAGE_PROPERTY";
 	private String propertyPrimaryColumnName = "IMAGE_ID";
-	
+
+	private String albumPropertyTableName = "AC_UI_ALBUM_PROPERTY";
+	private String albumPropertyPrimaryColumnName = "ALBUM_ID";
+
 	private Logger logger = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private final RowMapper<LogoImage> logoMapper = new RowMapper<LogoImage>() {
 		public LogoImage mapRow(ResultSet rs, int rowNum) throws SQLException {
-		    DefaultLogoImage image = new DefaultLogoImage();
-		    image.setImageId(rs.getLong("LOGO_ID"));
-		    image.setObjectType(rs.getInt("OBJECT_TYPE"));
-		    image.setObjectId(rs.getLong("OBJECT_ID"));
-		    image.setName(rs.getString("FILE_NAME"));
-		    image.setPrimary((rs.getInt("PRIMARY_IMAGE") == 1 ? true : false));
-		    image.setSize(rs.getInt("FILE_SIZE"));
-		    image.setContentType(rs.getString("CONTENT_TYPE"));
-		    image.setCreationDate(rs.getTimestamp("CREATION_DATE"));
-		    image.setModifiedDate(rs.getTimestamp("MODIFIED_DATE"));
-		    return image;
+			DefaultLogoImage image = new DefaultLogoImage();
+			image.setImageId(rs.getLong("LOGO_ID"));
+			image.setObjectType(rs.getInt("OBJECT_TYPE"));
+			image.setObjectId(rs.getLong("OBJECT_ID"));
+			image.setName(rs.getString("FILE_NAME"));
+			image.setPrimary((rs.getInt("PRIMARY_IMAGE") == 1 ? true : false));
+			image.setSize(rs.getInt("FILE_SIZE"));
+			image.setContentType(rs.getString("CONTENT_TYPE"));
+			image.setCreationDate(rs.getTimestamp("CREATION_DATE"));
+			image.setModifiedDate(rs.getTimestamp("MODIFIED_DATE"));
+			return image;
 		}
 	};
-	
-	private final RowMapper<Image> imageMapper = new RowMapper<Image>(){
+
+	private final RowMapper<Image> imageMapper = new RowMapper<Image>() {
 		public Image mapRow(ResultSet rs, int rowNum) throws SQLException {
 			DefaultImage image = new DefaultImage();
 			image.setImageId(rs.getLong("IMAGE_ID"));
 			image.setObjectType(rs.getInt("OBJECT_TYPE"));
 			image.setObjectId(rs.getLong("OBJECT_ID"));
+
 			image.setName(rs.getString("FILE_NAME"));
+			String normalized = java.text.Normalizer.normalize(image.getName(), Normalizer.Form.NFC);
+			image.setName(normalized);
+
 			image.setSize(rs.getInt("FILE_SIZE"));
 			image.setUser(new UserTemplate(rs.getLong("USER_ID")));
 			image.setContentType(rs.getString("CONTENT_TYPE"));
 			image.setCreationDate(rs.getDate("CREATION_DATE"));
-			image.setModifiedDate(rs.getDate("MODIFIED_DATE"));			
+			image.setModifiedDate(rs.getDate("MODIFIED_DATE"));
 			return image;
-		}		
+		}
 	};
-	
+
+	private final RowMapper<Album> albumMapper = new RowMapper<Album>() {
+		public Album mapRow(ResultSet rs, int rowNum) throws SQLException {
+			DefaultAlbum album = new DefaultAlbum();
+			album.setAlbumId(rs.getLong("ALBUM_ID"));
+			album.setName(rs.getString("NAME"));
+			album.setDescription(rs.getString("DESCRIPTION"));
+			album.setUser(new UserTemplate(rs.getLong("USER_ID")));
+			album.setCreationDate(rs.getTimestamp("CREATION_DATE"));
+			album.setModifiedDate(rs.getTimestamp("MODIFIED_DATE"));
+			return album;
+		}
+	};
+
 	public JdbcImageDao() {
 	}
 
-	public long getNextImageId(){
+	public long getNextImageId() {
 		return sequencerFactory.getNextValue(Models.IMAGE.getObjectType(), Models.IMAGE.name());
-	}	
-	
-	public long getNextLogoId(){
+	}
+
+	public long getNextAlbumId() {
+		return sequencerFactory.getNextValue(Models.ALBUM.getObjectType(), Models.ALBUM.name());
+	}
+
+	public long getNextLogoId() {
 		return sequencerFactory.getNextValue(Models.LOGO_IMAGE.getObjectType(), Models.LOGO_IMAGE.name());
-	} 
+	}
 
 	public Map<String, String> getImageProperties(long imageId) {
 		return propertyDao.getProperties(propertyTableName, propertyPrimaryColumnName, imageId);
@@ -116,113 +146,114 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 	public void deleteImageProperties(long imageId) {
 		propertyDao.deleteProperties(propertyTableName, propertyPrimaryColumnName, imageId);
 	}
-	
+
 	public void setImageProperties(long imageId, Map<String, String> props) {
 		propertyDao.updateProperties(propertyTableName, propertyPrimaryColumnName, imageId, props);
 	}
-	
+
+	public void deleteAlbumProperties(long albumId) {
+		propertyDao.deleteProperties(albumPropertyTableName, albumPropertyPrimaryColumnName, albumId);
+	}
+
+	public void setAlbumProperties(long albumId, Map<String, String> props) {
+		propertyDao.updateProperties(albumPropertyTableName, albumPropertyPrimaryColumnName, albumId, props);
+	}
+
 	public Image createImage(Image image) {
-		
-		Image toUse = image;		
-		if( toUse.getImageId() <1L){ 
-			
+		Image toUse = image;
+		if (toUse.getImageId() < 1L) {
+
 			long imageId = getNextImageId();
-			if( image instanceof DefaultImage){
-				DefaultImage impl = (DefaultImage)toUse;
+			if (image instanceof DefaultImage) {
+				DefaultImage impl = (DefaultImage) toUse;
 				impl.setImageId(imageId);
-			}			
-			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_IMAGE").getSql(), 	
-					new SqlParameterValue (Types.NUMERIC, imageId), 
-					new SqlParameterValue (Types.INTEGER, image.getObjectType() ), 
-					new SqlParameterValue (Types.NUMERIC, image.getObjectId() ), 
-					new SqlParameterValue (Types.VARCHAR, image.getName() ), 
-					new SqlParameterValue (Types.INTEGER, image.getSize() ), 
-					new SqlParameterValue (Types.VARCHAR, image.getContentType()), 
-					new SqlParameterValue (Types.NUMERIC, image.getUser().getUserId()), 
+			}
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_IMAGE").getSql(),
+					new SqlParameterValue(Types.NUMERIC, imageId),
+					new SqlParameterValue(Types.INTEGER, image.getObjectType()),
+					new SqlParameterValue(Types.NUMERIC, image.getObjectId()),
+					new SqlParameterValue(Types.VARCHAR, image.getName()),
+					new SqlParameterValue(Types.INTEGER, image.getSize()),
+					new SqlParameterValue(Types.VARCHAR, image.getContentType()),
+					new SqlParameterValue(Types.NUMERIC, image.getUser().getUserId()),
 					new SqlParameterValue(Types.DATE, image.getCreationDate()),
-					new SqlParameterValue(Types.DATE, image.getModifiedDate()));	
-			
-			if( image.getProperties().size() > 0 )
+					new SqlParameterValue(Types.DATE, image.getModifiedDate()));
+
+			if (image.getProperties().size() > 0)
 				setImageProperties(image.getImageId(), image.getProperties());
-			
-		}		
-		return  image;
+
+		}
+		return image;
 	}
 
 	public Image updateImage(Image image) {
-		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.UPDATE_IMAGE").getSql(), 	
-				///new SqlParameterValue (Types.NUMERIC, image.getImageId()), 
-				new SqlParameterValue (Types.INTEGER, image.getObjectType() ), 
-				new SqlParameterValue (Types.INTEGER, image.getObjectId() ), 
-				new SqlParameterValue (Types.VARCHAR, image.getName() ), 
-				new SqlParameterValue (Types.INTEGER, image.getSize() ), 
-				new SqlParameterValue (Types.VARCHAR, image.getContentType()), 
-				//new SqlParameterValue(Types.DATE, image.getCreationDate()),
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.UPDATE_IMAGE").getSql(),
+				/// new SqlParameterValue (Types.NUMERIC, image.getImageId()),
+				new SqlParameterValue(Types.INTEGER, image.getObjectType()),
+				new SqlParameterValue(Types.INTEGER, image.getObjectId()),
+				new SqlParameterValue(Types.VARCHAR, image.getName()),
+				new SqlParameterValue(Types.INTEGER, image.getSize()),
+				new SqlParameterValue(Types.VARCHAR, image.getContentType()),
+				// new SqlParameterValue(Types.DATE, image.getCreationDate()),
 				new SqlParameterValue(Types.DATE, image.getModifiedDate()),
-				new SqlParameterValue (Types.NUMERIC, image.getImageId()) );	
-		
+				new SqlParameterValue(Types.NUMERIC, image.getImageId()));
+
 		deleteImageProperties(image.getImageId());
-		if( image.getProperties().size() > 0 )
+		if (image.getProperties().size() > 0)
 			setImageProperties(image.getImageId(), image.getProperties());
-		
+
 		return image;
 	}
-			
+
 	public void deleteImage(Image image) {
-		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_IMAGE_BY_ID").getSql(), 	
-				new SqlParameterValue (Types.NUMERIC, image.getImageId()));
-		
-		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_IMAGE_DATA_BY_ID").getSql(), 	
-				new SqlParameterValue (Types.NUMERIC, image.getImageId()));	
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_IMAGE_BY_ID").getSql(),
+				new SqlParameterValue(Types.NUMERIC, image.getImageId()));
+
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_IMAGE_DATA_BY_ID").getSql(),
+				new SqlParameterValue(Types.NUMERIC, image.getImageId()));
 		deleteImageProperties(image.getImageId());
 	}
 
 	public InputStream getImageInputStream(Image image) {
-		return getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_WEB.SELECT_IMAGE_DATA_BY_ID").getSql(), new InputStreamRowMapper(), new SqlParameterValue (Types.NUMERIC, image.getImageId()));		
-	}
-	
-	public void saveImageInputStream(Image image, InputStream inputStream) {
-		
-		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_IMAGE_DATA_BY_ID").getSql(), new SqlParameterValue (Types.NUMERIC, image.getImageId()));
-		
-		if( getExtendedJdbcTemplate().getDBInfo() == DB.ORACLE ){						
-			
-			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_EMPTY_IMAGE_DATA").getSql(), new SqlParameterValue (Types.NUMERIC, image.getImageId()));
-			
-			
-			getExtendedJdbcTemplate().update(
-					getBoundSql("COMMUNITY_WEB.UPDATE_IMAGE_DATA").getSql(), 
-					new Object[]{
-						new SqlLobValue( inputStream , image.getSize(), getLobHandler()),
-						image.getImageId()
-					}, 
-					new int[]{
-						Types.BLOB,
-						Types.NUMERIC
-					});
-		}else{			
-			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_IMAGE_DATA").getSql(), 
-					new SqlParameterValue ( Types.NUMERIC, image.getImageId()), 
-					new SqlParameterValue ( Types.BLOB,  new SqlLobValue( inputStream , image.getSize(), getLobHandler() ) ) 
-			);
-		}		
+		return getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_WEB.SELECT_IMAGE_DATA_BY_ID").getSql(),
+				new InputStreamRowMapper(), new SqlParameterValue(Types.NUMERIC, image.getImageId()));
 	}
 
-	public Image getImageById(long imageId) {		 
-		Image image = getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_WEB.SELECT_IMAGE_BY_ID").getSql(), imageMapper, new SqlParameterValue (Types.NUMERIC, imageId ));		
+	public void saveImageInputStream(Image image, InputStream inputStream) {
+
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_IMAGE_DATA_BY_ID").getSql(),
+				new SqlParameterValue(Types.NUMERIC, image.getImageId()));
+
+		if (getExtendedJdbcTemplate().getDBInfo() == DB.ORACLE) {
+
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_EMPTY_IMAGE_DATA").getSql(),
+					new SqlParameterValue(Types.NUMERIC, image.getImageId()));
+
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.UPDATE_IMAGE_DATA").getSql(),
+					new Object[] { new SqlLobValue(inputStream, image.getSize(), getLobHandler()), image.getImageId() },
+					new int[] { Types.BLOB, Types.NUMERIC });
+		} else {
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_IMAGE_DATA").getSql(),
+					new SqlParameterValue(Types.NUMERIC, image.getImageId()),
+					new SqlParameterValue(Types.BLOB, new SqlLobValue(inputStream, image.getSize(), getLobHandler())));
+		}
+	}
+
+	public Image getImageById(long imageId) {
+		Image image = getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_WEB.SELECT_IMAGE_BY_ID").getSql(),
+				imageMapper, new SqlParameterValue(Types.NUMERIC, imageId));
 		Map<String, String> properties = getImageProperties(image.getImageId());
 		image.getProperties().putAll(properties);
 		return image;
 	}
-	
-	
+
 	//
-	
+
 	public void addLogoImage(LogoImage logoImage, File file) {
 		try {
 			if (logoImage.getSize() == 0)
 				logoImage.setSize((int) FileUtils.sizeOf(file));
-			
+
 			addLogoImage(logoImage, file != null ? FileUtils.openInputStream(file) : null);
 		} catch (IOException e) {
 			logger.error("", e);
@@ -234,7 +265,7 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 		long logoIdToUse = logoImage.getImageId();
 		if (logoIdToUse < 1) {
 			logoIdToUse = getNextLogoId();
-			((DefaultLogoImage)logoImage).setImageId(logoIdToUse);
+			((DefaultLogoImage) logoImage).setImageId(logoIdToUse);
 		}
 		getExtendedJdbcTemplate().update(
 				getBoundSql("COMMUNITY_WEB.RESET_LOGO_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID").getSql(),
@@ -251,7 +282,7 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 				new SqlParameterValue(Types.VARCHAR, logoImage.getContentType()),
 				new SqlParameterValue(Types.DATE, logoImage.getModifiedDate()),
 				new SqlParameterValue(Types.DATE, logoImage.getCreationDate()));
-		
+
 		updateImageImputStream(logoImage, is);
 	}
 
@@ -288,20 +319,18 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 	protected void updateImageImputStream(LogoImage logoImage, InputStream inputStream) {
 		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_LOGO_IMAGE_DATA_BY_ID").getSql(),
 				new SqlParameterValue(Types.NUMERIC, logoImage.getImageId()));
-		
-		if ( getExtendedJdbcTemplate().getDBInfo() == DB.ORACLE ){
-			getExtendedJdbcTemplate().update(
-					getBoundSql("COMMUNITY_WEB.INSERT_EMPTY_LOGO_IMAGE_DATA").getSql(),
+
+		if (getExtendedJdbcTemplate().getDBInfo() == DB.ORACLE) {
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.INSERT_EMPTY_LOGO_IMAGE_DATA").getSql(),
 					new SqlParameterValue(Types.NUMERIC, logoImage.getImageId()));
-			getExtendedJdbcTemplate().update(
-					getBoundSql("COMMUNITY_WEB.UPDATE_LOGO_IMAGE_DATA").getSql(),
-					new SqlParameterValue(Types.BLOB, new SqlLobValue(inputStream, logoImage.getSize(), getLobHandler())),
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.UPDATE_LOGO_IMAGE_DATA").getSql(),
+					new SqlParameterValue(Types.BLOB,
+							new SqlLobValue(inputStream, logoImage.getSize(), getLobHandler())),
 					new SqlParameterValue(Types.NUMERIC, logoImage.getImageId()));
 		} else {
-			getExtendedJdbcTemplate().update(
-					getBoundSql("COMMUNITY_WEB.INSERT_LOGO_IMAGE_DATA").getSql(),
-					new SqlParameterValue(Types.NUMERIC, logoImage.getImageId()), 
-					new SqlParameterValue(Types.BLOB, new SqlLobValue(inputStream, logoImage.getSize(), getLobHandler())));
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.INSERT_LOGO_IMAGE_DATA").getSql(),
+					new SqlParameterValue(Types.NUMERIC, logoImage.getImageId()), new SqlParameterValue(Types.BLOB,
+							new SqlLobValue(inputStream, logoImage.getSize(), getLobHandler())));
 		}
 	}
 
@@ -314,8 +343,7 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 
 	public InputStream getInputStream(LogoImage logoImage) throws IOException {
 		return getExtendedJdbcTemplate().queryForObject(
-				getBoundSql("COMMUNITY_WEB.SELECT_LOGO_IMAGE_DATA_BY_ID").getSql(),
-				new InputStreamRowMapper(), 
+				getBoundSql("COMMUNITY_WEB.SELECT_LOGO_IMAGE_DATA_BY_ID").getSql(), new InputStreamRowMapper(),
 				new SqlParameterValue(Types.NUMERIC, logoImage.getImageId()));
 	}
 
@@ -323,8 +351,7 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 		try {
 			return getExtendedJdbcTemplate().queryForObject(
 					getBoundSql("COMMUNITY_WEB.SELECT_PRIMARY_LOGO_IMAGE_ID_BY_OBJECT_TYPE_AND_OBJECT_ID").getSql(),
-					Long.class,
-					new SqlParameterValue(Types.NUMERIC, objectType), 
+					Long.class, new SqlParameterValue(Types.NUMERIC, objectType),
 					new SqlParameterValue(Types.NUMERIC, objectId));
 		} catch (DataAccessException e) {
 			throw new ImageNotFoundException(e);
@@ -344,18 +371,105 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 
 	public List<Long> getLogoImageIds(int objectType, long objectId) {
 		return getExtendedJdbcTemplate().queryForList(
-				getBoundSql("COMMUNITY_WEB.SELECT_LOGO_IMAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID").getSql(), 
-				Long.class,
-				new SqlParameterValue(Types.NUMERIC, objectType), 
-				new SqlParameterValue(Types.NUMERIC, objectId));
+				getBoundSql("COMMUNITY_WEB.SELECT_LOGO_IMAGE_IDS_BY_OBJECT_TYPE_AND_OBJECT_ID").getSql(), Long.class,
+				new SqlParameterValue(Types.NUMERIC, objectType), new SqlParameterValue(Types.NUMERIC, objectId));
 	}
 
 	public int getLogoImageCount(int objectType, long objectId) {
 		return getExtendedJdbcTemplate().queryForObject(
-				getBoundSql("COMMUNITY_WEB.COUNT_LOGO_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID").getSql(),
-				Integer.class,
-				new SqlParameterValue(Types.NUMERIC, objectType), 
-				new SqlParameterValue(Types.NUMERIC, objectId));
+				getBoundSql("COMMUNITY_WEB.COUNT_LOGO_IMAGE_BY_OBJECT_TYPE_AND_OBJECT_ID").getSql(), Integer.class,
+				new SqlParameterValue(Types.NUMERIC, objectType), new SqlParameterValue(Types.NUMERIC, objectId));
+	}
+
+	
+	@Override
+	public Album getById(long albumId) throws AlbumNotFoundException {
+		try {
+			return getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_WEB.SELECT_ALBUM_BY_ID").getSql(),
+					albumMapper, new SqlParameterValue(Types.NUMERIC, albumId));
+		} catch (DataAccessException e) {
+			throw new AlbumNotFoundException(e);
+		}
+	}
+
+	public Album create(Album album) {
+		Album toUse = album;
+		if (toUse.getAlbumId() < 1L) {
+			long albumId = getNextAlbumId();
+			if (album instanceof DefaultAlbum) {
+				DefaultAlbum impl = (DefaultAlbum) toUse;
+				impl.setAlbumId(albumId);
+			}
+			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_ALBUM").getSql(),
+					new SqlParameterValue(Types.NUMERIC, toUse.getAlbumId()),
+					new SqlParameterValue(Types.VARCHAR, toUse.getName()),
+					new SqlParameterValue(Types.VARCHAR, toUse.getDescription()),
+					new SqlParameterValue(Types.NUMERIC, toUse.getUser().getUserId()),
+					new SqlParameterValue(Types.DATE, toUse.getCreationDate()),
+					new SqlParameterValue(Types.DATE, toUse.getModifiedDate()));
+
+			if (toUse.getProperties().size() > 0)
+				setAlbumProperties(toUse.getAlbumId(), toUse.getProperties());
+
+		}
+		return toUse;
 	}
 	
+	public List<AlbumImage> getImages(Album album){
+		return getExtendedJdbcTemplate().query(getBoundSql("COMMUNITY_WEB.SELECT_ALBUM_IMAGE_IDS").getSql(), new RowMapper<AlbumImage>() { 
+			public AlbumImage mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return new AlbumImage(rs.getLong(1), rs.getInt(2), rs.getLong(3));
+			} 
+		}, new SqlParameterValue(Types.NUMERIC, album.getAlbumId()));
+	}
+
+	public Album update(Album album) {
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.UPDATE_ALBUM").getSql(),
+				/// new SqlParameterValue (Types.NUMERIC, image.getImageId()),
+				new SqlParameterValue(Types.VARCHAR, album.getName()),
+				new SqlParameterValue(Types.VARCHAR, album.getDescription()),
+				new SqlParameterValue(Types.DATE, album.getModifiedDate()),
+				new SqlParameterValue(Types.NUMERIC, album.getAlbumId()));
+
+		deleteAlbumProperties(album.getAlbumId());
+		if (album.getProperties().size() > 0)
+			setAlbumProperties(album.getAlbumId(), album.getProperties());
+
+		return album;
+	}
+
+	public void delete(Album album) {
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_ALBUM_BY_ID").getSql(),
+				new SqlParameterValue(Types.NUMERIC, album.getAlbumId()));
+		
+		deleteAlbumProperties(album.getAlbumId());
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_ALBUM_IMAGES_BY_ID").getSql(), new SqlParameterValue(Types.NUMERIC, album.getAlbumId())); 
+		
+
+	}
+
+	@Override
+	public void update(Album album, List<Image> images) { 
+		
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_ALBUM_IMAGES_BY_ID").getSql(), 
+				new SqlParameterValue(Types.NUMERIC, album.getAlbumId())); 
+		
+		final List<Image> imagesToUse = images; 
+		final Album albumToUse = album;
+		getExtendedJdbcTemplate().batchUpdate(
+				getBoundSql("COMMUNITY_WEB.INSERT_ABLUM_IMAGE").getSql(),
+				new BatchPreparedStatementSetter() { 
+				    public void setValues(PreparedStatement ps, int i) throws SQLException {
+				    	Image img  = imagesToUse.get(i); 
+						ps.setLong(1, albumToUse.getAlbumId());
+						ps.setLong(2, img.getImageId());
+						ps.setInt(3, i);
+				    }
+				    public int getBatchSize() {
+				    	return imagesToUse.size();
+				    }
+				}
+		); 
+	}
+
 }

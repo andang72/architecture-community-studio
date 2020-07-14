@@ -5,25 +5,60 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import architecture.community.exception.NotFoundException;
+import architecture.community.exception.UnAuthorizedException;
 import architecture.community.security.spring.userdetails.CommuintyUserDetails;
 import architecture.community.security.spring.userdetails.SystemUser;
+import architecture.community.user.CommunityUser;
 import architecture.community.user.User;
+import architecture.community.user.UserAlreadyExistsException;
+import architecture.community.user.UserManager;
+import architecture.community.user.UserNotFoundException;
 import architecture.community.util.SecurityHelper;
+import architecture.community.web.model.Result;
 
 @Controller("community-me-data-controller") 
 public class MeDataController {
 
+	private Logger log = LoggerFactory.getLogger(getClass());
+	
+	@Autowired(required = false) 
+	@Qualifier("userManager")
+	private UserManager userManager;
+	
 	public MeDataController() { 
 	} 
 	
+	
+	@Secured({ "ROLE_USER" })
+	@RequestMapping(value = { "/data/users/me", "/data/users/me/save-or-update.json" }, method = { RequestMethod.POST })
+    @ResponseBody
+    public Result saveOrUpdateUser(@RequestBody CommunityUser user , NativeWebRequest request) throws UnAuthorizedException, UserNotFoundException, UserAlreadyExistsException { 
+		log.debug("Save or update user {} ", user.toString());
+		User userToUse = user ;
+		if( userToUse.getUserId() > 0 &&  userToUse.getUserId()  == SecurityHelper.getUser().getUserId() ) {
+			userManager.updateUser(userToUse);
+		}else {
+			throw new UnAuthorizedException();			
+		}
+		return Result.newResult("item", userToUse);
+    }
+	
+	@Secured({ "ROLE_USER" })
     @RequestMapping(value = {"/data/users/me.json" }, method = { RequestMethod.POST, RequestMethod.GET })
     @ResponseBody
     public UserDetails getUserDetails(Authentication authentication, NativeWebRequest request) {	

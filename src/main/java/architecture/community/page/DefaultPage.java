@@ -166,6 +166,14 @@ public class DefaultPage extends PropertyModelObjectAwareSupport implements Page
 		this.pageState = pageState;
 	}
 
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
 	/**
 	 * @return title
 	 */

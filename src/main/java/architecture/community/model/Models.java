@@ -5,6 +5,7 @@ import architecture.community.attachment.Attachment;
 import architecture.community.category.Category;
 import architecture.community.comment.Comment;
 import architecture.community.i18n.I18nText;
+import architecture.community.image.Album;
 import architecture.community.image.Image;
 import architecture.community.image.LogoImage;
 import architecture.community.navigator.menu.Menu;
@@ -41,7 +42,8 @@ public enum Models {
 	STREAMS_MESSAGE(22, StreamMessage.class),
 	API(30, Api.class),
 	I18N(35, I18nText.class),
-	ANNOUNCE(41, Announce.class)
+	ANNOUNCE(41, Announce.class),
+	ALBUM(45, Album.class)
 	;
 	
 	private int objectType;

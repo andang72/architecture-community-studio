@@ -25,9 +25,12 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -48,6 +51,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 import architecture.community.attachment.AbstractAttachmentService;
 import architecture.community.exception.NotFoundException;
@@ -105,6 +111,11 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 	@Qualifier("userManager")
 	private UserManager userManager;
 	
+	@Inject
+	@Qualifier("albumCache")
+	private Cache albumCache;
+	
+	
 	@Autowired
 	@Qualifier("customQueryJdbcDao")
 	private CustomQueryJdbcDao customQueryJdbcDao;
@@ -114,10 +125,10 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 	private File imageDir;
 
 	public CommunityImageService() {
-		imageConfig = new ImageConfig();
+		imageConfig = new ImageConfig(); 
+		createAlbumImageCache(1000L, 10L);
 	}
 
-	
 	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void addLogoImage(LogoImage logoImage, File file) {
@@ -951,6 +962,90 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 			FileUtils.deleteQuietly(file); 
 		
 		imageCache.remove(image.getImageId()); 
+	}
+
+	
+	private com.google.common.cache.LoadingCache<Long, List<AlbumImage>> albumImagesCache; 
+	
+	private void createAlbumImageCache (Long maximumSize, Long duration) { 
+		albumImagesCache = CacheBuilder.newBuilder().maximumSize(maximumSize).expireAfterAccess( duration , TimeUnit.MINUTES).build(		
+				new CacheLoader<Long, List<AlbumImage>>(){			
+					public List<AlbumImage>  load(Long albumId) throws Exception {
+					
+						return imageDao.getImages(new DefaultAlbum(albumId));
+				}}
+		);
+	}
+
+	
+	public List<AlbumImage> getAlbumImages(Album album){
+		try {
+			return albumImagesCache.get(album.getAlbumId());
+		} catch (ExecutionException e) {
+			return Collections.EMPTY_LIST;
+		}
+	};
+
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public void saveOrUpdate(Album album) { 
+		try { 
+			if (album.getAlbumId() <= 0) {
+				Album newAlbum = imageDao.create(album); 
+			} else {
+				Date now = new Date();
+				((DefaultAlbum) album).setModifiedDate(now);
+				if( albumCache.isKeyInCache(album.getAlbumId())) 
+					albumCache.remove(album.getAlbumId());
+				imageDao.update(album);
+			} 
+			Album albumToUse = getAlbum(album.getAlbumId()); 
+		} catch (Exception e) {
+			throw new RuntimeError(e);
+		}
+	}
+
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public void delete(Album album) { 
+		imageDao.delete(album);
+		if( albumCache.isKeyInCache(album.getAlbumId())) 
+			albumCache.remove(album.getAlbumId()); 
+	} 
+	
+	@Override
+	public Album getAlbum(long albumId) throws AlbumNotFoundException {
+		Album albumToUse = null;
+		if (albumCache.get(albumId) == null) {
+			try {
+				albumToUse = imageDao.getById(albumId);
+				if(	albumToUse.getUser() != null && albumToUse.getUser().getUserId() > 0 ) {
+					User user = userManager.getUser(albumToUse.getUser().getUserId());
+					albumToUse.setUser(user);
+				}
+				albumCache.put(new Element(albumId, albumToUse));
+			} catch (Exception e) {
+				String msg = (new StringBuilder()).append("Unable to find album ").append(albumId).toString();
+				throw new AlbumNotFoundException(msg, e);
+			}
+		} else {
+			albumToUse = (Album) albumCache.get(albumId).getObjectValue();
+		}
+		return albumToUse;
+	}
+
+	@Override
+	public List<Album> getAlbums() { 
+		return null;
+	}
+	 
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public void saveOrUpdate(Album album, List<Image> images) {
+		if( album.getAlbumId() > 0 & albumCache.isKeyInCache(album.getAlbumId())) 
+			albumCache.remove(album.getAlbumId()); 	  
+		albumImagesCache.invalidate(album.getAlbumId()); 
+		imageDao.update(album, images);
 	}
 
 }

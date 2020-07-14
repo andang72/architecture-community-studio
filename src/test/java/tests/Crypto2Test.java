@@ -15,8 +15,8 @@ import org.apache.commons.codec.binary.Hex;
 public class Crypto2Test {
  
     public static void main(String args[]) throws Exception {
-        String ciphertext =  "CocISsg6bM1nEyIYDA+kpKL1z3/kAugZvVg4QHaoNPxbd4qbqIdBFviiIrlLp79w"; 
-       // String ciphertext =  "rV2MW3IoCfcCHMa6cZuCcDJpOnOhHDS4R8cOXEL+Z4kqYiBqYbG+zVJNfNUZrKDI"; 
+        //String ciphertext =  "CocISsg6bM1nEyIYDA+kpKL1z3/kAugZvVg4QHaoNPxbd4qbqIdBFviiIrlLp79w"; 
+       String ciphertext =  "CocISsg6bM1nEyIYDA+kpKL1z3/kAugZvVg4QHaoNPxbd4qbqIdBFviiIrlLp79w" ; 
         String passPhrase = "1234";
         String salt = "947e41cb1fe5783b1462013ffd2d03ed"; //"18b00b2fc5f0e0ee40447bba4dabc952"; 
         String iv = "1b5ded7b4e2dfd0ae7c19d65960e0a7f"; //"4378110db6392f93e95d5159dabdee9b";

@@ -151,6 +151,7 @@ public class PageDataController {
 			pageToUse.setSummary(page.getSummary());
 			pageToUse.setTemplate(page.getTemplate());
 			pageToUse.setSecured(page.isSecured()); 
+			pageToUse.setContentType(page.getContentType());
 			
 			if (includeBodyContent && page.getBodyContent() != null)
 				pageToUse.setBodyText(page.getBodyContent().getBodyText());		 

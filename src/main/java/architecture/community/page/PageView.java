@@ -223,4 +223,16 @@ public class PageView implements Page {
 		return page.getBodyHtml();
 	}
 
+	@Override
+	public String getContentType() {
+		// TODO Auto-generated method stub
+		return page.getContentType();
+	}
+
+	@Override
+	public void setContentType(String contentType) {
+		// TODO Auto-generated method stub
+		page.setContentType(contentType);
+	}
+
 }

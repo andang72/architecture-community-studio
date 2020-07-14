@@ -42,6 +42,10 @@ public class UserTest {
 	}
 
 	@Test
+	public void testUserManager() {
+		
+	}
+	
 	public void testCreateUserIfNotExist() {
 		
 		if( configService.isSetDataSource() && configService.isDatabaseInitialized() && userManager.getUserCount() == 0 ) {
@@ -78,7 +82,7 @@ public class UserTest {
 		}
 	}
 
-	@Test
+	
 	public void createCompany() {
 		boolean exist = false;
 		Company company = null;
