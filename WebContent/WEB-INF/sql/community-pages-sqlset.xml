@@ -130,7 +130,8 @@
 			pv.TEMPLATE,
 			p.PATTERN,
 			pv.SCRIPT,
-			pv.SECURED
+			pv.SECURED,
+			pv.CONTENT_TYPE
     	FROM 
     		AC_UI_PAGE p, AC_UI_PAGE_VERSION pv
     	WHERE
@@ -148,11 +149,12 @@
 			TEMPLATE, 
 			SCRIPT,
 			SECURED,
+			CONTENT_TYPE,
 			USER_ID,
 			CREATION_DATE,
 			MODIFIED_DATE		
  		) VALUES (
- 			?,?,?,?,?,?,?,?,?,?,?
+ 			?,?,?,?,?,?,?,?,?,?,?,?
  		)
     ]]></sql-query>	
  	
@@ -165,6 +167,7 @@
 			TEMPLATE = ?, 
 			SCRIPT = ?, 
 			SECURED = ?,
+			CONTENT_TYPE = ?,
 			USER_ID = ?,
 			MODIFIED_DATE = ?		
  		WHERE
@@ -206,6 +209,7 @@
 			TEMPLATE,
 			SCRIPT,
 			SECURED,
+			CONTENT_TYPE,
 			USER_ID,
 			CREATION_DATE,
 			MODIFIED_DATE		
