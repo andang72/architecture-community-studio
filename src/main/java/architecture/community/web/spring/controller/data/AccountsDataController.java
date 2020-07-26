@@ -78,10 +78,13 @@ public class AccountsDataController {
 		return null;
 	}
 
+ 
 	@RequestMapping(value = { "/signin.json", "/jwt/authorize" }, method = { RequestMethod.POST })
 	public ResponseEntity<JwtResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+		
+		
+		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+		
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtTokenProvider.createToken(authentication);
 		CommuintyUserDetails details = SecurityHelper.getUserDetails(authentication);

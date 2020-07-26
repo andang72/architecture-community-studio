@@ -66,7 +66,8 @@ public class StatusDataController {
 		private Boolean databaseInitialized = false;
 		private Boolean viewCountEnabled = false;
 		private Boolean auditEnabled = false;
-		private String language;
+		private String country;
+		private String language; 
 		private String timezone ;
 		
 		public Boolean getDatasourceEnabled() {
@@ -75,6 +76,10 @@ public class StatusDataController {
 
 		public Boolean getDatabaseInitialized() {
 			return databaseInitialized;
+		}
+
+		public String getLanguageTag() {
+			return language + "-" + country;
 		}
 
 		public String getLanguage() {
@@ -89,12 +94,21 @@ public class StatusDataController {
 			return auditEnabled;
 		}
 
+		public Boolean getViewCountEnabled() {
+			return viewCountEnabled;
+		}
+
+		public String getCountry() {
+			return country;
+		}
+
 		public static ApplicationProperty build(ConfigService configService) {
 			ApplicationProperty props = new ApplicationProperty();
 			 
 			props.datasourceEnabled = configService.getApplicationBooleanProperty(CommunityConstants.SERVICES_SETUP_DATASOURCES_ENABLED_PROP_NAME, false);
 			props.databaseInitialized = configService.isDatabaseInitialized();
 			props.language = configService.getLocale().getLanguage();
+			props.country = configService.getLocale().getCountry();
 			props.timezone = configService.getTimeZone().getID();
 			props.viewCountEnabled = configService.getApplicationBooleanProperty( CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false);
 			props.auditEnabled = configService.getApplicationBooleanProperty( CommunityConstants.SERVICES_AUDIT_ENABLED_PROP_NAME, false);

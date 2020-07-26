@@ -51,8 +51,8 @@ public class MenuTest {
 	public void createMenuXml() {
 		try {
 			// First create Stax components we need
-			XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-			XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
+			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+			XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 			StringWriter out = new StringWriter();
 			XMLStreamWriter sw = xmlOutputFactory.createXMLStreamWriter(out);
 			

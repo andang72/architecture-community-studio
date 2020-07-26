@@ -6,8 +6,8 @@ import java.io.InputStream;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -138,7 +138,7 @@ public class DownloadDataController {
 			throws IOException {
 		response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
 		response.setContentType(contentType);
-		byte[] data = DatatypeConverter.parseBase64Binary(base64);
+		byte[] data = Base64.decodeBase64(base64);// DatatypeConverter.parseBase64Binary(base64);
 		response.setContentLength(data.length);
 		response.getOutputStream().write(data);
 		response.flushBuffer();

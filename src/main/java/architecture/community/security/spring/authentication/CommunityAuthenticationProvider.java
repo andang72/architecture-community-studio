@@ -62,7 +62,9 @@ public class CommunityAuthenticationProvider extends DaoAuthenticationProvider i
 		    logger.error(CommunityLogLocalizer.getMessage("010102"), e);
 		    throw new BadCredentialsException( messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		} 
+		
 		logger.debug("additional authentication checks");
+		
 		super.additionalAuthenticationChecks(userDetails, authentication); 
 	}
 	
