@@ -35,24 +35,29 @@ public class JsonUserDeserializer extends JsonDeserializer<User> {
 			throws IOException, JsonProcessingException {
 		ObjectCodec oc = jsonParser.getCodec();
 		JsonNode node = oc.readTree(jsonParser);
-		UserTemplate user = new UserTemplate(node.get("userId").longValue());
-		if (user.getUserId() > 0) {
-			if (node.get("username") != null)
-				user.setUsername(node.get("username").textValue());
-			if (node.get("name") != null)
-				user.setName(node.get("name").textValue());
-			if (node.get("email") != null)
-				user.setEmail(node.get("email").textValue());
-			if (node.get("enabled") != null)
-				user.setEnabled(node.get("enabled").asBoolean());
-			if (node.get("emailVisible") != null)
-				user.setEmailVisible(node.get("emailVisible").asBoolean());
-			if (node.get("nameVisible") != null)
-				user.setNameVisible(node.get("nameVisible").asBoolean());
-			if( node.get("status") != null)
-				user.setStatus( Status.valueOf( node.get("status").asText("NONE") ) ); 
-		}
-		return user;
+		
+		if( node.hasNonNull("userId")) { 
+			UserTemplate user = new UserTemplate(node.get("userId").longValue());
+			if (user.getUserId() > 0) {
+				if (node.get("username") != null)
+					user.setUsername(node.get("username").textValue());
+				if (node.get("name") != null)
+					user.setName(node.get("name").textValue());
+				if (node.get("email") != null)
+					user.setEmail(node.get("email").textValue());
+				if (node.get("enabled") != null)
+					user.setEnabled(node.get("enabled").asBoolean());
+				if (node.get("emailVisible") != null)
+					user.setEmailVisible(node.get("emailVisible").asBoolean());
+				if (node.get("nameVisible") != null)
+					user.setNameVisible(node.get("nameVisible").asBoolean());
+				if( node.get("status") != null)
+					user.setStatus( Status.valueOf( node.get("status").asText("NONE") ) ); 
+			}
+			return user;
+		}else {
+			return null;
+		} 
 	}
 
 }

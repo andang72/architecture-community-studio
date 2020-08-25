@@ -11,6 +11,9 @@ public class CommunityConstants {
     public static final String SECURITY_AUTHENTICATION_ENCODING_SALT_PROP_NAME = "security.authentication.encoding.salt";
     public static final String SECURITY_AUTHENTICATION_AUTHORITY_PROP_NAME = "security.authentication.authority";
     
+    
+    
+    
     /** LOCALE PROPERTY KEY */
     public static final String LOCALE_LANGUAGE_PROP_NAME = "locale.language";
     public static final String LOCALE_COUNTRY_PROP_NAME = "locale.country";

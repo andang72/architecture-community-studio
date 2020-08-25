@@ -21,6 +21,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import architecture.community.exception.NotFoundException;
 import architecture.community.model.Property;
+import architecture.community.web.spring.controller.data.model.SecurityConfig;
+import architecture.community.web.spring.controller.data.model.SecurityConfig.Builder;
 import architecture.ee.service.ConfigService;
 
 @Controller("community-mgmt-settings-secure-data-controller")
@@ -40,6 +42,34 @@ public class SettingDataController {
 	public SettingDataController() { 
 	}
 
+	
+	/**
+	 * Settings API 
+	******************************************/
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/security", method = { RequestMethod.GET },  produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public SecurityConfig getSecurityConfig(NativeWebRequest request){  
+		Builder builder = new Builder(); 
+		if(configService.isDatabaseInitialized())
+		{
+			builder = new Builder(configService);
+		}
+		return builder.build();
+	}
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/security", method = RequestMethod.POST , produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public SecurityConfig saveOrUpdate(@RequestBody SecurityConfig config, NativeWebRequest request) throws NotFoundException {  
+	
+		if(configService.isDatabaseInitialized())
+		{
+			Builder builder = new Builder(config);
+			builder.save(configService);
+		} 		
+		return config;
+	}
 	
 	/**
 	 * Properties API 

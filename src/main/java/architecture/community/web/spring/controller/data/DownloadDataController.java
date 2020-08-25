@@ -76,9 +76,7 @@ public class DownloadDataController {
 
 	private boolean isAllowed(Image image) throws NotFoundException {
 		User currentUser = SecurityHelper.getUser(); 
-		
 		ImageLink link = image.getImageLink();
-		
 		if( link == null)
 		try {
 			link = imageService.getImageLink(image);
@@ -95,11 +93,9 @@ public class DownloadDataController {
 		if (SecurityHelper.isUserInRole("ROLE_DEVELOPER, ROLE_ADMINISTRATOR, ROLE_SYSTEM")) {
 			return true;
 		} 
-
 		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(), Models.IMAGE.getObjectClass(), image.getImageId()); 
 		if (bundle != null && bundle.isRead())
 			return true;
-		
 		return false;
 	}
 

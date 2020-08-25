@@ -94,7 +94,7 @@ public class CommunityStreamsService implements StreamsService {
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void updateStreams(Streams streams) {
+	public void saveOrUpdate(Streams streams) {
 		streamsDao.saveOrUpdate(streams);
 		streamsCache.invalidate(streams.getStreamId());
 	}

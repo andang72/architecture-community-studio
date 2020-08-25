@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
+import architecture.community.web.util.ParamUtils;
 import architecture.ee.util.StringUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 
@@ -47,17 +48,21 @@ public class JWTFilter extends GenericFilterBean {
 
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
-
+ 
 		String header = request.getHeader(JwtTokenProvider.HEADER_STRING);
-		if (StringUtils.isNullOrEmpty(header)) {
+		
+		if(StringUtils.isNullOrEmpty(header)) {
+			header = ParamUtils.getParameter(request, JwtTokenProvider.PARAM_STRING, null);
+		}
+		 
+		if ( StringUtils.isNullOrEmpty(header) ) {
 			chain.doFilter(request, response);
 			return;
-		}
-
+		} 
 		try {
 			String jwt = this.resolveToken(request);
 			if (!StringUtils.isNullOrEmpty(jwt)) {
-				logger.debug("jwt token : {}", jwt);
+	 			logger.debug("jwt token : {}", jwt);
 				if (this.jwtTokenProvider.validateToken(jwt)) {
 					Authentication authentication;
 					if (userDetailsService != null) {
@@ -85,11 +90,20 @@ public class JWTFilter extends GenericFilterBean {
 	}
 
 	private String resolveToken(HttpServletRequest request) {
+		
 		String bearerToken = request.getHeader(JwtTokenProvider.HEADER_STRING);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
 			String jwt = bearerToken.substring(7, bearerToken.length());
 			return jwt;
 		}
+		
+		bearerToken = ParamUtils.getParameter(request, JwtTokenProvider.PARAM_STRING, null);
+		logger.debug("bearerToken:{}", bearerToken);
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
+			String jwt = bearerToken.substring(7, bearerToken.length());
+			return jwt;
+		}
+
 		return null;
 	}
 }

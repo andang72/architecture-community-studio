@@ -1,8 +1,10 @@
 package tests;
 
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,18 +38,21 @@ public class StatsIssueWeekly extends AbstractDataView
 		log.debug( "StatsIssueWeekly" );
 	
 		// Transaction code with return.
-		customQueryService.execute(new CustomTransactionCallback<List>() { 
+		List list = customQueryService.execute(new CustomTransactionCallback<List>() { 
 			public List doInTransaction(CustomQueryJdbcDao dao) throws DataAccessException {
 				return dao.getJdbcTemplate().queryForList("select * from ac_ui_sequencer");
 			}  
 		});
 		
+		Collections.shuffle(list, new java.util.Random(System.nanoTime()));
 		// Transaction code with no return.
 		customQueryService.execute(new CustomTransactionCallbackWithoutResult() { 
 			protected void doInTransactionWithoutResult(CustomQueryJdbcDao dao) {
 				
 			}	
 		});
+		
+		 
 		
 		return "welcome to island.";
 	}

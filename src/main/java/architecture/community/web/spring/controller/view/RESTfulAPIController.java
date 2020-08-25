@@ -104,12 +104,11 @@ public class RESTfulAPIController {
 	    throws NotFoundException, UnAuthorizedException , Exception {
 		
 		Stopwatch stopwatch = Stopwatch.createStarted(); 
-		log.debug("RESTful API : {}, {}", filename, version );
+		log.debug("RESTful API : {}, verison:{}, priveiw:{}", filename, version, preview );
 		Api api = apiService.getApi(filename); 
 		
-		if( !api.isEnabled() )
+		if( !api.isEnabled() || !preview )
 			throw new UnAuthorizedException("RESTful API is disabled."); 
-		
 		
 		// checking permissions.
 		if( api.getApiId() > 0 ) {
@@ -119,10 +118,8 @@ public class RESTfulAPIController {
 					throw new UnAuthorizedException("Access Permission Required.");
 			}
 		} 
-		
 		Result result = Result.newResult();
 		model.addAttribute("__page", api );
- 
 		if(StringUtils.isNotEmpty(api.getScriptSource())) {  
 			try { 
 				boolean usingCache = api.getBooleanProperty("cache", true); 

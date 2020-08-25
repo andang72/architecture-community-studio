@@ -29,6 +29,17 @@
 	
 	<beans:bean id="imageLinkDao" class="architecture.community.image.dao.jdbc.JdbcImageLinkDao" p:dataSource-ref="dataSource" />
 
+	<beans:bean id="albumCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+		p:cacheName="albumCache" 
+		p:maxElementsInMemory="5000"
+		p:diskPersistent="false" 
+		p:overflowToDisk="false" 
+     	p:timeToIdle="1800"   
+     	p:timeToLive="3600"
+		p:eternal="false" 
+		p:diskExpiryThreadIntervalSeconds="0"
+		p:statisticsEnabled="true" />
+		
 	<beans:bean id="logoImageIdsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="logoImageIdsCache" 
 		p:maxElementsInMemory="5000"
@@ -39,6 +50,7 @@
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
 		p:statisticsEnabled="true" />
+
 
 	<beans:bean id="logoImageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="logoImageCache" 

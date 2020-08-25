@@ -52,7 +52,31 @@
 		SELECT STREAM_ID FROM AC_UI_STREAMS WHERE NAME = ?
     ]]></sql-query>		
     
-    
+	<sql-query name="COUNT_STREAMS_BY_REQUEST" description="SELECT STREAMS COUNT BY REQUEST"><![CDATA[    
+	-- COUNT_STREAMS_BY_REQUEST
+	SELECT 
+		COUNT( STREAM_ID )
+	FROM AC_UI_STREAMS 
+	]]><dynamic><![CDATA[
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+    ]]></dynamic></sql-query>
+
+	<sql-query name="SELECT_STREAMS_IDS_BY_REQUEST" description="SELECT STREAMS IDS BY REQUEST"><![CDATA[    
+	-- SELECT_STREAMS_IDS_BY_REQUEST
+	SELECT 
+		STREAM_ID
+	FROM AC_UI_STREAMS 
+	]]><dynamic><![CDATA[  
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY STREAM_ID DESC </#if>
+	]]></dynamic></sql-query>
+	        
 	<!--  ====================================  -->
 	<!--  STREAMS THREAD				 	    -->
 	<!--  ====================================  -->

@@ -313,10 +313,13 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 			File dir = getImageCacheDir();
 			File file = new File(dir, toThumbnailFilename(image, width, height));
 			File originalFile = getImageFromCacheIfExist(image);
-			log.debug("orignal image source: " + originalFile.getAbsoluteFile() + ", " + originalFile.length()
-					+ " thumbnail:" + file.getAbsoluteFile() + " - " + file.exists());
+			log.debug("orignal image source ({}), size={}, thumbnail({}, {})." , 
+					originalFile.getAbsoluteFile() ,
+					originalFile.length(),
+					file.getAbsoluteFile(),
+					file.exists());
 			if (file.exists()) {
-				log.debug("file size : {}", file.length());
+				log.debug("thumbnail file size : {}", file.length());
 				if (file.length() > 0) {
 					image.setThumbnailSize((int) file.length());
 					return file;
@@ -703,6 +706,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 			File file = getImageFromCacheIfExist(image);
 			return FileUtils.openInputStream(file);
 		} catch (IOException e) {
+			log.error(e.getMessage(), e.getMessage());
 			throw new RuntimeError(e);
 		}
 	}
@@ -831,38 +835,57 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 
 	protected File getThumbnailFromCacheIfExist(Image image, int width, int height) throws IOException, JCodecException {
 
-		log.debug("extracting thumbnail {}x{} for {}", width , height, image.getContentType());
+		log.debug("extract thumbnail {}x{} for {}", width , height, image.getContentType()); 
 		File dir = getImageCacheDir();
-		File targetFile = new File(dir, toThumbnailFilename(image, width, height));
+		File thumbnailFile = new File(dir, toThumbnailFilename(image, width, height));
 		File sourceFile = getImageFromCacheIfExist(image);
-		log.debug("source: " + sourceFile.getAbsoluteFile() + ", " + sourceFile.length());
-		log.debug("target:" + targetFile.getAbsoluteFile());
-		if (targetFile.exists() && targetFile.length() > 0) {
-			image.setThumbnailSize((int) targetFile.length());
-			return targetFile;
+		
+		log.debug("source: {} ({})", sourceFile.getAbsoluteFile(), sourceFile.length());
+		log.debug("thumbnail: {} ({})", thumbnailFile.getAbsoluteFile(), thumbnailFile.length());
+		
+		if (thumbnailFile.exists() && thumbnailFile.length() > 0) {
+			image.setThumbnailSize((int) thumbnailFile.length());
+			return thumbnailFile;
 		}
-		lock.lock(); 
+		
 		try {
-			log.debug("extracting thumbnail from {}", image.getContentType() );
+			lock.lock(); 
+			log.debug("extracting thumbnail from ()({}).", sourceFile.getAbsoluteFile(), image.getContentType() );
 			if (image.getContentType().startsWith("video")) {  
-				Picture picture = FrameGrab.getFrameFromFile(sourceFile, 0);  
-				log.debug("frame from image {} x {} ", picture.getWidth(), picture.getHeight());
+				Picture picture = FrameGrab.getFrameFromFile(sourceFile, 0); 
+				log.debug("extract picture frame with {} x {} ", picture.getWidth(), picture.getHeight());
 				//for JDK (jcodec-javase)
 				BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
-				ImageIO.write(bufferedImage, IMAGE_PNG_FORMAT, targetFile );  
-				return targetFile;
+				ImageIO.write(bufferedImage, IMAGE_PNG_FORMAT, thumbnailFile );  
+				return thumbnailFile;
 			}else
-			if (StringUtils.startsWithIgnoreCase(image.getContentType(), "image")) { 
-				BufferedImage originalImage = ImageIO.read(sourceFile);
-				log.debug("from original image {} x {} ", originalImage.getWidth(), originalImage.getHeight());
-				if (originalImage.getHeight() < height || originalImage.getWidth() < width) {
-					FileUtils.copyFile(sourceFile, targetFile);
+			if (StringUtils.startsWithIgnoreCase(image.getContentType(), "image")) {  
+				BufferedImage originalImage = null;
+				try {
+					originalImage = ImageIO.read(sourceFile); 
+					log.debug("extract from original image {} x {} ", originalImage.getWidth(), originalImage.getHeight());
+				} catch (Exception e) {
+					log.error("fail to read image", e);
+				}
+
+				if (originalImage == null) {
+					log.debug("1");
+					FileUtils.copyFile(sourceFile, thumbnailFile);
 				}else {
-					BufferedImage thumbnail = Thumbnails.of(originalImage).size(width, height).asBufferedImage();
-					ImageIO.write(thumbnail, "png", targetFile);					
-				} 
-				image.setThumbnailSize((int) targetFile.length());
-				return targetFile;	
+					log.debug("2");
+					if ( originalImage.getHeight() < height || originalImage.getWidth() < width) {
+						FileUtils.copyFile(sourceFile, thumbnailFile);
+					}else {
+						BufferedImage thumbnail = Thumbnails.of(originalImage).size(width, height).asBufferedImage();
+						ImageIO.write(thumbnail, "png", thumbnailFile);					
+					} 
+					
+				}
+				log.debug("final thumbnail: {} ({})", thumbnailFile.getAbsoluteFile(), thumbnailFile.length());
+				image.setThumbnailSize((int) thumbnailFile.length());
+				
+				
+				return thumbnailFile; 
 			}
 			
 		}finally {
@@ -874,32 +897,6 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 	public void initialize() {
 		log.debug("initializing image manager");
 		ImageConfig imageConfigToUse = new ImageConfig();
-		/*
-		 * imageConfigToUse.setEnabled(
-		 * ApplicationHelper.getApplicationBooleanProperty("image.enabled",
-		 * true) ); imageConfigToUse.setAllowAllByDefault(
-		 * ApplicationHelper.getApplicationBooleanProperty(
-		 * "image.allowAllByDefault", true) );
-		 * imageConfigToUse.setForceThumbnailsEnabled(
-		 * ApplicationHelper.getApplicationBooleanProperty(
-		 * "image.forceThumbnailsEnabled", true) );
-		 * imageConfigToUse.setMaxImageSize(
-		 * ApplicationHelper.getApplicationIntProperty("", 2048) );
-		 * imageConfigToUse.setImagePreviewMaxSize(ApplicationHelper.
-		 * getApplicationIntProperty("image.imagePreviewMaxSize", 250));
-		 * imageConfigToUse.setImageMaxWidth(ApplicationHelper.
-		 * getApplicationIntProperty("image.imageMaxWidth", 450));
-		 * imageConfigToUse.setImageMaxHeight(ApplicationHelper.
-		 * getApplicationIntProperty("image.imageMaxHeight", 600));
-		 * imageConfigToUse.setMaxImagesPerObject(ApplicationHelper.
-		 * getApplicationIntProperty("image.maxImagesPerObject", 50));
-		 * imageConfigToUse.setAllowedTypes(
-		 * stringToList(ApplicationHelper.getApplicationProperty(
-		 * "image.allowedTypes", "")) ); imageConfigToUse.setDisallowedTypes(
-		 * stringToList(
-		 * ApplicationHelper.getApplicationProperty("image.disallowedTypes",
-		 * "")));
-		 */
 		this.imageConfig = imageConfigToUse;
 		getImageDir();
 		log.debug(imageConfig.toString());

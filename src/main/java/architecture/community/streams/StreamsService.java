@@ -8,7 +8,7 @@ public interface StreamsService {
 
 	public abstract Streams createStreams(String name, String displayName, String description);
 	
-	public abstract void updateStreams(Streams streams);
+	public abstract void saveOrUpdate(Streams streams);
 
 	public abstract void deleteStreams(Streams streams);
 	

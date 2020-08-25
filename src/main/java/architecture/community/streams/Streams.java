@@ -16,6 +16,8 @@ public interface Streams extends PropertyModelObjectAware {
 	
 	public abstract String getDescription();
 	
+	// public abstract boolean isPrivate();
+	
 	public abstract Date getCreationDate();
 
 	public abstract void setCreationDate(Date creationDate);

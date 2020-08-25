@@ -6,10 +6,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.scripting.ScriptSource;
 import org.springframework.scripting.groovy.GroovyScriptFactory;
 import org.springframework.ui.Model;
@@ -34,6 +36,7 @@ import architecture.community.services.CommunityGroovyService;
 import architecture.community.services.CommunitySpringEventPublisher;
 import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.Result;
+import architecture.community.web.util.ServletUtils;
 
 @RestController("groovy-apis-v1-data-controller")
 @RequestMapping("/data/v1")
@@ -61,7 +64,7 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 	}
 	
 	@RequestMapping(value = "/*/**", method = { RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE, RequestMethod.PUT, RequestMethod.PATCH })
-	public Object apiByPatterns(
+	public Object callByPatterns(
 		@RequestParam(value = "version", defaultValue = "1", required = false) int version,
 		@RequestParam(value = "preview", defaultValue = "false", required = false) boolean preview,	
 		Model model,
@@ -128,8 +131,8 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		return result;
 	}
 
-	@RequestMapping(value = "/{filename:.+}", method = { RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE, RequestMethod.PUT, RequestMethod.PATCH })
-	public Object apiByFilename(
+	@RequestMapping(value = "/{filename:.+}", method = { RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE, RequestMethod.PUT, RequestMethod.PATCH }, produces = MediaType.APPLICATION_JSON_VALUE )
+	public Object callByFilename(
 			@PathVariable String filename,
 			@RequestParam(value = "version", defaultValue = "1", required = false) int version,
 			@RequestParam(value = "preview", defaultValue = "false", required = false) boolean preview, 
@@ -144,13 +147,17 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
 		
 		Api api = apiService.getApi(filename); 
-		log.debug("name :{}, script: {}",api.getName(), api.getScriptSource()); 
+		log.debug("DATA API : {}, verison:{}, priveiw:{}", filename, version, preview );
 		
 		if(!isAllowed(api))
 			throw new UnAuthorizedException("Access Permission Required.");
 		
 		ScriptSource scriptSource = communityGroovyService.getScriptSource(api.getScriptSource());
 		GroovyScriptFactory factory = communityGroovyService.getGroovyScriptFactory(api.getScriptSource(), true);
+		
+		if( StringUtils.isNotEmpty( api.getContentType() )){
+			ServletUtils.setContentType(api.getContentType(), response);
+		}
 		
 		String path =  getRequestPath(request);
 		boolean isPattern = isPattern(api.getPattern()); 

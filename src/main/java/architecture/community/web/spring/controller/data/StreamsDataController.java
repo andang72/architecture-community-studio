@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -285,6 +286,9 @@ public class StreamsDataController {
 		@JsonIgnore 
 		private boolean fullbody;
 		
+		@JsonIgnore
+		private int maxSummarySize = 60;
+		
 		public StreamMessageView(StreamMessage message, boolean fullbody) {
 			this.message = message;
 			this.fullbody = fullbody;
@@ -335,8 +339,8 @@ public class StreamsDataController {
 		}
 
 		@Override
-		public String getBody() {
-			return fullbody ? message.getBody() : null;
+		public String getBody() {			
+			return fullbody ? message.getBody() : StringUtils.abbreviate(message.getBody(), maxSummarySize);
 		}
 
 		@Override

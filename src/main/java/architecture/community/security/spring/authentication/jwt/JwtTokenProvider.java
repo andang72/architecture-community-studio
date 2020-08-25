@@ -53,6 +53,9 @@ public class JwtTokenProvider {
 	 * Header key for JWT Token
 	 */
 	public static final String HEADER_STRING = "Authorization";
+	
+	public static final String PARAM_STRING = "jwt";
+	
 
 	public String createToken(Authentication authentication) {
 		String authorities = authentication.getAuthorities().stream().map(authority -> authority.getAuthority())
