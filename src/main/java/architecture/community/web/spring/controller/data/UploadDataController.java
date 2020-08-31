@@ -68,9 +68,7 @@ public class UploadDataController  extends AbstractResourcesDataController {
 	
 	@Autowired( required = false) 
 	@Qualifier("tagService")
-	private TagService tagService;
-	
-	
+	private TagService tagService;	
 	
 	
 	/**
@@ -150,4 +148,9 @@ public class UploadDataController  extends AbstractResourcesDataController {
 	    imageService.saveImage(image);
 	    return image;
 	}
+	
+	/**
+	 * FilePond 
+	 */
+	
 }

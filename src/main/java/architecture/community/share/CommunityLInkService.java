@@ -79,8 +79,7 @@ public class CommunityLInkService implements SharedLinkService , InitializingBea
 		try {
 			link = sharedLinkDao.getSharedLinkByObjectTypeAndObjectId(objectType, objectId);
 		} catch (Exception e) {
-			log.debug("fail to get link ..", e);
-			
+			log.debug("fail to get link ..", e);			
 			if(createIfNotExist) {
 				link = new SharedLink(RandomStringUtils.random(64, true, true), true, objectType, objectId );
 				sharedLinkDao.saveOrUpdateSharedLink(link);

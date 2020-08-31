@@ -55,7 +55,7 @@ import architecture.community.web.model.ItemList;
 import architecture.community.web.spring.controller.data.secure.mgmt.ResourcesImagesDataController.UrlImageUploader;
 import architecture.ee.util.StringUtils;
 
-@Controller("community-resources-filepond-data-controller")
+@Controller("community-steemas-resources-filepond-data-controller")
 public class StreamsResourcesDataController extends AbstractResourcesDataController{
 
 	private Logger log = LoggerFactory.getLogger(StreamsResourcesDataController.class); 

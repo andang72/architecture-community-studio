@@ -133,6 +133,8 @@ public abstract class AbstractResourcesDataController {
 		}
 	}
 	
+
+	
 	protected List<Attachment> getAttachments (List<Long> attachmentIDs, boolean includeLink, boolean includeTags ){ 
 		List<Attachment> attachments = new ArrayList<Attachment>();		
 		for( Long id : attachmentIDs ) {

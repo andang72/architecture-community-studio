@@ -23,13 +23,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import architecture.community.model.PropertyModelObjectAwareSupport;
+import architecture.community.model.json.JsonDateDeserializer;
 import architecture.community.model.json.JsonDateSerializer;
 import architecture.community.share.SharedLink;
 import architecture.community.user.User;
 import architecture.community.user.UserTemplate;
+import architecture.community.user.model.json.JsonUserDeserializer;
 
 public class DefaultAttachment extends PropertyModelObjectAwareSupport implements Attachment {
 
@@ -76,7 +79,7 @@ public class DefaultAttachment extends PropertyModelObjectAwareSupport implement
 		return user;
 	}
 
-
+	@JsonDeserialize(using = JsonUserDeserializer.class)
 	public void setUser(User user) {
 		this.user = user;
 	}
@@ -130,21 +133,22 @@ public class DefaultAttachment extends PropertyModelObjectAwareSupport implement
 		this.properties = properties;
 	}
 	
-	 @JsonIgnore
+	@JsonIgnore
 	public InputStream getInputStream() {
 		return inputStream;
 	}
 	 
-	 @JsonIgnore
+	@JsonIgnore
 	public void setInputStream(InputStream inputStream) {
 		this.inputStream = inputStream;
 	}
 
-	 @JsonSerialize(using = JsonDateSerializer.class)
+	@JsonSerialize(using = JsonDateSerializer.class)
 	public Date getCreationDate() {
 		return creationDate;
 	}
 
+	@JsonDeserialize(using = JsonDateDeserializer.class) 
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
 	}
@@ -154,6 +158,7 @@ public class DefaultAttachment extends PropertyModelObjectAwareSupport implement
 		return modifiedDate;
 	}
 
+	@JsonDeserialize(using = JsonDateDeserializer.class)
 	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}

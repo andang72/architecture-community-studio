@@ -236,8 +236,7 @@ public class CommunityStreamsService implements StreamsService {
 		if(threadId < 0L)
             throw new StreamThreadNotFoundException(CommunityLogLocalizer.format("013004", threadId )); 
 		
-		StreamThread threadToUse = threadCache.getIfPresent(threadId);
-		
+		StreamThread threadToUse = threadCache.getIfPresent(threadId);		
 		if( threadToUse == null){ 
 			try {
 				threadToUse = streamsDao.getStreamThreadById(threadId);
@@ -265,6 +264,7 @@ public class CommunityStreamsService implements StreamsService {
 	public StreamMessage getStreamMessage(long messageId) throws StreamMessageNotFoundException {
 		if(messageId < 0L)
 			throw new StreamMessageNotFoundException(CommunityLogLocalizer.format("013006", messageId )); 
+		
 		StreamMessage messageToUse = messageCache.getIfPresent(messageId);
 		if( messageToUse == null){
 			try {
@@ -272,6 +272,7 @@ public class CommunityStreamsService implements StreamsService {
 				if( messageToUse.getUser().getUserId() > 0){
 					((DefaultStreamMessage)messageToUse).setUser(userManager.getUser(messageToUse.getUser()));
 				}	
+				
 			} catch (Exception e) {
 				throw new StreamMessageNotFoundException(CommunityLogLocalizer.format("013007", messageId ));
 			}

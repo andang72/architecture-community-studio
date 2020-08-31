@@ -27,9 +27,11 @@ public class SharedLink implements Serializable {
 	private Integer objectType;
 	
 	private Long objectId;
+ 
+	
+	public SharedLink() { 
+	}
 
-	
-	
 	public SharedLink(String linkId, boolean publicShared, Integer objectType, Long objectId) {
 		this.linkId = linkId;
 		this.publicShared = publicShared;

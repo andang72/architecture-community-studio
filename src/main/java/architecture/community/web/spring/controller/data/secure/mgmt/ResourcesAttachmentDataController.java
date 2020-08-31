@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +47,7 @@ import architecture.community.web.spring.controller.data.Utils;
 import architecture.ee.util.StringUtils; 
 
 @Controller("community-mgmt-resources-attachment-secure-data-controller")
-@RequestMapping("/data/secure/mgmt/attachments")
+@RequestMapping({ "/data/secure/mgmt" })
 public class ResourcesAttachmentDataController extends AbstractResourcesDataController {
 
 	
@@ -72,9 +73,72 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 	private boolean isSetSharedLinkService() {
 		return sharedLinkService == null ? false : true;
 	}
+		
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-    @RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/delete.json", method = RequestMethod.POST)
+	@RequestMapping(value = { "/attachments", "/attachments/list.json" , "/files", "/files/list.json" }, method = { RequestMethod.POST } , produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public ItemList getAttachments(
+		@RequestBody DataSourceRequest dataSourceRequest, 
+		@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
+		NativeWebRequest request) { 
+		
+		
+		boolean includeLink = org.apache.commons.lang3.StringUtils.contains(fields, "link");
+		boolean includeTags = org.apache.commons.lang3.StringUtils.contains(fields, "tags");  
+		
+		if( !dataSourceRequest.getData().containsKey("objectType")) {
+			dataSourceRequest.getData().put("objectType", -1);
+		}	
+		if( !dataSourceRequest.getData().containsKey("objectId") ) {
+			dataSourceRequest.getData().put("objectId", -1);
+		} 
+		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_ATTACHMENT_BY_REQUEST");
+		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
+		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_ATTACHMENT_IDS_BY_REQUEST"); 
+		
+		List<Long> items = customQueryService.list(dataSourceRequest, Long.class);
+		List<Attachment> attachments = new ArrayList<Attachment>();		
+		for( Long id : items ) {
+			try {
+				Attachment attachment = attachmentService.getAttachment(id);
+				
+				if( includeLink && sharedLinkService != null) {
+					try {
+						SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
+						((DefaultAttachment) attachment ).setSharedLink(link);
+					} catch (Exception ignore) {}	
+				}
+				
+				if( includeTags && tagService!= null ) {
+					String tags = tagService.getTagsAsString(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
+					((DefaultAttachment)attachment).setTags( tags );
+				}
+				
+				attachments.add(attachment);
+				
+			} catch (NotFoundException e) {
+			}
+		}
+		return new ItemList(attachments, totalCount );
+	} 
+	
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = { "/files", "/attachments" }, method = { RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Result deleteAttachments(@RequestBody List<DefaultAttachment> attachments, NativeWebRequest request) throws NotFoundException { 		
+		
+		Result result = Result.newResult();
+		for( Attachment attachment : attachments ) {
+			deleteAttachment(attachment);
+			result.setCount( result.getCount() + 1 );
+		}		
+		return result;
+	}
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+    @RequestMapping(value = { "/attachments/{attachmentId:[\\p{Digit}]+}/delete.json" } , method = RequestMethod.POST)
     @ResponseBody
     public Result remove (
     		@PathVariable Long attachmentId,	
@@ -84,11 +148,83 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 		Attachment attachment = attachmentService.getAttachment(attachmentId);
 		deleteAttachment(attachment);
 		return Result.newResult();
+	}	
+	
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/attachments/save-or-update.json", method = { RequestMethod.POST })
+	@ResponseBody
+	public Attachment saveOrUpdate(@RequestBody DefaultAttachment attachment, NativeWebRequest request) throws NotFoundException { 
+		
+		DefaultAttachment attachmentToUse = 	(DefaultAttachment) attachmentService.getAttachment(attachment.getAttachmentId());
+		if( !StringUtils.isNullOrEmpty(attachment.getName()) )
+		{
+			attachmentToUse.setName(attachment.getName());
+		}
+		if( attachmentToUse.getObjectType() != attachment.getObjectType())
+		{
+			attachmentToUse.setObjectType(attachment.getObjectType());
+		}
+		if( attachmentToUse.getObjectId() != attachment.getObjectId())
+		{
+			attachmentToUse.setObjectId(attachment.getObjectId());
+		}
+		
+		attachmentService.saveAttachment(attachmentToUse);
+		
+		return attachmentToUse;
 	}
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-    @RequestMapping(value = "/upload.json", method = RequestMethod.POST)
+	@RequestMapping(value = "/attachments/{attachmentId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@ResponseBody
+	public Attachment getAttachment (
+		@PathVariable Long attachmentId, 
+		@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
+		NativeWebRequest request) throws NotFoundException {
+		
+		boolean includeLink = org.apache.commons.lang3.StringUtils.contains(fields, "link");  
+		boolean includeTags = org.apache.commons.lang3.StringUtils.contains(fields, "tags");  
+		
+		Attachment attachment = 	attachmentService.getAttachment(attachmentId);
+		if( includeLink && isSetSharedLinkService()) {
+			try {
+				SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
+				((DefaultAttachment) attachment ).setSharedLink(link);
+			} catch (Exception ignore) {
+				
+			}
+		}
+		
+		if( includeTags && tagService!= null ) {
+			String tags = tagService.getTagsAsString(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
+			((DefaultAttachment)attachment).setTags( tags );
+		}
+		
+		return attachment;
+	}
+	
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = {"/attachments/{attachmentId:[\\p{Digit}]+}/refresh.json", "/{attachmentId:[\\p{Digit}]+}/cache/delete.json" }, method = { RequestMethod.POST, RequestMethod.GET })
+	@ResponseBody
+	public Result refreshAttachment (
+		@PathVariable Long attachmentId,
+		NativeWebRequest request) throws NotFoundException {
+		
+		Attachment attachment = attachmentService.getAttachment(attachmentId);
+		attachmentService.refresh(attachment); 
+		return Result.newResult();
+	}
+	
+	
+	/**
+	 * ATTACHMENT UPLOAD API 
+	******************************************/
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+    @RequestMapping(value = "/attachments/upload.json", method = RequestMethod.POST)
     @ResponseBody
     public List<Attachment> upload (
     		@RequestParam(value = "objectType", defaultValue = "-1", required = false) Integer objectType,
@@ -124,125 +260,12 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 	}
 
 	
-	
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/save-or-update.json", method = { RequestMethod.POST })
-	@ResponseBody
-	public Attachment saveOrUpdate(@RequestBody DefaultAttachment attachment, NativeWebRequest request) throws NotFoundException { 
-		
-		DefaultAttachment attachmentToUse = 	(DefaultAttachment) attachmentService.getAttachment(attachment.getAttachmentId());
-		if( !StringUtils.isNullOrEmpty(attachment.getName()) )
-		{
-			attachmentToUse.setName(attachment.getName());
-		}
-		if( attachmentToUse.getObjectType() != attachment.getObjectType())
-		{
-			attachmentToUse.setObjectType(attachment.getObjectType());
-		}
-		if( attachmentToUse.getObjectId() != attachment.getObjectId())
-		{
-			attachmentToUse.setObjectId(attachment.getObjectId());
-		}
-		
-		attachmentService.saveAttachment(attachmentToUse);
-		
-		return attachmentToUse;
-	}
-	
+	/**
+	 * ATTACHMENT LINK API 
+	******************************************/
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET })
-	@ResponseBody
-	public Attachment getAttachment (
-		@PathVariable Long attachmentId, 
-		@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
-		NativeWebRequest request) throws NotFoundException {
-		
-		boolean includeLink = org.apache.commons.lang3.StringUtils.contains(fields, "link");  
-		boolean includeTags = org.apache.commons.lang3.StringUtils.contains(fields, "tags");  
-		
-		Attachment attachment = 	attachmentService.getAttachment(attachmentId);
-		if( includeLink && isSetSharedLinkService()) {
-			try {
-				SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
-				((DefaultAttachment) attachment ).setSharedLink(link);
-			} catch (Exception ignore) {
-				
-			}
-		}
-		
-		if( includeTags && tagService!= null ) {
-			String tags = tagService.getTagsAsString(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
-			((DefaultAttachment)attachment).setTags( tags );
-		}
-		
-		return attachment;
-	}
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/list.json", method = { RequestMethod.POST, RequestMethod.GET })
-	@ResponseBody
-	public ItemList getAttachments(
-		@RequestBody DataSourceRequest dataSourceRequest, 
-		@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
-		NativeWebRequest request) { 
-		
-		
-		boolean includeLink = org.apache.commons.lang3.StringUtils.contains(fields, "link");
-		boolean includeTags = org.apache.commons.lang3.StringUtils.contains(fields, "tags");  
-		
-		if( !dataSourceRequest.getData().containsKey("objectType")) {
-			dataSourceRequest.getData().put("objectType", -1);
-		}	
-		if( !dataSourceRequest.getData().containsKey("objectId") ) {
-			dataSourceRequest.getData().put("objectId", -1);
-		} 
-		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_ATTACHMENT_BY_REQUEST");
-		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
-		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_ATTACHMENT_IDS_BY_REQUEST");
-		
-		
-		List<Long> items = customQueryService.list(dataSourceRequest, Long.class);
-		List<Attachment> attachments = new ArrayList<Attachment>();		
-		for( Long id : items ) {
-			try {
-				Attachment attachment = attachmentService.getAttachment(id);
-				
-				if( includeLink && sharedLinkService != null) {
-					try {
-						SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
-						((DefaultAttachment) attachment ).setSharedLink(link);
-					} catch (Exception ignore) {}	
-				}
-				
-				if( includeTags && tagService!= null ) {
-					String tags = tagService.getTagsAsString(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
-					((DefaultAttachment)attachment).setTags( tags );
-				}
-				
-				attachments.add(attachment);
-				
-			} catch (NotFoundException e) {
-			}
-		}
-		return new ItemList(attachments, totalCount );
-	}	
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/{attachmentId:[\\p{Digit}]+}/refresh.json", "/{attachmentId:[\\p{Digit}]+}/cache/delete.json" }, method = { RequestMethod.POST, RequestMethod.GET })
-	@ResponseBody
-	public Result refreshAttachment (
-		@PathVariable Long attachmentId,
-		NativeWebRequest request) throws NotFoundException {
-		
-		Attachment attachment = attachmentService.getAttachment(attachmentId);
-		attachmentService.refresh(attachment); 
-		return Result.newResult();
-	}
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/link.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/attachments/{attachmentId:[\\p{Digit}]+}/link.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public SharedLink getAttachmentLinkAndCreateIfNotExist (
 		@PathVariable Long attachmentId,
@@ -257,9 +280,18 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 	
 	}	
 	
+	
+	/**
+	 * 
+	 * @param attachmentId
+	 * @param dataSourceRequest
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/delete-link.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/attachments/{attachmentId:[\\p{Digit}]+}/delete-link.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Result removeLink (
 		@PathVariable Long attachmentId,
@@ -274,8 +306,13 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 	}	
 	
 	
+	
+	/**
+	 * ATTACHMENT PROPERTY API 
+	******************************************/
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/attachments/{attachmentId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public List<Property> getAttachmentProperties (
 		@PathVariable Long attachmentId, 
@@ -286,7 +323,7 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/properties/update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/attachments/attachments/{attachmentId:[\\p{Digit}]+}/properties/update.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public List<Property> updateAttachmentProperties (
 		@PathVariable Long attachmentId, 
@@ -303,7 +340,7 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/{attachmentId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/attachments/{attachmentId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public List<Property> deleteAttachmentProperties (
 		@PathVariable Long attachmentId, 
