@@ -1,28 +1,31 @@
 package services.groovy.data ;
 
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.request.NativeWebRequest;
 
-import architecture.community.exception.UnAuthorizedException
+import architecture.community.exception.NotFoundException;
 import architecture.community.image.Image;
 import architecture.community.image.ImageService;
 import architecture.community.query.CustomQueryService;
 import architecture.community.query.dao.CustomQueryJdbcDao;
 import architecture.community.services.database.CommunityExportService;
 import architecture.community.services.database.ImageDef;
-import architecture.community.user.User
-import architecture.community.web.spring.view.script.AbstractDataView;
+import architecture.community.web.spring.controller.annotation.ScriptData;
 import architecture.ee.util.StringUtils;
-/**
- * Import Images from external datasource..
- * 
- * @author donghyuck.son
- */
-public class ImportImagesAsFiles extends AbstractDataView {
 
+public class ImportImagesAsFiles  {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
+	
 	@Inject
 	@Qualifier("customQueryService")
 	private CustomQueryService customQueryService;
@@ -35,32 +38,32 @@ public class ImportImagesAsFiles extends AbstractDataView {
 	@Qualifier("imageService")
 	private ImageService imageService;
 	
-	public Object handle(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	
+	@ScriptData
+	public Object select (NativeWebRequest request) throws NotFoundException {
 		// using export service
-		// List<ImageDef> list = getImages();
+		//List<ImageDef> list = getImages();
 		//return list;
-		//importFromFiles();
-				
-		if( !isUserInRole(roles) )
-			throw new UnAuthorizedException();
-		User user ;		
+		
+		importFromFiles();
+		
 		return "hello";
 	}
+	
 
 	private void importFromFiles() {
-		File file = new File("/Users/donghyuck/git/architecture-community-studio/WebContent/WEB-INF/exports/31");
+		File file = new File("/Users/donghyuck.son/git/architecture-community-studio/WebContent/WEB-INF/exports");
 		for(File f : file.listFiles())
 		{
-			log.debug(f.getName());
-			Image image = imageService.createImage(40, 3, f.getName(), getContentType(f), f);
-			//imageService.saveOrUpdate(image);
+			log.debug(file.getName());
+			Image image = imageService.createImage(40, 1, f.getName(), getContentType(f), f);
+			imageService.saveOrUpdate(image);
 		}
 	}
 	
 	public List<ImageDef> getImages() throws Exception {
 		// step 1 : get dao.
-		CustomQueryJdbcDao dao = communityExportService.getCustomQueryJdbcDao("externalImageProviderPool");
+		CustomQueryJdbcDao dao = communityExportService.getCustomQueryJdbcDao("externalDataSource");
 		// step 2 : select images from .
 		List<ImageDef> list = communityExportService.list(dao, "select image_id, file_name from v2_image where object_type = 31");
 		for (ImageDef img : list) {

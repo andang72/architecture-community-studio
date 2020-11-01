@@ -49,6 +49,7 @@ import architecture.community.streams.Streams;
 import architecture.community.streams.StreamsService;
 import architecture.community.tag.TagService;
 import architecture.community.user.User;
+import architecture.community.user.UserTemplate;
 import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
@@ -248,7 +249,7 @@ public class StreamsResourcesDataController extends AbstractResourcesDataControl
 		
 		log.debug( "request parameters : {}" , request.getParameterMap() ); 
 		
-		User user = SecurityHelper.getUser();
+		User user = new UserTemplate(1L);
 		Principal principal = request.getUserPrincipal();
 		log.debug("user from security : {}, principal : {} ", user , principal != null ? principal.getName() : "anonymous");
 		

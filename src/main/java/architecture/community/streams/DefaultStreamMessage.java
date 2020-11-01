@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import architecture.community.attachment.AttachmentService;
+import architecture.community.comment.CommentService;
+import architecture.community.exception.NotFoundException;
 import architecture.community.model.Models;
 import architecture.community.model.PropertyModelObjectAwareSupport;
 import architecture.community.model.json.JsonDateSerializer;
@@ -33,16 +35,20 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 	
 	private String keywords;
 	
+	private String tags;
+	
 	public DefaultStreamMessage() { 
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
 		this.messageId = UNKNOWN_OBJECT_ID; 
 		this.keywords = null;
+		this.tags = null;
 	}
 
 	public DefaultStreamMessage(long messageId) {
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
 		this.messageId = messageId;
-		this.keywords = null; 
+		this.keywords = null;
+		this.tags = null;
 	}
 
 	public DefaultStreamMessage(int objectType, long objectId, User user) {
@@ -56,9 +62,18 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 		Date now = new Date();
 		this.creationDate = now;
 		this.modifiedDate = now;
-		this.keywords = null;  
+		this.keywords = null;
+		this.tags = null;
 	}
 	
+
+	public String getTags() {
+		return tags;
+	}
+
+	public void setTags(String tags) {
+		this.tags = tags;
+	}
 
 	public String getKeywords() {
 		return keywords;
@@ -155,6 +170,16 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 		return 0;
 	}
 
+	public int getCommentCount (){
+		if( threadId > 0 ){
+			try { 
+				CommentService commentService = CommunityContextHelper.getComponent(CommentService.class); 
+				return commentService.getCommentTreeWalker(Models.STREAMS_MESSAGE.getObjectType(), messageId).getRecursiveChildCount(messageId);
+			} catch (Exception e) {}
+		}
+		return 0;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -169,8 +194,7 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 		if (creationDate != null)
 			builder.append("creationDate=").append(creationDate).append(", ");
 		if (modifiedDate != null)
-			builder.append("modifiedDate=").append(modifiedDate);
-		
+			builder.append("modifiedDate=").append(modifiedDate);		
 		builder.append("]");
 		return builder.toString();
 	}

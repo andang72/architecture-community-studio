@@ -60,7 +60,9 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 	
 	private String tags;
 	
-	private Image coverImage;
+	private Image coverImage;	
+	
+	private Boolean _new;
 	
 	public DefaultImage() {
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
@@ -72,6 +74,8 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 		this.imageLink = null;
 		this.tags = null;
 		this.order = 0 ;
+		this._new = false;
+			
 	}
 
 	public DefaultImage(Integer objectType, Long objectId) {
@@ -85,8 +89,26 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 		this.tags = null;
 		this.order = 0 ;
 		this.order = 0 ;
+		this._new = false;
+	}
+	
+	
+		
+	public DefaultImage(boolean isNew ) {
+		this();
+		this._new = isNew;
 	}
 
+	public DefaultImage(Integer objectType, Long objectId, Long imageId) {
+		super(objectType, objectId);
+		this.imageId = imageId;
+		this._new = false;
+	}
+	
+	@JsonIgnore
+	public Boolean isNew () {
+		return _new;
+	}
 	
 	
 	public Integer getOrder() {

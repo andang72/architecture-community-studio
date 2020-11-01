@@ -162,14 +162,13 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 	public Image createImage(Image image) {
 		Image toUse = image;
 		if (toUse.getImageId() < 1L) {
-
 			long imageId = getNextImageId();
 			if (image instanceof DefaultImage) {
-				DefaultImage impl = (DefaultImage) toUse;
-				impl.setImageId(imageId);
+				((DefaultImage) toUse).setImageId(imageId);
 			}
-			getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_IMAGE").getSql(),
-					new SqlParameterValue(Types.NUMERIC, imageId),
+		}
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.CREATE_IMAGE").getSql(),
+					new SqlParameterValue(Types.NUMERIC, image.getImageId()),
 					new SqlParameterValue(Types.INTEGER, image.getObjectType()),
 					new SqlParameterValue(Types.NUMERIC, image.getObjectId()),
 					new SqlParameterValue(Types.VARCHAR, image.getName()),
@@ -179,10 +178,8 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 					new SqlParameterValue(Types.DATE, image.getCreationDate()),
 					new SqlParameterValue(Types.DATE, image.getModifiedDate()));
 
-			if (image.getProperties().size() > 0)
-				setImageProperties(image.getImageId(), image.getProperties());
-
-		}
+		if (image.getProperties().size() > 0)
+			setImageProperties(image.getImageId(), image.getProperties());
 		return image;
 	}
 

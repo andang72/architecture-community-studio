@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import architecture.community.attachment.AttachmentService;
@@ -280,6 +281,7 @@ public class StreamsDataController {
 
 	public static class StreamMessageView implements StreamMessage{
 		
+		
 		@JsonIgnore
 		private StreamMessage message ;
 
@@ -384,11 +386,33 @@ public class StreamsDataController {
 		public void setModifiedDate(Date modifiedDate) { 
 		}
 		
+		public int getAttachmentsCount() {
+			if( message instanceof DefaultStreamMessage) {
+				return ((DefaultStreamMessage)message).getAttachmentsCount();
+			}
+			return 0;		
+		}
 		
+		public int getReplyCount (){
+			if( message instanceof DefaultStreamMessage) {
+				return ((DefaultStreamMessage)message).getReplyCount();
+			}
+			return 0;
+		}
+
+		@Override
+		public String getTags() {
+			return message.getTags();
+		}
+
+		@Override
+		public void setTags(String tags) { 
+		}
 	}
 	
 	public static class StreamThreadView implements StreamThread {
 
+		
 		@JsonIgnore
 		private StreamThread thread ;
 		
@@ -444,6 +468,7 @@ public class StreamsDataController {
 
 		@Override
 		public void setModifiedDate(Date modifiedDate) {
+			
 		}
 
 		@Override
@@ -467,6 +492,11 @@ public class StreamsDataController {
 		
 		public String getCoverImgSrc() {
 			return ((DefaultStreamThread)thread).getCoverImgSrc();
+		}
+		
+		@JsonGetter("embedMediaCount")
+		public Integer getEmbedMediaCount() {
+			return ((DefaultStreamThread)thread).getEmbedMediaCount();
 		}
 	}
 }

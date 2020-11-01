@@ -197,6 +197,37 @@ public class DownloadDataController {
 		}
 	}
 
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/thumbnail", method = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseBody
+	public void downloadImageThumbnail(
+			@PathVariable("imageId") Long imageId,
+			@RequestParam(value = "width", defaultValue = "150", required = false) Integer width,
+			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		try {
+			if (imageId <= 0 ) {
+				throw new IllegalArgumentException();
+			}
+			
+			Image image = imageService.getImage(imageId);
+			
+			InputStream input = imageService.getImageThumbnailInputStream(image, width, height);
+			String contentType = image.getThumbnailContentType();	
+			int contentLength = image.getThumbnailSize();			
+			
+			response.setContentType(contentType);
+			response.setContentLength(contentLength);
+			IOUtils.copy(input, response.getOutputStream());
+			response.flushBuffer();
+			
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			response.setStatus(HttpStatus.NOT_FOUND.value());
+			ResourceUtils.noThumbnails(request, response);
+		}
+	}
+	
+
 	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/{filename:.+}", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
 	public void downloadImage(@PathVariable("imageId") Long imageId, @PathVariable("filename") String filename,

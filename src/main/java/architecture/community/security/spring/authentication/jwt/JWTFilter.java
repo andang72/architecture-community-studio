@@ -17,13 +17,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import architecture.community.web.util.ParamUtils;
 import architecture.ee.util.StringUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 
-public class JWTFilter extends GenericFilterBean {
+public class JWTFilter extends OncePerRequestFilter {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -42,13 +42,11 @@ public class JWTFilter extends GenericFilterBean {
 	public void afterPropertiesSet() {
 		Assert.notNull(jwtTokenProvider, "JwtTokenProvider cannot be null");
 	}
-
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-			throws IOException, ServletException {
-
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
- 
+	
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+		
 		String header = request.getHeader(JwtTokenProvider.HEADER_STRING);
 		
 		if(StringUtils.isNullOrEmpty(header)) {
@@ -56,9 +54,10 @@ public class JWTFilter extends GenericFilterBean {
 		}
 		 
 		if ( StringUtils.isNullOrEmpty(header) ) {
-			chain.doFilter(request, response);
+			filterChain.doFilter(request, response);
 			return;
 		} 
+		
 		try {
 			String jwt = this.resolveToken(request);
 			if (!StringUtils.isNullOrEmpty(jwt)) {
@@ -79,10 +78,12 @@ public class JWTFilter extends GenericFilterBean {
 			logger.debug("Exception " + eje.getMessage(), eje);
 			return;
 		}
-
-		chain.doFilter(request, response);
+		
+		filterChain.doFilter(request, response);
+		
 		this.resetAuthenticationAfterRequest();
 	}
+
 
 	private void resetAuthenticationAfterRequest() {
 		logger.debug("reset authentication as null.");

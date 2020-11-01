@@ -5,6 +5,7 @@
 	-- UPDATE : 
 	-- =================================================	
 	
+	DROP TABLE IF EXISTS AC_UI_ALBUM, AC_UI_ALBUM_PROPERTY, AC_UI_ALBUM_IMAGES ;
 	
 	CREATE TABLE AC_UI_ALBUM (
 		ALBUM_ID               INTEGER NOT NULL COMMENT '카테고리 ID',

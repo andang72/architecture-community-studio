@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import architecture.community.exception.NotFoundException;
+import architecture.community.exception.UnAuthorizedException;
 import architecture.community.model.Models;
 import architecture.community.model.Property;
 import architecture.community.query.CustomQueryService;
@@ -53,6 +55,7 @@ import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
+import architecture.community.web.spring.controller.data.model.PasswordUpdate;
 import architecture.ee.util.StringUtils;
 
 @Controller("community-mgmt-security-secure-data-controller")
@@ -84,32 +87,18 @@ public class SecurityDataController {
 	@Qualifier("aclService")
 	private CommunityAclService aclService;
 
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/find.json", method = { RequestMethod.POST, RequestMethod.GET })
-	@ResponseBody
-	public ItemList findUsers(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request)
-			throws NotFoundException {
+	/**
+	 * Providers API
+	 ******************************************/
 
-		if (dataSourceRequest.getPageSize() == 0)
-			dataSourceRequest.setPageSize(30);
-		dataSourceRequest.setStatement("COMMUNITY_USER.COUNT_USERS_BY_REQUEST");
-		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
-
-		// customQueryService.list(dataSourceRequest);
-
-		List<User> users = new ArrayList<User>(totalCount);
-		if (totalCount > 0) {
-			dataSourceRequest.setStatement("COMMUNITY_USER.FIND_USER_IDS_BY_REQUEST");
-			List<Long> userIds = customQueryService.list(dataSourceRequest, Long.class);
-			for (Long userId : userIds) {
-				try {
-					users.add(userManager.getUser(userId));
-				} catch (UserNotFoundException e) {
-				}
-			}
-		}
-		return new ItemList(users, totalCount);
-	}
+	/**
+	 * 
+	 * @param name
+	 * @param dataSourceRequest
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
 	@RequestMapping(value = "/users/providers/{name}/list.json", method = { RequestMethod.POST, RequestMethod.GET })
@@ -148,6 +137,60 @@ public class SecurityDataController {
 		}
 		return new ItemList(list, list.size());
 	}
+
+	/**
+	 * Users API
+	 ******************************************/
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
+	@RequestMapping(value = "/users/find.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@ResponseBody
+	public ItemList findUsers(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request)
+			throws NotFoundException {
+
+		if (dataSourceRequest.getPageSize() == 0)
+			dataSourceRequest.setPageSize(30);
+		dataSourceRequest.setStatement("COMMUNITY_USER.COUNT_USERS_BY_REQUEST");
+		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
+
+		// customQueryService.list(dataSourceRequest);
+
+		List<User> users = new ArrayList<User>(totalCount);
+		if (totalCount > 0) {
+			dataSourceRequest.setStatement("COMMUNITY_USER.FIND_USER_IDS_BY_REQUEST");
+			List<Long> userIds = customQueryService.list(dataSourceRequest, Long.class);
+			for (Long userId : userIds) {
+				try {
+					users.add(userManager.getUser(userId));
+				} catch (UserNotFoundException e) {
+				}
+			}
+		}
+		return new ItemList(users, totalCount);
+	}
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
+	@RequestMapping(value = "/users/0/password", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Result updatePassword(@RequestBody PasswordUpdate passwordUpdate, NativeWebRequest request) throws UnAuthorizedException, UserNotFoundException {
+
+		Result result = Result.newResult();
+		UserTemplate userToUse = (UserTemplate) userManager.getUser(passwordUpdate.getUser().getUserId());
+		boolean verified = true; // userManager.verifyPassword(userToUse, passwordUpdate.getVerifyPassword());
+		result.getData().put("verify", verified);
+		if (verified && !StringUtils.isEmpty(passwordUpdate.getNewPassword())) {
+			try {
+				userToUse.setPassword(passwordUpdate.getNewPassword());
+				userManager.updateUser(userToUse);
+			} catch (Throwable e) {
+				result.setError(e);
+			}
+		} else {
+			result.setError(new BadCredentialsException("Verify Failed."));
+		}
+		return result;
+	}
+	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
 	@RequestMapping(value = "/users/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET })
@@ -312,7 +355,9 @@ public class SecurityDataController {
 	 * USER & ROLE API
 	 ******************************************/
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/roles", "/users/{userId:[\\p{Digit}]+}/roles/list.json" }, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/roles",
+			"/users/{userId:[\\p{Digit}]+}/roles/list.json" }, method = {
+					RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getUserRoles(@PathVariable Long userId, NativeWebRequest request)
 			throws UserNotFoundException, UserAlreadyExistsException {
@@ -329,37 +374,39 @@ public class SecurityDataController {
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
 	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles", method = { RequestMethod.POST })
 	@ResponseBody
-	public Result saveOrUpdateUserRole(@PathVariable Long userId, @RequestBody List<DefaultRole> roles, NativeWebRequest request) throws UserNotFoundException, UserAlreadyExistsException, RoleNotFoundException {
+	public Result saveOrUpdateUserRole(@PathVariable Long userId, @RequestBody List<DefaultRole> roles,
+			NativeWebRequest request) throws UserNotFoundException, UserAlreadyExistsException, RoleNotFoundException {
 
-		log.debug("save or update user {} roles {}", userId, roles); 
+		log.debug("save or update user {} roles {}", userId, roles);
 		// ItemList result = new ItemList();
 		if (userId > 0 && roles != null) {
 			User user = userManager.getUser(userId);
-			saveOrUpdate( user , roles );
-		} 
+			saveOrUpdate(user, roles);
+		}
 		return Result.newResult();
 	}
-	
+
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/save-or-update.json", method = { RequestMethod.POST,
+			RequestMethod.GET })
 	@ResponseBody
 	public Result saveOrUpdateUserRoles(@PathVariable Long userId, @RequestBody List<DefaultRole> roles,
 			NativeWebRequest request) throws UserNotFoundException, UserAlreadyExistsException, RoleNotFoundException {
 
-		log.debug("save or update user {} roles {}", userId, roles); 
+		log.debug("save or update user {} roles {}", userId, roles);
 		// ItemList result = new ItemList();
 		if (userId > 0 && roles != null) {
 			User user = userManager.getUser(userId);
-			saveOrUpdate( user , roles );
-		} 
+			saveOrUpdate(user, roles);
+		}
 		return Result.newResult();
 	}
 
-	private void saveOrUpdate(User user , List<DefaultRole> roles) throws RoleNotFoundException {  
+	private void saveOrUpdate(User user, List<DefaultRole> roles) throws RoleNotFoundException {
 		List<Role> newAssigned = new ArrayList<Role>(roles.size());
 		for (Role role : roles) {
 			newAssigned.add(roleManager.getRole(role.getRoleId()));
-		} 
+		}
 		// granted user roles..
 		List<Role> granted = roleManager.getFinalUserRoles(user.getUserId());
 		// revoke roles
@@ -383,9 +430,8 @@ public class SecurityDataController {
 				roleManager.revokeRole(role, user);
 			}
 		}
-	} 
-	
-	
+	}
+
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
 	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/add.json", method = { RequestMethod.POST,
 			RequestMethod.GET })

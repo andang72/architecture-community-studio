@@ -30,6 +30,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import architecture.community.i18n.CommunityLogLocalizer;
 import architecture.community.util.CommunityConstants;
+import architecture.ee.component.State;
 import architecture.ee.component.editor.DataSourceConfig;
 import architecture.ee.component.editor.DataSourceConfigReader;
 import architecture.ee.component.editor.DataSourceEditor.PooledDataSourceConfig;
@@ -49,6 +50,7 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 	
 	private ApplicationContext applicationContext = null;
 	 
+	private State state = State.NONE;
 	
 	@Autowired(required=true)
 	@Qualifier("repository")
@@ -67,7 +69,8 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 	private ApplicationEventPublisher applicationEventPublisher;
 	
 	public CommunitySetupService() { 
-		log.debug("Create {} Service." , this.getClass().getName());
+		this.state = State.CREATED;		
+		log.debug("[{}] - {}", this.getClass().getName(), state.name());		
 	}
 	
 	public boolean isSetDataSource() {
@@ -86,8 +89,20 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 	
  
 	public void afterPropertiesSet() throws Exception {
+		this.state = State.INITIALIZING;	
+		
+		log.debug("[{}] - {}", this.getClass().getName(), state.name());
 		boolean setupDatasource = configService.getApplicationBooleanProperty(CommunityConstants.SERVICES_SETUP_DATASOURCES_ENABLED_PROP_NAME, false);
+		boolean setupComplete = configService.isSetupComplete();
+		
 		log.debug("Setup DataSource - {}" ,  setupDatasource  );
+		if( !setupComplete && isSetDataSource()  )
+		{	
+			log.debug("Setup Database - {}" , "START" );
+			setupDatabase();
+			log.debug("Setup Database - {}" , "END" );
+		}
+		
 		if( setupDatasource )
 		{	
 			log.debug("Setup DataSource - {}" , "START" );
@@ -95,6 +110,8 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 			log.debug("Setup DataSource - {}" , "END" );
 		}
 		
+		this.state = State.INITIALIZED;	
+		log.debug("[{}] - {}", this.getClass().getName(), state.name());
 	}
 	
 
@@ -113,16 +130,17 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 			}else if (db == DB.MYSQL) {
 				populator.addScripts(
 					getClassPathResource("schema/create-table-mysql.sql"),
+					getClassPathResource("schema/create-streams-table-mysql.sql"),
+					getClassPathResource("schema/create-albums-mysql.sql"),
 					getClassPathResource("schema/insert-data-mysql.sql")
 				);
 			}
-			DatabasePopulatorUtils.execute(populator, dataSource);
+			//DatabasePopulatorUtils.execute(populator, dataSource);
+			//configService.setLocalProperty(ApplicationConstants.SETUP_COMPLETE_PROP_NAME, "true");;
+			
 		} 
 	}
 	
-	private Resource getClassPathResource(String path) {
-		return new ClassPathResource(path);
-	}
 	 
 	private DataSource getDataSource (String dataSource) {  
 		try {
@@ -133,24 +151,6 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 		} catch (NoSuchBeanDefinitionException e) {
 			throw new ComponentNotFoundException(CommunityLogLocalizer.format("012004", dataSource, DataSource.class.getName() ), e);
 		} 
-	} 
-	
-	private void autowire(Object bean) {
-		applicationContext.getAutowireCapableBeanFactory().autowireBean(bean);
-	}
-	
-	
-	private ConfigurableListableBeanFactory getConfigurableListableBeanFactory() {
-		
-		ConfigurableListableBeanFactory beanFactory = (ConfigurableListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-		
-		return beanFactory;
-	}
-	
-	private BeanDefinitionRegistry getBeanDefinitionRegistry() {
-		AutowireCapableBeanFactory factory =  applicationContext.getAutowireCapableBeanFactory();
-		BeanDefinitionRegistry registry = (BeanDefinitionRegistry) factory; 
-		return registry;
 	} 
 	
 	public void setupDataSources() { 
@@ -244,4 +244,27 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 		registry.registerBeanDefinition(beanName, myBeanDefinition); 
 	}
 
+
+	private Resource getClassPathResource(String path) {
+		return new ClassPathResource(path);
+	}
+	
+	private void autowire(Object bean) {
+		applicationContext.getAutowireCapableBeanFactory().autowireBean(bean);
+	}
+	
+	
+	private ConfigurableListableBeanFactory getConfigurableListableBeanFactory() {
+		
+		ConfigurableListableBeanFactory beanFactory = (ConfigurableListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
+		
+		return beanFactory;
+	}
+	
+	private BeanDefinitionRegistry getBeanDefinitionRegistry() {
+		AutowireCapableBeanFactory factory =  applicationContext.getAutowireCapableBeanFactory();
+		BeanDefinitionRegistry registry = (BeanDefinitionRegistry) factory; 
+		return registry;
+	} 
+	
 }

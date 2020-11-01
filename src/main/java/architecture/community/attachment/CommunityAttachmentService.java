@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -92,6 +93,8 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 	private File attachmentDir;
 
 	private File attachmentCacheDir;
+	
+	private ReentrantLock lock = new ReentrantLock();
 
 	public CommunityAttachmentService() {
 	}

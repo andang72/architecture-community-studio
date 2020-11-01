@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -37,7 +38,19 @@ public class UserTest {
 
 	@Autowired
 	private ConfigService configService;
+	
+	@Autowired private PasswordEncoder passwordEncoder;
+	
+	@Test
+	public void testPassword () {
+		String password = "admin";
+		String encPassword = passwordEncoder.encode(password);
+		log.debug( "PASSWORD : {} > {}", password, encPassword);
+		
 
+		log.debug( "PASSWORD VARIFY : {}", passwordEncoder.matches("admin", "$2a$10$FastSalTl2zbbrkHZNBKaeiBNosRyyHd2k4HVwzLqzTyH91k0dkrW") );
+	}
+	
 	public UserTest() {
 	}
 
@@ -49,7 +62,7 @@ public class UserTest {
 	public void testCreateUserIfNotExist() {
 		
 		if( configService.isSetDataSource() && configService.isDatabaseInitialized() && userManager.getUserCount() == 0 ) {
-			User newUesr = new UserTemplate("system", "18450815", "킹", false, "system@demo.system", false);
+			User newUesr = new UserTemplate("admin", "admin", "관리자", false, "admin@demo.com", false);
 			log.debug("---------------" + newUesr);
 	
 			

@@ -39,7 +39,7 @@ import architecture.community.web.model.Result;
 import architecture.community.web.util.ServletUtils;
 
 @RestController("groovy-apis-v1-data-controller")
-@RequestMapping("/data/v1")
+@RequestMapping({"/data/v1" , "/data/custom"})
 public class GroovyAPIsController  extends AbstractGroovyController {
 
 	private Logger log = LoggerFactory.getLogger(getClass());

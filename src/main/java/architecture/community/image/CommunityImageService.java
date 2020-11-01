@@ -550,9 +550,10 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		// str);
 	}
 
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public Image createImage(int objectType, long objectId, String name, String contentType, File file) {
 		Date now = new Date();
-		DefaultImage image = new DefaultImage();
+		DefaultImage image = new DefaultImage(true);
 		image.setCreationDate(now);
 		image.setModifiedDate(now);
 		image.setObjectType(objectType);
@@ -560,7 +561,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		image.setContentType(contentType);
 		image.setName(name);
 		image.setImageId(-1L);
-
+		image.setImageId(imageDao.getNextImageId());
 		image.setSize((int) FileUtils.sizeOf(file));
 		try {
 			image.setInputStream(FileUtils.openInputStream(file));
@@ -570,9 +571,10 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		return image;
 	}
 
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public Image createImage(int objectType, long objectId, String name, String contentType, InputStream inputStream) {
 		Date now = new Date();
-		DefaultImage image = new DefaultImage();
+		DefaultImage image = new DefaultImage(true);
 		image.setCreationDate(now);
 		image.setModifiedDate(now);
 		image.setObjectType(objectType);
@@ -580,6 +582,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		image.setContentType(contentType);
 		image.setName(name);
 		image.setImageId(-1L);
+		image.setImageId(imageDao.getNextImageId());
 		image.setInputStream(inputStream);
 		try {
 			image.setSize(IOUtils.toByteArray(inputStream).length);
@@ -589,27 +592,36 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		return image;
 	}
 	
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public Image createImage(int objectType, long objectId, String name, String contentType, InputStream inputStream, int size) {
 		Date now = new Date();
-		DefaultImage image = new DefaultImage();
-		image.setCreationDate(now);
-		image.setModifiedDate(now);
-		image.setObjectType(objectType);
-		image.setObjectId(objectId);
-		image.setContentType(contentType);
-		image.setName(name);
-		image.setImageId(-1L);
-		image.setInputStream(inputStream);
-		image.setSize(size);
-		
+		DefaultImage image = new DefaultImage(true); 
+			image.setImageId(-1L);
+			image.setImageId(imageDao.getNextImageId());
+			image.setCreationDate(now);
+			image.setModifiedDate(now);
+			image.setObjectType(objectType);
+			image.setObjectId(objectId);
+			image.setContentType(contentType);
+			image.setName(name);		
+			image.setInputStream(inputStream);
+			image.setSize(size);		
 		return image;
 	}
 	
-
+	
+	private boolean isNew( Image image ) {
+		boolean isNew = image.getImageId() > 0 ? false : true ;		
+		if( image instanceof DefaultImage ) {
+			isNew = ((DefaultImage)image).isNew();
+		}
+		return isNew ;
+	}
+	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void saveOrUpdate(Image image) {
 		try {
-			if (image.getImageId() < 0) {
+			if (isNew(image)) {
 				imageDao.createImage(image);
 				imageDao.saveImageInputStream(image, image.getInputStream());
 			} else {
@@ -622,13 +634,13 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 			invalidate(image, true);	
 		} catch (Exception e) {
 			throw new RuntimeError(e);
-		}
+		} 
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public Image saveImage(Image image) {
 		try { 
-			if (image.getImageId() < 0) {
+			if (isNew(image)) {
 				Image newImage = imageDao.createImage(image);
 				imageDao.saveImageInputStream(newImage, image.getInputStream());
 			} else {
@@ -643,7 +655,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 			return imageToUse;
 		} catch (Exception e) {
 			throw new RuntimeError(e);
-		}
+		} 
 	}
 	
 
@@ -960,7 +972,6 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		
 		imageCache.remove(image.getImageId()); 
 	}
-
 	
 	private com.google.common.cache.LoadingCache<Long, List<AlbumImage>> albumImagesCache; 
 	

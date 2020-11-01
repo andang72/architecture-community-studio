@@ -32,8 +32,9 @@
 	-- CREATE : 2018.11.6
 	-- UPDATE : 
 	-- =================================================	
-	DROP TABLE IF EXISTS AC_UI_USER, AC_UI_ROLE, AC_UI_USER_ROLES, AC_UI_USER_LOGIN_TOKEN ;	
-		-- User
+	DROP TABLE IF EXISTS AC_UI_USER, AC_UI_USER_PROPERTY, AC_UI_ROLE, AC_UI_USER_ROLES, AC_UI_USER_LOGIN_TOKEN ;	
+	
+	-- User
 		CREATE TABLE AC_UI_USER (
 		  USER_ID                INTEGER NOT NULL,
 		  USERNAME               VARCHAR(100) NOT NULL,
@@ -590,7 +591,7 @@ DROP TABLE IF EXISTS AC_UI_ATTACHMENT , AC_UI_ATTACHMENT_DATA , AC_UI_ATTACHMENT
 	-- =================================================  
 	--  TAG	
 	-- =================================================	
-	
+	DROP TABLE IF EXISTS AC_UI_TAG , AC_UI_OBJECT_TAG , AC_UI_TAG_PROPERTY;
     CREATE TABLE AC_UI_TAG(	 
 	    TAG_ID				INTEGER NOT NULL,		
 	    TAG_NAME			VARCHAR(100) NOT NULL,
@@ -713,6 +714,7 @@ DROP TABLE IF EXISTS AC_UI_ATTACHMENT , AC_UI_ATTACHMENT_DATA , AC_UI_ATTACHMENT
 	-- CREATE : 2019.12.04
 	-- UPDATE : 
 	-- =================================================		
+	DROP TABLE IF EXISTS AC_UI_AUDIT_TRAIL;
 	CREATE TABLE AC_UI_AUDIT_TRAIL
     (
     	AUD_USER      VARCHAR(100) NOT NULL,

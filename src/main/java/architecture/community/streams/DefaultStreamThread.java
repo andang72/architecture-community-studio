@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -32,6 +33,7 @@ public class DefaultStreamThread extends PropertyModelObjectAwareSupport impleme
 
 	private AtomicInteger messageCount = new AtomicInteger(-1);
 
+	
 	public DefaultStreamThread() {
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
 		this.threadId = UNKNOWN_OBJECT_ID;
@@ -152,12 +154,24 @@ public class DefaultStreamThread extends PropertyModelObjectAwareSupport impleme
 		}
 		return coverImgSrc;
 	}
+		
+	private Integer embedMediaCount = null;
+	
+	@JsonGetter("embedMediaCount")
+	public Integer getEmbedMediaCount() {
+		if(this.embedMediaCount == null && this.rootMessage != null && StringUtils.isNotEmpty(rootMessage.getBody()))
+		{
+			Document doc = Jsoup.parse(this.rootMessage.getBody());
+			Elements eles = doc.select("figure[class*=media]");
+			embedMediaCount = eles.size() ;
+		}
+		return embedMediaCount;
+	}
 	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("BoardThread [threadId=").append(threadId).append(", objectType=").append(getObjectType())
-				.append(", objectId=").append(getObjectId()).append(", ");
+		builder.append("BoardThread [threadId=").append(threadId).append(", objectType=").append(getObjectType()).append(", objectId=").append(getObjectId()).append(", ");
 		if (creationDate != null)
 			builder.append("creationDate=").append(creationDate).append(", ");
 		if (modifiedDate != null)

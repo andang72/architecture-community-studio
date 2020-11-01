@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import architecture.community.comment.Comment;
+import architecture.community.comment.CommentNotFoundException;
+import architecture.community.comment.CommentService;
+import architecture.community.comment.DefaultComment;
 import architecture.community.exception.NotFoundException;
+import architecture.community.model.ModelObjectTreeWalker;
+import architecture.community.model.ModelObjectTreeWalker.ObjectLoader;
 import architecture.community.model.Models;
 import architecture.community.model.Property;
 import architecture.community.query.CustomQueryService;
@@ -55,6 +65,11 @@ public class ResourcesStreamsDataController {
 	@Autowired(required = false) 
 	@Qualifier("streamsService")
 	private StreamsService streamsService;
+	
+	@Inject
+	@Qualifier("commentService")
+	private CommentService commentService;
+
 	
 	/**
 	 * 
@@ -143,7 +158,7 @@ public class ResourcesStreamsDataController {
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = {  "/streams/{streamId:[\\p{Digit}]+}/properties", "/streams/{streamId:[\\p{Digit}]+}/properties/update.json" }, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public List<Property> updatePageProperties(
+	public List<Property> updateStreamProperties(
 			@PathVariable Long streamId, 
 			@RequestBody List<Property> newProperties, 
 			NativeWebRequest request) throws NotFoundException { 
@@ -164,7 +179,7 @@ public class ResourcesStreamsDataController {
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = {  "/streams/{streamId:[\\p{Digit}]+}/properties" ,  "/streams/{streamId:[\\p{Digit}]+}/properties/delete.json"  }, method = { RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public List<Property> deletePageProperties(
+	public List<Property> deleteStreamProperties(
 			@PathVariable Long streamId, 
 			@RequestBody List<Property> newProperties, 
 			NativeWebRequest request) throws NotFoundException {
@@ -332,6 +347,8 @@ public class ResourcesStreamsDataController {
 			StreamMessage rootMessage = streamsService.createMessage(Models.STREAMS.getObjectType(), streams.getStreamId(), user);
 			rootMessage.setSubject(newMessage.getSubject());
 			rootMessage.setBody(newMessage.getBody());
+			rootMessage.setKeywords(newMessage.getKeywords());
+			rootMessage.setTags(newMessage.getTags());
 			StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(), rootMessage );
 			streamsService.addThread(rootMessage.getObjectType(), rootMessage.getObjectId(), thread);
 			return thread.getRootMessage();
@@ -352,11 +369,22 @@ public class ResourcesStreamsDataController {
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/threads/{threadId:[\\p{Digit}]+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public StreamThread geThread(@PathVariable Long threadId, NativeWebRequest request) throws NotFoundException {
+	public StreamThread getThread(@PathVariable Long threadId, NativeWebRequest request) throws NotFoundException {
 		if (threadId < 1) {
 			throw new StreamThreadNotFoundException();
 		}
-		return streamsService.getStreamThread(threadId);
+		
+		StreamThread t = streamsService.getStreamThread(threadId);
+		
+		StreamThreadView v = new StreamThreadView(streamsService.getStreamThread(threadId), true );
+		
+		/*
+		 * if( t.getObjectType() == Models.STREAMS.getObjectType() && t.getObjectId() >
+		 * 0 ) { Streams s = streamsService.getStreamsById(t.getObjectType()); boolean
+		 * lightbox = Boolean.parseBoolean(
+		 * s.getProperties().getOrDefault("filters.lightbox", "false") ); }
+		 */	
+		return new StreamThreadView(streamsService.getStreamThread(threadId), true );
 	}
 	
 	
@@ -396,10 +424,17 @@ public class ResourcesStreamsDataController {
 			NativeWebRequest request) throws NotFoundException { 
 		
 		User user = SecurityHelper.getUser();	 
-		StreamMessage message = streamsService.getStreamMessage(newMessage.getMessageId());
+		
+		StreamMessage message = streamsService.getStreamMessage(newMessage.getMessageId());		
 		message.setSubject(newMessage.getSubject());
 		message.setBody(newMessage.getBody());
+		message.setKeywords(newMessage.getKeywords());
+		message.setTags(newMessage.getTags());
+		
 		streamsService.updateMessage(message);
+		
+		
+		
 		return message;
 	} 
 	
@@ -427,5 +462,149 @@ public class ResourcesStreamsDataController {
 		streamsService.deleteMessage(thread, message, recursive);		
 		return result;
 	} 
+	
+	
+	/**
+	 * 
+	 * COMMENTS API
+	 * OPJECT TYPE : 20
+	 *   
+	******************************************/
+	
+	/**
+	 * POST,PUT /data/secure/mgmt/messages/{messageId}/comments/0 
+	 * 
+	 * @param messageId
+	 * @param reqeustData
+	 * @param request
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = {"/messages/{messageId:[\\p{Digit}]+}/comments/0"}, method = { RequestMethod.POST , RequestMethod.PUT}, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Result addMessageComment(
+			@PathVariable Long messageId,
+			@RequestBody DataSourceRequest reqeustData,
+			HttpServletRequest request, ModelMap model) {
+		Result result = Result.newResult();
+		try {
+			User user = SecurityHelper.getUser();
+			String address = request.getRemoteAddr();
+			String name = reqeustData.getDataAsString("name", null);
+			String email = reqeustData.getDataAsString("email", null);
+			String text = reqeustData.getDataAsString("text", null);
+			Long parentCommentId = reqeustData.getDataAsLong("parentCommentId", 0L);
+			StreamMessage message = streamsService.getStreamMessage(messageId);
+			Comment newComment = commentService.createComment(Models.STREAMS_MESSAGE.getObjectType(), message.getMessageId(), user, text);
+			newComment.setIPAddress(address);
+			if (!StringUtils.isNullOrEmpty(name))
+				newComment.setName(name);
+			if (!StringUtils.isNullOrEmpty(email))
+				newComment.setEmail(email);
+			if (parentCommentId > 0) {
+				Comment parentComment = commentService.getComment(parentCommentId);
+				commentService.addComment(parentComment, newComment);
+			} else {
+				commentService.addComment(newComment);
+			}
+			result.setCount(1);
+		} catch (Exception e) {
+			result.setError(e);
+		}
+		return result;
+	}
+
+	@RequestMapping(value = "/messages/{messageId:[\\p{Digit}]+}/comments", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ItemList getComments(@PathVariable Long messageId, NativeWebRequest request)
+			throws NotFoundException {		
+		StreamMessage message = streamsService.getStreamMessage(messageId);
+		ModelObjectTreeWalker walker = commentService.getCommentTreeWalker(Models.STREAMS_MESSAGE.getObjectType(), message.getMessageId());
+		long parentId = -1L;
+		int totalSize = walker.getChildCount(parentId);
+		List<Comment> list = walker.children(parentId, new ObjectLoader<Comment>() {
+			public Comment load(long commentId) throws NotFoundException {
+				return commentService.getComment(commentId);
+			}
+
+		});
+		return new ItemList(list, totalSize);
+	}
+
+	
+	@RequestMapping(value = "/messages/{messageId:[\\p{Digit}]+}/comments/{commentId:[\\p{Digit}]+}", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public ItemList getChildComments(@PathVariable Long messageId,
+			@PathVariable Long commentId, NativeWebRequest request) throws NotFoundException {
+
+		StreamMessage message = streamsService.getStreamMessage(messageId);
+		ModelObjectTreeWalker walker = commentService.getCommentTreeWalker(Models.STREAMS_MESSAGE.getObjectType(), message.getMessageId());
+		int totalSize = walker.getChildCount(commentId);		
+		List<Comment> list = walker.children(commentId, new ObjectLoader<Comment>() {
+			public Comment load(long commentId) throws NotFoundException {
+				return commentService.getComment(commentId);
+			}
+		});
+		return new ItemList(list, totalSize);
+	}
+
+	
+
+	
+
+	/**
+	 * POST /data/secure/mgmt/comments/{commentId}
+	 * 
+	 * @return
+	 * @throws NotFoundException 
+	 * @throws BoardMessageNotFoundException
+	 * @throws BoardNotFoundException
+	 */
+	@RequestMapping(value = "/comments/{commentId:[\\p{Digit}]+}", method = {RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Comment addComment(
+			@PathVariable Long commentId,
+			@RequestBody DefaultComment comment, 
+			HttpServletRequest request,
+			ModelMap model) throws NotFoundException {
+
+		User user = SecurityHelper.getUser();
+		String address = request.getRemoteAddr();
+
+		Comment commentToUse = commentService.getComment(commentId);
+		commentToUse.setBody(comment.getBody());
+		commentToUse.setIPAddress(address);
+		commentService.update(comment);
+		return commentService.getComment(commentId);
+			
+	}
+	
+	
+	/**
+	 * remove comment 
+	 * 
+	 * DELETE /data/secure/mgmt/comments/{commentId}
+	 * 
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/comments/{commentId:[\\p{Digit}]+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Result deleteComment(
+			@PathVariable Long commentId, 
+			@RequestParam(value = "recursive", defaultValue = "true", required = false) boolean recursive,
+			NativeWebRequest request) throws NotFoundException { 
+		
+		Result result = Result.newResult();;
+		User user = SecurityHelper.getUser();	 
+		
+		Comment commentToUse = commentService.getComment(commentId);
+		commentService.delete(commentToUse);
+		
+		return result;
+	} 
+	
 	
 }

@@ -417,6 +417,8 @@ public class ResourcesImagesDataController {
 		
     }
     
+    
+    
     public String getContentType(File file) {
     	String contentType = null;
 	    if (contentType == null) {

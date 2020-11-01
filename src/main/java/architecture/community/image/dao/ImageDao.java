@@ -65,6 +65,10 @@ public interface ImageDao {
     public int getLogoImageCount(int objectType, long objectId);
     
     
+    
+    
+    public abstract long getNextImageId();
+    
 	public abstract Image createImage(Image image);
 	
 	public abstract Image updateImage(Image image);

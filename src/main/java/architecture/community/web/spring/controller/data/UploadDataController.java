@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -118,6 +120,7 @@ public class UploadDataController  extends AbstractResourcesDataController {
 		return list ; 
     } 
 	
+	private static final Lock lock = new ReentrantLock();
 	
 	/**
 	 * 
@@ -145,7 +148,13 @@ public class UploadDataController  extends AbstractResourcesDataController {
 		    	image = imageService.createImage(objectType, objectId, mpf.getOriginalFilename(), mpf.getContentType(), is, (int) mpf.getSize());
 		    	image.setUser(user);
 	    }	
-	    imageService.saveImage(image);
+	    
+	    lock.lock();
+	    try {
+			imageService.saveImage(image);
+		} finally{
+			 lock.unlock();
+		}	   
 	    return image;
 	}
 	

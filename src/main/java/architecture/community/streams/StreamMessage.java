@@ -27,6 +27,10 @@ public interface StreamMessage extends PropertyModelObjectAware  {
 	
 	public abstract String getKeywords(); 
 	
+	public String getTags() ;
+
+	public void setTags(String tags) ;
+	
 	public abstract Date getCreationDate();
 
 	public abstract Date getModifiedDate();	

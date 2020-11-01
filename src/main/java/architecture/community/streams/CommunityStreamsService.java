@@ -24,9 +24,11 @@ import architecture.community.model.Models;
 import architecture.community.services.CommunitySpringEventPublisher;
 import architecture.community.streams.dao.StreamsDao;
 import architecture.community.streams.event.StreamThreadEvent;
+import architecture.community.tag.TagService;
 import architecture.community.user.User;
 import architecture.community.user.UserManager;
 import architecture.community.util.SecurityHelper;
+import architecture.ee.util.StringUtils;
 
 public class CommunityStreamsService implements StreamsService {
 
@@ -41,6 +43,10 @@ public class CommunityStreamsService implements StreamsService {
 	@Inject
 	@Qualifier("userManager")
 	private UserManager userManager;
+	
+	@Autowired( required = false) 
+	@Qualifier("tagService")
+	private TagService tagService;
 	
 	private com.google.common.cache.LoadingCache<Long, Streams> streamsCache = null;
 	private com.google.common.cache.LoadingCache<Long, StreamThread> threadCache = null;
@@ -246,9 +252,12 @@ public class CommunityStreamsService implements StreamsService {
 				throw new StreamThreadNotFoundException(CommunityLogLocalizer.format("013005", threadId ), e);
 			}			
 			try {
+				
 				StreamMessage rootMessage = threadToUse.getRootMessage();		
-				StreamMessage latestMessage = threadToUse.getLatestMessage();					
+				StreamMessage latestMessage = threadToUse.getLatestMessage();			
+				
 				threadToUse.setRootMessage(getStreamMessage(rootMessage.getMessageId()));					
+				
 				if(latestMessage != null && latestMessage.getMessageId() > 0){
 					threadToUse.setLatestMessage(getStreamMessage(latestMessage.getMessageId()));	
 					threadToUse.setModifiedDate(threadToUse.getLatestMessage().getModifiedDate());
@@ -271,7 +280,13 @@ public class CommunityStreamsService implements StreamsService {
 				messageToUse = streamsDao.getStreamMessageById(messageId);			
 				if( messageToUse.getUser().getUserId() > 0){
 					((DefaultStreamMessage)messageToUse).setUser(userManager.getUser(messageToUse.getUser()));
-				}	
+				}				
+				if(tagService!=null) {
+					String tags = tagService.getTagsAsString(Models.STREAMS_MESSAGE.getObjectType(), messageId);		
+					if(!StringUtils.isNullOrEmpty(tags)) {
+						((DefaultStreamMessage)messageToUse).setTags(tags);
+					}
+				}
 				
 			} catch (Exception e) {
 				throw new StreamMessageNotFoundException(CommunityLogLocalizer.format("013007", messageId ));
@@ -288,13 +303,18 @@ public class CommunityStreamsService implements StreamsService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void updateMessage(StreamMessage message) { 
-		streamsDao.updateStreamMessage(message);		
+				
+		streamsDao.updateStreamMessage(message);	
+		
+		if(tagService!=null)
+			tagService.setTags(message.getTags(), Models.STREAMS_MESSAGE.getObjectType(), message.getMessageId());
+		
 		try {
 			StreamThread thread = getStreamThread(message.getThreadId());
-			streamsDao.updateModifiedDate(thread, message.getModifiedDate() );  
-			
+			streamsDao.updateModifiedDate(thread, message.getModifiedDate() );  			
 			threadCache.invalidate(thread.getThreadId());
 			messageCache.invalidate(message.getMessageId());
+			
 		} catch (StreamThreadNotFoundException e) {
 			logger.error(e.getMessage(), e );
 		}	
@@ -312,7 +332,12 @@ public class CommunityStreamsService implements StreamsService {
 		if(thread.getThreadId() != -1L){
 			newMessageToUse.setThreadId(thread.getThreadId());
 		}		
+		
 		streamsDao.createStreamMessage(thread, newMessageToUse, parentMessage.getMessageId());
+		
+		if(!StringUtils.isNullOrEmpty(newMessageToUse.getTags()))
+			tagService.setTags(newMessageToUse.getTags(), Models.STREAMS_MESSAGE.getObjectType(), newMessageToUse.getMessageId());
+		
 		updateThreadModifiedDate(thread, newMessageToUse);		 		
 	}
  

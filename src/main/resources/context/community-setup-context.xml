@@ -21,8 +21,8 @@
 	
 	<beans:bean id="adminService" class="architecture.community.services.CommunityAdminService"/>
 	
-	<beans:bean id="setupService" class="architecture.community.services.setup.CommunitySetupService"/>
-	
+	<beans:bean id="setupService" class="architecture.community.services.setup.CommunitySetupService" />
+
 	<!-- Menu for SETUP, STUDIO  -->
 	<beans:bean id="admin.menuService" class="architecture.community.admin.menu.SetupMenuService"/>
 	
