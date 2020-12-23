@@ -845,9 +845,20 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		return sb.toString();
 	}
 
+	
+	/**
+	 * create thumbnail image from org image.
+	 * 
+	 * @param image
+	 * @param width
+	 * @param height
+	 * @return
+	 * @throws IOException
+	 * @throws JCodecException
+	 */
 	protected File getThumbnailFromCacheIfExist(Image image, int width, int height) throws IOException, JCodecException {
 
-		log.debug("extract thumbnail {}x{} for {}", width , height, image.getContentType()); 
+		log.debug("creating thumbnail {}x{} for {}", width , height, image.getContentType()); 
 		File dir = getImageCacheDir();
 		File thumbnailFile = new File(dir, toThumbnailFilename(image, width, height));
 		File sourceFile = getImageFromCacheIfExist(image);
@@ -862,7 +873,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		
 		try {
 			lock.lock(); 
-			log.debug("extracting thumbnail from ()({}).", sourceFile.getAbsoluteFile(), image.getContentType() );
+			log.debug("creating thumbnail from ()({}).", sourceFile.getAbsoluteFile(), image.getContentType() );
 			if (image.getContentType().startsWith("video")) {  
 				Picture picture = FrameGrab.getFrameFromFile(sourceFile, 0); 
 				log.debug("extract picture frame with {} x {} ", picture.getWidth(), picture.getHeight());
@@ -875,7 +886,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 				BufferedImage originalImage = null;
 				try {
 					originalImage = ImageIO.read(sourceFile); 
-					log.debug("extract from original image {} x {} ", originalImage.getWidth(), originalImage.getHeight());
+					log.debug("creating from original image {} x {} ", originalImage.getWidth(), originalImage.getHeight());
 				} catch (Exception e) {
 					log.error("fail to read image", e);
 				}
@@ -893,10 +904,8 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 					} 
 					
 				}
-				log.debug("final thumbnail: {} ({})", thumbnailFile.getAbsoluteFile(), thumbnailFile.length());
-				image.setThumbnailSize((int) thumbnailFile.length());
-				
-				
+				log.debug("final created thumbnail: {} ({})", thumbnailFile.getAbsoluteFile(), thumbnailFile.length());
+				image.setThumbnailSize((int) thumbnailFile.length());				
 				return thumbnailFile; 
 			}
 			

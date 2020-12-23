@@ -1,5 +1,6 @@
 package architecture.community.web.spring.controller.data.secure.mgmt;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -25,7 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import architecture.community.comment.Comment;
-import architecture.community.comment.CommentNotFoundException;
 import architecture.community.comment.CommentService;
 import architecture.community.comment.DefaultComment;
 import architecture.community.exception.NotFoundException;
@@ -34,7 +35,10 @@ import architecture.community.model.ModelObjectTreeWalker.ObjectLoader;
 import architecture.community.model.Models;
 import architecture.community.model.Property;
 import architecture.community.query.CustomQueryService;
+import architecture.community.query.CustomTransactionCallbackWithoutResult;
+import architecture.community.query.dao.CustomQueryJdbcDao;
 import architecture.community.streams.DefaultStreamMessage;
+import architecture.community.streams.DefaultStreamThread;
 import architecture.community.streams.DefaultStreams;
 import architecture.community.streams.StreamMessage;
 import architecture.community.streams.StreamMessageNotFoundException;
@@ -50,8 +54,21 @@ import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
 import architecture.community.web.spring.controller.data.StreamsDataController.StreamThreadView;
 import architecture.community.web.spring.controller.data.Utils;
+import architecture.community.web.spring.controller.data.model.Bag;
 import architecture.ee.util.StringUtils;
+/**
+ * 
+ * 
+ * 
 
+POST – Create , Select
+GET – Read/Retrieve
+PUT/PATCH – Update
+DELETE – Delete
+
+ * @author donghyuck.son
+ *
+ */
 @Controller("community-mgmt-resources-streams-secure-data-controller")
 @RequestMapping("/data/secure/mgmt")
 public class ResourcesStreamsDataController {
@@ -82,7 +99,6 @@ public class ResourcesStreamsDataController {
 	@RequestMapping(value = {"/streams", "/streams/list.json"}, method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getStreams(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {  
-		
 		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAMS_BY_REQUEST");
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
 		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAMS_IDS_BY_REQUEST"); 
@@ -195,9 +211,7 @@ public class ResourcesStreamsDataController {
 		return Utils.toList(properties);
 	}
 	
-	
-	
-	
+		
 	/**
 	 * 
 	 * GET /data/secure/mgmt/streams/{streamsId}/threads
@@ -264,6 +278,41 @@ public class ResourcesStreamsDataController {
 		return new ItemList(list, totalCount);
 	}
 	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/streams/{streamId:[\\p{Digit}]+}/threads", method = { RequestMethod.DELETE}, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Result deleteThreads (
+			@PathVariable Long streamId,  
+			@RequestBody Bag bag, 
+			NativeWebRequest request) throws NotFoundException {	
+		
+		User user = SecurityHelper.getUser();
+		Result result = Result.newResult();
+		
+		final List<Long> threadIDs = bag.getItems();
+		customQueryService.execute(new CustomTransactionCallbackWithoutResult() {
+
+			@Override
+			protected void doInTransactionWithoutResult(CustomQueryJdbcDao dao) {
+				
+				for( Long threadId : threadIDs)
+				{
+					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.DELETE_STREAM_MESSAGE_BY_THREAD_ID").getSql(),
+						new SqlParameterValue(Types.NUMERIC, threadId ));
+					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.DELETE_STREAM_THREAD").getSql(),
+						new SqlParameterValue(Types.NUMERIC, threadId ));	
+				}
+				
+			}});
+		
+		streamsService.clearCache();
+		
+		return result;
+	}
+	
+	
+	
+	
 	/**
 	 * create new thread into streams
 	 *  
@@ -323,6 +372,55 @@ public class ResourcesStreamsDataController {
 		return result;
 	}
 	 
+
+	
+	/**
+	 * move threads to other stream.
+	 * 
+	 * POST /data/secure/mgmt/streams/{streamId}/threads/move
+	 * 
+	 */
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/streams/{streamId:[\\p{Digit}]+}/threads/move", method = { RequestMethod.POST, RequestMethod.PATCH}, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Result moveThreads (
+			@PathVariable Long streamId,  
+			@RequestBody Bag move, 
+			NativeWebRequest request) throws NotFoundException {	
+		
+		User user = SecurityHelper.getUser();
+		Result result = Result.newResult();
+							
+		
+		final int objectTypeToUse = move.getObjectType();
+		final long objectIdToUse = move.getToObjectId();
+		final List<Long> threadIDs = move.getItems();
+		customQueryService.execute(new CustomTransactionCallbackWithoutResult() {
+
+			@Override
+			protected void doInTransactionWithoutResult(CustomQueryJdbcDao dao) {
+				
+				for( Long threadId : threadIDs)
+				{
+					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.MOVE_STREAM_THREAD").getSql(), 
+						new SqlParameterValue(Types.NUMERIC, objectTypeToUse ),
+						new SqlParameterValue(Types.NUMERIC, objectIdToUse ),
+						new SqlParameterValue(Types.NUMERIC, threadId )
+					);		
+					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.MOVE_STREAM_MESSAGE").getSql(), 
+						new SqlParameterValue(Types.NUMERIC, objectTypeToUse ),
+						new SqlParameterValue(Types.NUMERIC, objectIdToUse ),
+						new SqlParameterValue(Types.NUMERIC, threadId )
+					);
+				}
+				
+			}});
+		
+		streamsService.clearCache();
+		
+		return result;
+	}
+	
 	
 	/**
 	 * new message 

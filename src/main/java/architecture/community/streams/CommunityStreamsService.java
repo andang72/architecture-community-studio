@@ -78,10 +78,20 @@ public class CommunityStreamsService implements StreamsService {
 			);
 	}
 
+	
 	private void fireEvent(Object event) {
 		if( communitySpringEventPublisher!= null)
 			communitySpringEventPublisher.fireEvent(event);
 	}
+	
+
+	@Override
+	public void clearCache() {
+		streamsCache.cleanUp();
+		threadCache.cleanUp();
+		messageCache.cleanUp();
+	}
+
 	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public Streams createStreams(String name, String displayName, String description) { 
@@ -375,5 +385,15 @@ public class CommunityStreamsService implements StreamsService {
 
 	}
 
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public void move(StreamThread thread, int containerType, long containerId) {  
+		streamsDao.moveThread(thread, containerType, containerId); 
+		threadCache.invalidate(thread.getThreadId());
+		List<Long> messageIds = streamsDao.getMessageIds(thread);
+		for( Long ID : messageIds )
+			messageCache.invalidate(ID); 
+		
+	}
 
 }

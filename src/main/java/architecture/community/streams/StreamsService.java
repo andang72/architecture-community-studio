@@ -51,11 +51,7 @@ public interface StreamsService {
 	
 	public abstract int getStreamThreadCount(Streams board) ; 
 	
-	
-	
-	
-	
- 	public abstract StreamMessage createMessage(int containerType, long containerId);
+	public abstract StreamMessage createMessage(int containerType, long containerId);
 	
 	public abstract StreamMessage createMessage(int containerType, long containerId, User user);	
 	
@@ -85,5 +81,9 @@ public interface StreamsService {
 	public abstract void deleteThread(StreamThread thread) ;
 			
 	public abstract void deleteMessage(StreamThread thread, StreamMessage message, boolean recursive);
+	
+	public abstract void clearCache();
+	
+	public void move(StreamThread thread, int containerType, long containerId );
 	
 }

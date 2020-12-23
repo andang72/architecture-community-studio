@@ -421,5 +421,20 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 			new SqlParameterValue(Types.NUMERIC, thread.getThreadId() ));		
 		
 	}
+ 
+	public void moveThread(StreamThread thread, int objectType, long objectId) {
+		
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_STREAMS.MOVE_STREAM_THREAD").getSql(), 
+			new SqlParameterValue(Types.NUMERIC, objectType ),
+			new SqlParameterValue(Types.NUMERIC, objectId ),
+			new SqlParameterValue(Types.NUMERIC, thread.getThreadId() )
+		);		
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_STREAMS.MOVE_STREAM_MESSAGE").getSql(), 
+				new SqlParameterValue(Types.NUMERIC, objectType ),
+				new SqlParameterValue(Types.NUMERIC, objectId ),
+				new SqlParameterValue(Types.NUMERIC, thread.getThreadId() )
+		);
+		
+	}
 
 }

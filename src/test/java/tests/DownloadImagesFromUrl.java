@@ -73,59 +73,87 @@ public class DownloadImagesFromUrl {
 	@Qualifier("imageService") 
 	private ImageService imageService;
 	
+	
+	
+	static class Response 
+	{
+		Document document;
+		int statusCode;
+		
+
+		public Response(int statusCode) {
+			this.statusCode = statusCode;
+			this.document = null;
+		}
+		
+		public Response(Document document, int statusCode) {
+			this.document = document;
+			this.statusCode = statusCode;
+		}
+		
+	}
+	
 	@ScriptData
 	public Object download (NativeWebRequest request) throws Exception {  
 		
-		for ( int i = 11 ;  i <= 40 ; i ++ ) {				
-		String serviceUrl = "https://manytoon.com/comic/sexercise/chapter-" + i + "/";
+		StringBuilder sb = new StringBuilder();
+		for ( int i = 31 ;  i <= 40 ; i ++ ) {			
+		
+		String serviceUrl = "https://mangahentai.me/manga-hentai/lucky-guy/chapter-" + i + "/";		
+
 		//String serviceUrl = "https://manytoon.com/comic/young-boss/chapter-41/";		
 		
-		Document doc = communityHttpClientService.get(serviceUrl, null, new ResponseCallBack<Document>(){
-		public Document process(int statusCode, String responseString) {				
-			Document _document = Jsoup.parse( responseString ); 				
-			return _document;
+		Response res = communityHttpClientService.get(serviceUrl, null, new ResponseCallBack<Response>(){
+		public Response process(int statusCode, String responseString) {
+			Response res = new Response(statusCode);
+			res.document = Jsoup.parse( responseString ); 
+			return res;
 		}});	
 		
-		File dir = getDownloadDir("/sexercise/chapter-" + i);	
-		//File dir = getDownloadDir("/young-boss/chapter-41");		
-		log.debug( "download {} images to {}", doc.title(), dir );		
-		
-		
-		//User user = SecurityHelper.getUser();
-		User user = new UserTemplate(1L);
-		Streams streams = streamsService.getStreamsById(1); 
-		StringBuilder body = new StringBuilder();
-		
-		Elements eles = doc.select(".reading-content .page-break img");
-		for( Element ele : eles ) { 				
-			String source = ele.attr("src").trim();
-			String filename = FilenameUtils.getName(source);			
-			try {
-				URL url = new URL(source);
-				File file = new File( dir, filename );			
-				log.debug("{} > {}", url , file);
-				downloadFromUrl(url, file);
-				ImageLink link = uploadImage( Models.STREAMS.getObjectType(), streams.getStreamId(), file , user );
-				body.append("<figure class='image'>");
-				body.append("<img src='/download/images/");
-				body.append(link.getLinkId());
-				body.append("'>");
-				body.append("</figure>");
-				
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}			
-		}		
-				
-		StreamMessage rootMessage = streamsService.createMessage(Models.STREAMS.getObjectType(), streams.getStreamId(), user);
-		rootMessage.setSubject( doc.title() );
-		rootMessage.setBody(body.toString());
-		StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(), rootMessage );
-		streamsService.addThread(rootMessage.getObjectType(), rootMessage.getObjectId(), thread);	
+		if( res.statusCode == 200 ) {
+			Document doc = res.document;		
+			sb.append(doc.title()).append(File.separator);
+			
+			File dir = getDownloadDir("/lucky-guy/chapter-" + i);		
+			log.debug( "download {} images to {}", doc.title(), dir );	
+			
+			//User user = SecurityHelper.getUser();
+			User user = new UserTemplate(1L);
+			Streams streams = streamsService.getStreamsById(5); 
+			StringBuilder body = new StringBuilder();
+			
+			Elements eles = doc.select(".reading-content .page-break img");
+			for( Element ele : eles ) { 				
+				String source = ele.attr("src").trim();
+				String filename = FilenameUtils.getName(source);			
+				try {
+					URL url = new URL(source);
+					File file = new File( dir, filename );			
+					log.debug("{} > {}", url , file);
+					downloadFromUrl(url, file);
+					ImageLink link = uploadImage( Models.STREAMS.getObjectType(), streams.getStreamId(), file , user );
+					body.append("<figure class='image'>");
+					body.append("<img src='/download/images/");
+					body.append(link.getLinkId());
+					body.append("'>");
+					body.append("</figure>");
+					
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}			
+			}		
+					
+			StreamMessage rootMessage = streamsService.createMessage(Models.STREAMS.getObjectType(), streams.getStreamId(), user);
+			rootMessage.setSubject( doc.title() );
+			rootMessage.setBody(body.toString());
+			StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(), rootMessage );
+			streamsService.addThread(rootMessage.getObjectType(), rootMessage.getObjectId(), thread);
 		}
-
+		
+		}
+		
 		//return rootMessage.getBody() ;
-		return "done" ;
+		return sb.toString() ;
 	}
 	
 	
@@ -166,7 +194,6 @@ public class DownloadImagesFromUrl {
 			URLConnection con = url.openConnection(); 
 			con.setRequestProperty("User-Agent", USER_AGENT); 
 			inputStream = con.getInputStream();
-		
 			FileUtils.copyToFile( inputStream, file );
 		}finally {
 			IOUtils.closeQuietly(inputStream);

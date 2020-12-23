@@ -514,8 +514,15 @@ public class SecurityDataController {
 	 * PERMISSIONS API
 	 ******************************************/
 
+	/**
+	 * GET /data/secure/mgmt/security/permissions
+	 * 
+	 * @param request
+	 * @return
+	 */
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/permissions/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = {"/permissions"}, method = { RequestMethod.GET })
 	@ResponseBody
 	public ItemList getPermissions(NativeWebRequest request) {
 
@@ -528,74 +535,70 @@ public class SecurityDataController {
 
 	/**
 	 * 
+	 * GET /data/secure/mgmt/security/permissions/{objectType}/{objectId}
+	 * 
 	 * @param objectType
 	 * @param objectId
 	 * @param request
 	 * @return
 	 */
-
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/list.json", method = {
-			RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.GET })
 	@ResponseBody
-	public ItemList getAssignedPermissions(@PathVariable Integer objectType, @PathVariable Long objectId,
-			NativeWebRequest request) {
+	public ItemList getAssignedPermissions(@PathVariable Integer objectType, @PathVariable Long objectId, NativeWebRequest request) {
 
-		List<AccessControlEntry> entries = aclService.getAsignedPermissions(Models.valueOf(objectType).getObjectClass(),
-				objectId);
+		List<AccessControlEntry> entries = aclService.getAsignedPermissions(Models.valueOf(objectType).getObjectClass(), objectId);
 		List<ObjectAccessControlEntry> list = new ArrayList<ObjectAccessControlEntry>(entries.size());
 		for (AccessControlEntry entry : entries)
 			list.add(new ObjectAccessControlEntry(entry));
 		return new ItemList(list, list.size());
 	}
 
+	/**
+	 * POST /data/secure/mgmt/security/permissions/{objectType}/{objectId}
+	 * 
+	 * @param objectType
+	 * @param objectId
+	 * @param entry
+	 * @return
+	 * @throws UserNotFoundException
+	 * @throws RoleNotFoundException
+	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/add.json", method = {
-			RequestMethod.POST })
+	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.POST })
 	@ResponseBody
-	public Result addPermission(@PathVariable Integer objectType, @PathVariable Long objectId,
-			@RequestBody ObjectAccessControlEntry entry) throws UserNotFoundException, RoleNotFoundException {
+	public Result addPermission(@PathVariable Integer objectType, @PathVariable Long objectId, @RequestBody ObjectAccessControlEntry entry) throws UserNotFoundException, RoleNotFoundException {
 		Result result = Result.newResult();
 		if (org.apache.commons.lang3.StringUtils.equals(entry.getGrantedAuthority(), "USER")) {
-			if (StringUtils.isNullOrEmpty(entry.getGrantedAuthorityOwner()) || org.apache.commons.lang3.StringUtils
-					.equals(entry.getGrantedAuthorityOwner(), SecurityHelper.ANONYMOUS.getUsername())) {
-				aclService.addAnonymousPermission(Models.valueOf(objectType).getObjectClass(), objectId,
-						CommunityPermissions.getPermissionByName(entry.getPermission()));
+			if (StringUtils.isNullOrEmpty(entry.getGrantedAuthorityOwner()) || org.apache.commons.lang3.StringUtils.equals(entry.getGrantedAuthorityOwner(), SecurityHelper.ANONYMOUS.getUsername())) {
+				aclService.addAnonymousPermission(Models.valueOf(objectType).getObjectClass(), objectId, CommunityPermissions.getPermissionByName(entry.getPermission()));
 			} else {
 				User user = userManager.getUser(entry.getGrantedAuthorityOwner());
-				aclService.addPermission(Models.valueOf(objectType).getObjectClass(), objectId, user,
-						CommunityPermissions.getPermissionByName(entry.getPermission()));
+				aclService.addPermission(Models.valueOf(objectType).getObjectClass(), objectId, user, CommunityPermissions.getPermissionByName(entry.getPermission()));
 
 			}
 		} else if (org.apache.commons.lang3.StringUtils.equals(entry.getGrantedAuthority(), "ROLE")) {
 			Role role = roleManager.getRole(entry.getGrantedAuthorityOwner());
-			aclService.addPermission(Models.valueOf(objectType).getObjectClass(), objectId, role,
-					CommunityPermissions.getPermissionByName(entry.getPermission()));
+			aclService.addPermission(Models.valueOf(objectType).getObjectClass(), objectId, role, CommunityPermissions.getPermissionByName(entry.getPermission()));
 		}
 		return result;
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/remove.json", method = {
-			RequestMethod.POST })
+	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.DELETE })
 	@ResponseBody
-	public Result removePermission(@PathVariable Integer objectType, @PathVariable Long objectId,
-			@RequestBody ObjectAccessControlEntry entry) throws UserNotFoundException, RoleNotFoundException {
+	public Result removePermission(@PathVariable Integer objectType, @PathVariable Long objectId, @RequestBody ObjectAccessControlEntry entry) throws UserNotFoundException, RoleNotFoundException {
 		Result result = Result.newResult();
 		if (org.apache.commons.lang3.StringUtils.equals(entry.getGrantedAuthority(), "USER")) {
-			if (StringUtils.isNullOrEmpty(entry.getGrantedAuthorityOwner()) || org.apache.commons.lang3.StringUtils
-					.equals(entry.getGrantedAuthorityOwner(), SecurityHelper.ANONYMOUS.getUsername())) {
-				aclService.removeAnonymousPermission(Models.valueOf(objectType).getObjectClass(), objectId,
-						CommunityPermissions.getPermissionByName(entry.getPermission()));
+			if (StringUtils.isNullOrEmpty(entry.getGrantedAuthorityOwner()) || org.apache.commons.lang3.StringUtils.equals(entry.getGrantedAuthorityOwner(), SecurityHelper.ANONYMOUS.getUsername())) {
+				aclService.removeAnonymousPermission(Models.valueOf(objectType).getObjectClass(), objectId, CommunityPermissions.getPermissionByName(entry.getPermission()));
 			} else {
 				User user = userManager.getUser(entry.getGrantedAuthorityOwner());
-				aclService.removePermission(Models.valueOf(objectType).getObjectClass(), objectId, user,
-						CommunityPermissions.getPermissionByName(entry.getPermission()));
+				aclService.removePermission(Models.valueOf(objectType).getObjectClass(), objectId, user, CommunityPermissions.getPermissionByName(entry.getPermission()));
 			}
 		} else if (org.apache.commons.lang3.StringUtils.equals(entry.getGrantedAuthority(), "ROLE")) {
 			Role role = roleManager.getRole(entry.getGrantedAuthorityOwner());
-			aclService.removePermission(Models.valueOf(objectType).getObjectClass(), objectId, role,
-					CommunityPermissions.getPermissionByName(entry.getPermission()));
+			aclService.removePermission(Models.valueOf(objectType).getObjectClass(), objectId, role, CommunityPermissions.getPermissionByName(entry.getPermission()));
 		}
 		return result;
 	}

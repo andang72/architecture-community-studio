@@ -62,4 +62,6 @@ public interface StreamsDao {
 	
 	public void deleteThread(StreamThread thread);
 	
+	public abstract void moveThread(StreamThread thread, int objectType, long objectId);
+	
 }
