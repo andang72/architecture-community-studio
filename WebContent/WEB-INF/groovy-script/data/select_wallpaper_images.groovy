@@ -32,11 +32,19 @@ public class SelectWallpaperImages {
 
 	@ScriptData
 	public ItemList select (NativeWebRequest request) throws NotFoundException {
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT * FROM AC_UI_IMAGE_LINK T1 RIGHT JOIN  AC_UI_IMAGE_PROPERTY T2")
+
+		StringBuilder sql = new StringBuilder()		
+		.append("SELECT * FROM AC_UI_IMAGE_LINK T1 RIGHT JOIN  AC_UI_IMAGE_PROPERTY T2")
 		.append(" ON T1.IMAGE_ID = T2.IMAGE_ID ")
 		.append(" WHERE T2.PROPERTY_NAME = 'wallpaper' ");
-		List list = customQueryService.customQueryJdbcDao.jdbcTemplate.queryForList( sql.toString() );
+		
+		// CASE 1 : select all 
+		// List list = customQueryService.customQueryJdbcDao.jdbcTemplate.queryForList( sql.toString() );
+		// CASE 2 : select 100 rows.
+		
+		List list = customQueryService.customQueryJdbcDao.extendedJdbcTemplate.query(sql.toString(), 0, 100);
+        java.util.Collections.shuffle(list, new java.util.Random(System.nanoTime()));
+
 		return new ItemList(list, list.size());
 	}
 }

@@ -17,9 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 
+import architecture.community.page.Page;
 import architecture.community.page.PathPattern;
 import architecture.community.page.api.dao.ApiDao;
 import architecture.community.user.UserManager;
+import architecture.community.user.UserNotFoundException;
 
 public class CommunityApiService implements ApiService {
 
@@ -85,6 +87,7 @@ public class CommunityApiService implements ApiService {
 		try {
 			if (apiCache.get(apiId) != null) {
 				api = apiCache.get(apiId);
+				setUserInApi(api);
 			}
 		}catch(Exception e) { 
 			log.warn("Api Not Found. " , e);
@@ -94,6 +97,16 @@ public class CommunityApiService implements ApiService {
 		}
 		return api;
 	}
+	
+
+	protected void setUserInApi(Api api) {
+		
+		if( api.getCreator().getUserId() > 0 )
+		try {
+			api.setCreator(userManager.getUser(api.getCreator().getUserId()));
+		} catch (UserNotFoundException e) {
+		}
+	}	
 	
 	public List<PathPattern> getPathPatterns(String prefix){  
 		try {
