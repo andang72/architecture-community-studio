@@ -1,9 +1,9 @@
 # architecture-community-studio
 ## Overview
 
-자바 기반의 RESTful API 스튜디오 
+Java based RESTful API Server
 
-- 실시간 웹 페이지 및 REST API 생성 및 배포
+- 실시간 웹 페이지 및 RESTful API 생성 및 배포
 - JWT based stateless session 
 - ROLE 기반의 접근 제어
 - 사용자 시스템 
@@ -13,7 +13,8 @@
 5.1.x 버전 부터는 Java 8+ 지원
 
 
-## REST API
+
+## Core RESTful API
 /data/api/*
 /data/accounts/*
 /data/secure/mgmt/*

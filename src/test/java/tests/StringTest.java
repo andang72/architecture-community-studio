@@ -21,7 +21,7 @@ public class StringTest {
 		
 		log.debug("fields link : {} , tags : {}", includeImageLink, includeTags);
 		
-		
+		log.debug( String.format("https://mangahentai.me/manga-hentai/lucky-guy/chapter-%s/", 1) );
 	}
 
 }

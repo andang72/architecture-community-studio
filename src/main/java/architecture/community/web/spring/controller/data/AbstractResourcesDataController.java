@@ -190,6 +190,7 @@ public abstract class AbstractResourcesDataController {
 	}
 
 	protected String getResourcePathByType(ResourceType type) {
+		
 		String path = null;
 		if (ResourceType.TEMPLATE == type) {
 			StringBuilder sb = new StringBuilder().append(File.separatorChar).append("WEB-INF").append(File.separatorChar).append("template").append(File.separatorChar).append("ftl");

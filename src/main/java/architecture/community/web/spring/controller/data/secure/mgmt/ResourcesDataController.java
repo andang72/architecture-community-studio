@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
@@ -19,24 +21,35 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import com.github.scribejava.core.utils.StreamUtils;
 
 import architecture.community.attachment.Attachment;
 import architecture.community.attachment.DefaultAttachment;
 import architecture.community.exception.NotFoundException;
+import architecture.community.exception.UnAuthorizedException;
+import architecture.community.image.Image;
+import architecture.community.image.ImageLink;
 import architecture.community.model.Models;
 import architecture.community.query.CustomQueryService;
 import architecture.community.query.ParameterValue;
 import architecture.community.share.SharedLink;
 import architecture.community.share.SharedLinkService;
 import architecture.community.tag.TagService;
+import architecture.community.user.User;
 import architecture.community.util.DateUtils;
+import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
@@ -73,6 +86,62 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 	private ResourceType getResourceType(String name ) {
 		return ResourceType.valueOf(name.toUpperCase());
 	}
+	
+	
+	/**
+	 * Upload Resources API 
+	******************************************/
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER", "ROLE_USER"})
+    @RequestMapping(value = "/resources/{type}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Result upload(
+    	@PathVariable String type, 
+		@RequestParam(value = "path", defaultValue = "", required = false) String path, 
+   		@RequestHeader MultiValueMap<String, String> headers,
+   		MultipartHttpServletRequest request) throws NotFoundException, IOException, UnAuthorizedException { 
+		
+		User user = SecurityHelper.getUser();
+		if( user.isAnonymous() )
+		    throw new UnAuthorizedException(); 
+		
+		if( log.isDebugEnabled() ) {
+			headers.forEach((key, value) -> {
+		        log.debug(String.format( "Header '%s' = %s", key, value.stream().collect(Collectors.joining("|"))));
+		    });
+		}
+		
+		log.debug("get resources by type '{}' ({})", type,  path);
+		if (!isValid(type)) {
+			throw new IllegalArgumentException();
+		} 
+		ResourceType resourceType = getResourceType(type);
+		Resource root = getResourceByType( resourceType , null); 
+		log.debug("selected resources : {}", root );
+		
+		try { 
+			File fileToUse = root.getFile(); 
+			if (StringUtils.isEmpty(path)) { 
+				fileToUse = root.getFile();
+			}else { 
+				fileToUse = new File(root.getFile(), path);
+			}
+			
+			Iterator<String> names = request.getFileNames();
+			while (names.hasNext()) {
+			    String fileName = names.next();
+			    log.debug("multipart name : {}", fileName );
+			    MultipartFile mpf = request.getFile(fileName);
+			    File newFile = new File(fileToUse, mpf.getOriginalFilename());
+			    log.debug("new file will saved in {}", newFile.getAbsolutePath() );
+			    FileUtils.copyToFile(mpf.getInputStream(), newFile);
+			}
+			
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+		return Result.newResult() ; 
+    } 
 	
 	/**
 	 * Object Resources API 
