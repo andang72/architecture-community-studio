@@ -3,6 +3,7 @@ package architecture.community.web.spring.controller.data.secure.mgmt;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,8 +11,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,18 +38,11 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.github.scribejava.core.utils.StreamUtils;
-
 import architecture.community.attachment.Attachment;
-import architecture.community.attachment.DefaultAttachment;
 import architecture.community.exception.NotFoundException;
 import architecture.community.exception.UnAuthorizedException;
-import architecture.community.image.Image;
-import architecture.community.image.ImageLink;
-import architecture.community.model.Models;
 import architecture.community.query.CustomQueryService;
 import architecture.community.query.ParameterValue;
-import architecture.community.share.SharedLink;
 import architecture.community.share.SharedLinkService;
 import architecture.community.tag.TagService;
 import architecture.community.user.User;
@@ -313,6 +311,33 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 		return fileInfo;
     } 
 	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/resources/{type}/download", method = { RequestMethod.POST, RequestMethod.GET })
+    @ResponseBody
+    public FileInfo downloadContent(
+    		@PathVariable String type, 
+    		@RequestParam(value = "path", defaultValue = "", required = false) String path, 
+    		HttpServletRequest request, 
+    		HttpServletResponse response) throws NotFoundException, IOException {  
+		
+		ResourceType resourceType = getResourceType(type);
+		File targetFile = getResourceByType(resourceType, path).getFile();
+		log.debug("target : {} ({})", targetFile.getAbsolutePath() , targetFile.isDirectory());
+		
+		
+		long sizeOfFile = FileUtils.sizeOf(targetFile);
+		InputStream input = FileUtils.openInputStream(targetFile);
+		
+		response.setContentType("APPLICATION/OCTET-STREAM");
+		response.setContentLength((int)sizeOfFile);
+		response.setHeader("contentDisposition", "attachment;filename=" + ServletUtils.getEncodedFileName(targetFile.getName()));
+		IOUtils.copy(input, response.getOutputStream());
+		response.flushBuffer();
+		
+		
+		return fileInfo;
+    } 
+	
 	/**
 	 * 파일 내용을 업데이트 한다. 동일경로에 파일이름 + .[yyyyMMddHHmmss] 형식으로 백업을 생성한 다음 저장한다.
 	 * 
@@ -335,7 +360,7 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 		ResourceType resourceType = getResourceType(type);
 		File target =  getResourceByType(resourceType, file.getPath() ).getFile();
 		// backup to filename + .yyyymmddhhmmss .
-		if( backup ) {
+		if( backup && target.exists() ) {
 			File backupFile = new File(target.getParentFile() , target.getName() + "." + DateUtils.toString(new Date()) );  
 			FileUtils.copyFile(target, backupFile); 
 		}
