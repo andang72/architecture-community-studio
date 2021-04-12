@@ -313,8 +313,7 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/resources/{type}/download", method = { RequestMethod.POST, RequestMethod.GET })
-    @ResponseBody
-    public FileInfo downloadContent(
+    public void downloadContent(
     		@PathVariable String type, 
     		@RequestParam(value = "path", defaultValue = "", required = false) String path, 
     		HttpServletRequest request, 
@@ -333,9 +332,7 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 		response.setHeader("contentDisposition", "attachment;filename=" + ServletUtils.getEncodedFileName(targetFile.getName()));
 		IOUtils.copy(input, response.getOutputStream());
 		response.flushBuffer();
-		
-		
-		return fileInfo;
+		 
     } 
 	
 	/**
