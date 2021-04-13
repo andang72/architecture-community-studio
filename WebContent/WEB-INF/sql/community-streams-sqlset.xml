@@ -200,6 +200,19 @@
  	ORDER BY T2.MODIFIED_DATE DESC
  	</#if>
     ]]></dynamic></sql-query>	
+    
+    <sql-query name="MOVE_STREAM_THREAD" description="MOVE_STREAM_THREAD"><![CDATA[
+    UPDATE AC_UI_STREAMS_THREAD
+    SET OBJECT_TYPE = ? , OBJECT_ID = ?
+    WHERE THREAD_ID = ?
+    ]]></sql-query>		
+    
+    <sql-query name="MOVE_STREAM_MESSAGE" description="MOVE_STREAM_MESSAGE"><![CDATA[
+    UPDATE AC_UI_STREAMS_MESSAGE
+    SET OBJECT_TYPE = ? , OBJECT_ID = ?
+    WHERE THREAD_ID = ?
+    ]]></sql-query>		
+    
         	
 	<!--  ====================================  -->
 	<!--  STREAMS MESSAGE				 	    -->
