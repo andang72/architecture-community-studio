@@ -350,17 +350,25 @@ public class ResourcesDataController extends AbstractResourcesDataController {
     @ResponseBody
     public FileInfo saveOrUpdate(
     		@PathVariable String type, 
+    		@RequestParam(value = "create-new-file", defaultValue = "false", required = false) Boolean createNewFile,
     		@RequestParam(value = "backup", defaultValue = "true", required = false) Boolean backup, 
     		@RequestBody FileInfo file, 
     		NativeWebRequest request) throws NotFoundException, IOException {  
 		
 		ResourceType resourceType = getResourceType(type);
 		File target =  getResourceByType(resourceType, file.getPath() ).getFile();
+		
 		// backup to filename + .yyyymmddhhmmss .
 		if( backup && target.exists() ) {
 			File backupFile = new File(target.getParentFile() , target.getName() + "." + DateUtils.toString(new Date()) );  
 			FileUtils.copyFile(target, backupFile); 
 		}
+		
+		if( createNewFile && !target.exists() && target.canWrite() )
+		{
+			target.createNewFile();
+		}
+		
 		FileUtils.writeStringToFile(target, file.getFileContent(), ServletUtils.DEFAULT_HTML_ENCODING , false);  
 		FileInfo fileInfo = new FileInfo(target); 
 		fileInfo.setFileContent(target.isDirectory() ? "" : FileUtils.readFileToString(target, "UTF-8"));  
