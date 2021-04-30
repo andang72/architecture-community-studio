@@ -1,7 +1,9 @@
 package architecture.community.page.api;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -10,6 +12,7 @@ import architecture.community.model.PropertyModelObjectAware;
 import architecture.community.model.PropertyModelObjectAwareSupport;
 import architecture.community.model.json.JsonDateDeserializer;
 import architecture.community.model.json.JsonDateSerializer;
+import architecture.community.page.Parameter;
 import architecture.community.user.User;
 import architecture.community.user.model.json.JsonUserDeserializer;
 
@@ -41,6 +44,9 @@ public class Api extends PropertyModelObjectAwareSupport implements PropertyMode
 	
 	private String pattern;
 	
+	private List<Parameter> parameters ;
+	
+	
 	public Api( ) {
 		this(-1, -1L);
 		this.apiId = -1L;
@@ -48,6 +54,7 @@ public class Api extends PropertyModelObjectAwareSupport implements PropertyMode
 		this.title = null;
 		this.creationDate = Calendar.getInstance().getTime();
 		this.modifiedDate = this.creationDate;		 
+		
 	}
 
 	public Api(long apiId  ) {
@@ -60,7 +67,7 @@ public class Api extends PropertyModelObjectAwareSupport implements PropertyMode
 	}
 	
 	public Api(int objectType, long objectId, long taskId) {
-		super(objectType, objectId);
+		this(objectType, objectId);
 		this.title = null;
 		this.pattern = null;
 		this.apiId = taskId;
@@ -75,6 +82,7 @@ public class Api extends PropertyModelObjectAwareSupport implements PropertyMode
 		this.pattern = null;
 		this.creationDate = Calendar.getInstance().getTime();
 		this.modifiedDate = this.creationDate;		
+		this.parameters = new ArrayList<Parameter>();
 	} 
 	
 	@JsonSerialize(using = JsonDateSerializer.class)
@@ -187,5 +195,12 @@ public class Api extends PropertyModelObjectAwareSupport implements PropertyMode
 	public void setPattern(String pattern) {
 		this.pattern = pattern;
 	}
-	
+
+	public List<Parameter> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(List<Parameter> parameters) {
+		this.parameters = parameters;
+	} 
 }

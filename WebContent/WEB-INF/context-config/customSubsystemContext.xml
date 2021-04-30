@@ -22,4 +22,5 @@
 
 	<lang:groovy id="customUserProfileService" script-source="/WEB-INF/groovy-script/services/customUserProfileService.groovy" refresh-check-delay="10"></lang:groovy>
 
+
 </beans:beans> 

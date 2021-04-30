@@ -8,6 +8,7 @@ import java.sql.Types
 import java.time.LocalDate
 
 import javax.annotation.PostConstruct
+import java.util.*;
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -55,7 +56,7 @@ public class CustomAuditTrailsService extends AbstractStringAuditTrailService{
 	@PostConstruct
 	public void initialize() throws Exception {
 		logger.debug("Initializing queue..");
-		this.queue = Collections.synchronizedList(new ArrayList<AuditActionContext>());
+		this.queue = Collections.synchronizedList(new java.util.ArrayList<AuditActionContext>());
 	}
 	
 	public void record(final AuditActionContext auditActionContext) {
@@ -69,11 +70,13 @@ public class CustomAuditTrailsService extends AbstractStringAuditTrailService{
 	}
 	
 	public void updateAll () {
+		
 		List<AuditActionContext> localQueue = queue;
-		queue = Collections.synchronizedList(new ArrayList<AuditActionContext>());
+		queue = Collections.synchronizedList(new java.util.ArrayList<AuditActionContext>());
+		
 		logger.debug("update all audit records : {}", localQueue.size() );
 		if (localQueue.size() > 0) {
-			final List<AuditActionContext> list = new ArrayList<AuditActionContext>(localQueue);
+			final List<AuditActionContext> list = new java.util.ArrayList<AuditActionContext>(localQueue);
 			customQueryService.execute(new CustomTransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(CustomQueryJdbcDao dao) {
 					dao.getExtendedJdbcTemplate().batchUpdate(
@@ -103,7 +106,7 @@ public class CustomAuditTrailsService extends AbstractStringAuditTrailService{
 	}
 	
 	public List<? extends AuditActionContext> getAuditRecordsSince(LocalDate sinceDate) {
-		return customQueryService.execute(new CustomTransactionCallback<List<AuditActionContext>>() {
+		return customQueryService.execute(new CustomTransactionCallback<java.util.List<AuditActionContext>>() {
 					public List<AuditActionContext> doInTransaction(CustomQueryJdbcDao dao) throws DataAccessException {
 						return dao.getJdbcTemplate().query(
 

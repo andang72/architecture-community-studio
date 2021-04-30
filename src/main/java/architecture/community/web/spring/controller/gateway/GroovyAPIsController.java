@@ -38,6 +38,14 @@ import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.Result;
 import architecture.community.web.util.ServletUtils;
 
+/**
+ * This restful controller for groovy data api.
+ * 
+ * 
+ * 
+ * @author donghyuck.son
+ *
+ */
 @RestController("groovy-apis-v1-data-controller")
 @RequestMapping({"/data/v1" , "/data/custom"})
 public class GroovyAPIsController  extends AbstractGroovyController {
@@ -131,6 +139,7 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		return result;
 	}
 
+	 
 	@RequestMapping(value = "/{filename:.+}", method = { RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE, RequestMethod.PUT, RequestMethod.PATCH }, produces = MediaType.APPLICATION_JSON_VALUE )
 	public Object callByFilename(
 			@PathVariable String filename,
@@ -193,6 +202,8 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		}
 		return result;
 	}	
+	
+	
 	
 	private boolean isAllowed(Api api) {
 		if(!api.isSecured())

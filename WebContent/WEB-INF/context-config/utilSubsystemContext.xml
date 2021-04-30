@@ -20,6 +20,8 @@
 	
 	<beans:bean id="communityGroovyService" class="architecture.community.services.CommunityGroovyService" />
 	
+	<beans:bean id="communityHttpClientService" class="architecture.community.services.CommunityHttpClientService" />
+	
 	<beans:bean id="communityExportService" class="architecture.community.services.database.CommunityExportService" />
 
 </beans:beans> 

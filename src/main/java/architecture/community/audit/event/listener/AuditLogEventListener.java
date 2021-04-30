@@ -16,16 +16,15 @@ import com.google.common.eventbus.Subscribe;
 import architecture.community.audit.AuditActionContext;
 import architecture.community.audit.AuditTrailService;
 import architecture.community.audit.event.AuditLogEvent;
-import architecture.community.audit.event.AuditTrailsService;
 
 @Component
 public class AuditLogEventListener {
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
-	@Autowired(required=false)
-	@Qualifier("auditTrailsService")
-	private AuditTrailsService auditTrailsService;
+	//@Autowired(required=false)
+	//@Qualifier("auditTrailsService")
+	//private AuditTrailsService auditTrailsService;
 	
 	@Autowired(required=false)
 	@Qualifier("auditTrailService")
@@ -47,8 +46,8 @@ public class AuditLogEventListener {
 	@Async
 	public void handelAuditLogEvent(AuditLogEvent e) { 
 		
-		if(auditTrailsService!=null)
-			auditTrailsService.leave(e); 
+		//if(auditTrailsService!=null)
+		//	auditTrailsService.leave(e); 
 		
 		if(auditTrailService!=null)
 			auditTrailService.record(e.getContext());
