@@ -47,7 +47,7 @@ import architecture.community.web.util.ServletUtils;
  *
  */
 @RestController("groovy-apis-v1-data-controller")
-@RequestMapping({"/data/v1" , "/data/custom"})
+@RequestMapping({"/data/v1", "/data/apis"})
 public class GroovyAPIsController  extends AbstractGroovyController {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -82,10 +82,8 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class); 
 		StopWatch watch = new StopWatch();
-		watch.start();
-		
- 		String path = getUrlPathHelper().getLookupPathForRequest(request);
- 		log.debug("path={}, path2={}", path, getRequestPath(request));
+		watch.start(); 
+ 		String path = getUrlPathHelper().getLookupPathForRequest(request); 
  		
  		PathPattern matchePattern = null;
  		for(PathPattern pathPattern:apiService.getPathPatterns("/data/v1")){
@@ -97,12 +95,21 @@ public class GroovyAPIsController  extends AbstractGroovyController {
  				break;
  			}
  		}
+ 		for(PathPattern pathPattern:apiService.getPathPatterns("/data/apis")){
+ 			boolean isPattern = pathPattern.getPattern() == null ? false : getPathMatcher().isPattern(pathPattern.getPattern());
+ 			boolean match = getPathMatcher().match( pathPattern.getPattern(), path);
+ 			log.debug("{} checking (pattern:{}) match : {}", pathPattern.getPattern(), isPattern, match);
+ 			if( match ) {
+ 				matchePattern = pathPattern;
+ 				break;
+ 			}
+ 		}
+ 		
  		if(matchePattern == null)
  			throw new NotFoundException();
  		
  		Api api = apiService.getApiById(matchePattern.getObjectId()); 
  		
-		log.debug("name :{}, script: {}",api.getName(), api.getScriptSource());  
 		if(!isAllowed(api))
 			throw new UnAuthorizedException("Access Permission Required."); 
 		
@@ -113,7 +120,7 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 			Class<?> handlerType = communityGroovyService.getScriptedObjectType(scriptSource, factory);
 			Object object = communityGroovyService.getScriptedObject(scriptSource, handlerType, factory, true);
 			Method method = resolveHandlerMethod(handlerType); 
-			List<Object> args = resolveHandlerMethodArguments(method, webRequest);
+			List<Object> args = resolveHandlerMethodArguments(api, method, webRequest);
 			String[] urls = determineUrlsForHandlerMethods(object.getClass(), false);
 			for( String url : urls )
 				log.debug("mapping url : {}", url);
@@ -125,8 +132,7 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 				return method.invoke(object, args.toArray()); 
 			}
 		}finally {
-			watch.stop();
-			
+			watch.stop(); 
 			log.debug("DATA API CALLED : {}" , watch.prettyPrint());
 			if(communitySpringEventPublisher!=null && api!=null)
 				communitySpringEventPublisher.fireEvent((new AuditLogEvent.Builder(request, response, this))
@@ -145,12 +151,13 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 			@PathVariable String filename,
 			@RequestParam(value = "version", defaultValue = "1", required = false) int version,
 			@RequestParam(value = "preview", defaultValue = "false", required = false) boolean preview, 
-			Model model,
+			Model model, 
 			NativeWebRequest webRequest) throws Exception {
-
+ 
+		 
 		StopWatch watch = new StopWatch();
 		watch.start();
-		
+	
 		Result result = Result.newResult(); 
 		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
@@ -160,6 +167,7 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		
 		if(!isAllowed(api))
 			throw new UnAuthorizedException("Access Permission Required.");
+
 		
 		ScriptSource scriptSource = communityGroovyService.getScriptSource(api.getScriptSource());
 		GroovyScriptFactory factory = communityGroovyService.getGroovyScriptFactory(api.getScriptSource(), true);
@@ -171,19 +179,17 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		String path =  getRequestPath(request);
 		boolean isPattern = isPattern(api.getPattern()); 
 		setUriTemplateVariables(path, api.getPattern(), request);
-		
-		log.debug("{} ({})", path, isPattern);
-		log.debug("webDataBinderFactory = {}", getWebDataBinderFactory() );   
+		 
 		try {  
 			Class<?> handlerType = communityGroovyService.getScriptedObjectType(scriptSource, factory);
 			Object object = communityGroovyService.getScriptedObject(scriptSource, handlerType, factory, true);
 			Method method = resolveHandlerMethod(handlerType); 
-			List<Object> args = resolveHandlerMethodArguments(method, webRequest);
+			List<Object> args = resolveHandlerMethodArguments(api, method, webRequest);
 			String[] urls = determineUrlsForHandlerMethods(object.getClass(), false);
+			
 			for( String url : urls )
 				log.debug("mapping url : {}", url);
 			
-			log.debug("{} called with {}", method.getName(), args);
 			if( method.getReturnType().equals(Void.TYPE)){
 				method.invoke(object, args.toArray()); 
 			}else {
@@ -202,7 +208,6 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		}
 		return result;
 	}	
-	
 	
 	
 	private boolean isAllowed(Api api) {

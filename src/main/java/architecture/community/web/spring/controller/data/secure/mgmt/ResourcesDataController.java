@@ -329,7 +329,7 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 		
 		response.setContentType("APPLICATION/OCTET-STREAM");
 		response.setContentLength((int)sizeOfFile);
-		response.setHeader("contentDisposition", "attachment;filename=" + ServletUtils.getEncodedFileName(targetFile.getName()));
+		response.setHeader("Content-Disposition", "attachment;filename=" + ServletUtils.getEncodedFileName(targetFile.getName()));
 		IOUtils.copy(input, response.getOutputStream());
 		response.flushBuffer();
 		 

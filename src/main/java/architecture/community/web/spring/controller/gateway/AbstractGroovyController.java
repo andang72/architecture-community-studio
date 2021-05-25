@@ -1,6 +1,9 @@
 package architecture.community.web.spring.controller.gateway;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -18,22 +21,27 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
 import org.springframework.web.bind.support.DefaultDataBinderFactory;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.util.UrlPathHelper;
 
+import architecture.community.page.api.Api;
 import architecture.community.web.spring.controller.annotation.ScriptData;
+import architecture.community.web.util.ParamUtils;
 
 public class AbstractGroovyController {
 	
@@ -46,6 +54,7 @@ public class AbstractGroovyController {
 	private boolean useDefaultSuffixPattern = true;
 	
 	protected Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	
 	@Autowired(required=false)
 	private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
@@ -113,30 +122,63 @@ public class AbstractGroovyController {
 		return methods.isEmpty() ? null : methods.get(0);
 	}
 	
-	protected List<Object> resolveHandlerMethodArguments(Method method, NativeWebRequest webRequest) throws Exception {
+	
+	/**
+	 * 인자로 전달된 함수 인자의 데이터 타입에 따라서 값 설정.
+	 * 
+	 */
+	protected List<Object> resolveHandlerMethodArguments(Api api, Method method, NativeWebRequest webRequest) throws Exception {
 		int parameterCount = method.getParameterCount() ;  
-		ArrayList<Object> args = new ArrayList<Object>(parameterCount);   
+		
+		ArrayList<Object> args = new ArrayList<Object>(parameterCount);  
+		ModelAndViewContainer mavContainer = new ModelAndViewContainer();
 		for( int index = 0 ; index< parameterCount ;index++) {
 			MethodParameter parameter = new MethodParameter (method, index); 
 			Object value = null;
+			if( log.isDebugEnabled())
+				log.debug("MethodParameter : {}", index ); 
+			
+			
 			for( HandlerMethodArgumentResolver resolver : requestMappingHandlerAdapter.getArgumentResolvers()) {
-				if( resolver.supportsParameter(parameter)) {
+				boolean supports = resolver.supportsParameter(parameter);
+				if( log.isDebugEnabled())
+					log.debug("<Method Argument Resolver class='{}' , supports='{}'>", resolver.getClass().getName(), supports );
+				if( supports ) {
 					try {
-						if( log.isDebugEnabled())
-							log.debug("resolver({}) for {}", resolver.getClass().getName(), parameter);
-						value = resolver.resolveArgument(parameter, null, webRequest, webDataBinderFactory);
-						if( log.isDebugEnabled())
-							log.debug("resolved value : {}", value ); 
+						//if( log.isDebugEnabled())
+						//	log.debug("resolved ({}) for {}", resolver.getClass().getName(), parameter);
+						value = resolver.resolveArgument(parameter, mavContainer, webRequest, getWebDataBinderFactory());
+						//if( log.isDebugEnabled())
+						//	log.debug("Method argument resolved {} -> {} by {}", parameter, value ); 
 					} catch (Exception e) {
 						if( e instanceof org.springframework.http.converter.HttpMessageNotReadableException ) {
 							throw e;
-						} 
-						
-					}
+						} else {
+							//log.warn(e.getMessage(), e);
+						}
+					} 
 				}
 			} 
-			if( value == null ) {
 
+			if( value == null && Api.class.equals(parameter.getParameterType()) ) {
+				value = api;
+			}
+			if (value == null && parameter.hasParameterAnnotation(RequestParam.class)) {
+				RequestParam ann = parameter.getParameterAnnotation(RequestParam.class);
+				String val = ParamUtils.getParameter(webRequest.getNativeRequest(HttpServletRequest.class), ann.name(), ann.defaultValue());
+				parameter.getParameterType();
+				if( String.class.equals(parameter.getParameterType()) ) {
+					value = val;
+				}else if( Long.class.equals(parameter.getParameterType()) ) {
+					value = Long.parseLong(val);
+				}else if (Integer.class.equals(parameter.getParameterType())) {
+					value = Integer.parseInt(val);
+				}else if (Boolean.class.equals(parameter.getParameterType())) {
+					value = Boolean.parseBoolean(val);
+				}
+			}
+			
+			if( value == null ) { 
 				if( Long.class.equals(parameter.getParameterType()) ) {
 					value = 0L;
 				}else if (Integer.class.equals(parameter.getParameterType())) 
@@ -150,6 +192,32 @@ public class AbstractGroovyController {
 		}
 		return args;
 	}
+	
+	
+	public static MethodParameter createMethodParameter(Parameter parameter) {
+		Assert.notNull(parameter, "Parameter must not be null");
+		Executable executable = parameter.getDeclaringExecutable();
+		if (executable instanceof Method) {
+			return new MethodParameter((Method) executable, getIndex(parameter));
+		}
+		// else
+		return new MethodParameter((Constructor<?>) executable, getIndex(parameter));
+	}
+
+	private static int getIndex(Parameter parameter) {
+		Assert.notNull(parameter, "Parameter must not be null");
+		Executable executable = parameter.getDeclaringExecutable();
+		Parameter[] parameters = executable.getParameters();
+		for (int i = 0; i < parameters.length; i++) {
+			if (parameters[i] == parameter) {
+				return i;
+			}
+		}
+		throw new IllegalStateException(String.format("Failed to resolve index of parameter [%s] in executable [%s]", parameter, executable.toGenericString()));
+	}
+	
+	
+	
 	
 	protected boolean isPattern(String pattern) {
 		return pattern == null ? false : pathMatcher.isPattern(pattern);

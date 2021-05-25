@@ -176,9 +176,8 @@ public class ServletUtils {
 	}
 
 	public static final String CONTEXT_ROOT_PATH = "";
-
+	
 	public static String getContextPath(HttpServletRequest request) {
-
 		if (StringUtils.isEmpty(request.getContextPath())) {
 			return CONTEXT_ROOT_PATH;
 		} else if (org.apache.commons.lang3.StringUtils.equals("/", request.getContextPath().trim())) {

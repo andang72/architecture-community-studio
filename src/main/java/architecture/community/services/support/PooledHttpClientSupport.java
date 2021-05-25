@@ -75,7 +75,7 @@ public class PooledHttpClientSupport {
 		log.debug("message: " + message);
 		HttpEntity responseHttpEntity = response.getEntity();
 		InputStream content = responseHttpEntity.getContent();
-		BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+		BufferedReader buffer = new BufferedReader(new InputStreamReader(content, "UTF-8"));
 		responseString = IOUtils.toString(buffer);
 		EntityUtils.consume(responseHttpEntity);
 		return handler.process(statusCode, responseString);

@@ -23,5 +23,20 @@ public class StringTest {
 		
 		log.debug( String.format("https://mangahentai.me/manga-hentai/lucky-guy/chapter-%s/", 1) );
 	}
-
+	
+	
+	@Test
+	public void testString() {
+		
+		String x = "abcd";
+		String y = "abcd";
+		log.debug( "x==y : {}", x == y);  
+		
+		String z = new String("abcd");
+		String zz = new String("abcd");
+		
+		log.debug( "y==z : {}", y == z);
+		log.debug( "z==zz : {}", z == zz);
+	}
+		
 }
