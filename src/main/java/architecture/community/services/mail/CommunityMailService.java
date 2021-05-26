@@ -25,7 +25,7 @@ public class CommunityMailService implements MailService {
 
 	private Logger log = LoggerFactory.getLogger(CommunityMailService.class);
 	
-	public static String CONFIG_FILENAME = "mail-service-config.xml";
+	public static String DEDFAULT_CONFIG_FILENAME = "services-mail-config.xml";
 	
 	@Inject
 	@Qualifier("repository")
@@ -45,7 +45,7 @@ public class CommunityMailService implements MailService {
 	public void initialize() throws Exception {   
 		try { 
 			
-			File file = repository.getConfigRoot().getFile(CONFIG_FILENAME);
+			File file = repository.getConfigRoot().getFile(DEDFAULT_CONFIG_FILENAME);
 			log.debug("Read from {}", file.getPath());
 			
 			MailServiceConfigEditor editor = new MailServiceConfigEditor(file); 
@@ -55,7 +55,6 @@ public class CommunityMailService implements MailService {
 			log.debug( "Initialize Mail Service. enabled:{}", isEnabled() );
 			
 			if( config.getEnabled() ) { 
-				
 				adminService.addMailSender(config);
 				log.debug("Register JavaMailSender Bean : {}.", config.getBeanName());
 				mailSender = adminService.getComponent(config.getBeanName(), JavaMailSenderImpl.class);
