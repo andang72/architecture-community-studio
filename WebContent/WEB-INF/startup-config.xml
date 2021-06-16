@@ -57,9 +57,9 @@
 			<beanName>dataSource</beanName>
 			<pooledDataSourceProvider>
 				<driverClassName>com.mysql.cj.jdbc.Driver</driverClassName> 
-				<url>jdbc:mysql://192.168.29.192:3306/islanddb?serverTimezone=Asia/Seoul</url>
-				<username>studio</username>
-				<password>studio007A@</password>
+				<url>jdbc:mysql://xxx.xxx.xxx.xxx:3306/islanddb?serverTimezone=Asia/Seoul</url>
+				<username>xxxx</username>
+				<password>xxxx</password>
 				<connectionProperties>
 					<initialSize>1</initialSize>
 					<maxActive>8</maxActive>
