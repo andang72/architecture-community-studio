@@ -33,7 +33,7 @@ public class StreamsTest {
 	@Autowired
 	private StreamsService streamsService;
 	
-	@Test
+	
 	public void test() {
 		//fail("Not yet implemented"); 
 		List<Streams> list = streamsService.getAllStreams();

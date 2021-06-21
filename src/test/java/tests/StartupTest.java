@@ -43,7 +43,7 @@ public class StartupTest {
 		log.info("repository");
 	}
 	
-	@Test
+
 	public void testConfigService() {
 		log.info("ConfigService");
 		
