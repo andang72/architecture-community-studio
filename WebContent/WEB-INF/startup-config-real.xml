@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<startup-config>
+  <setup>
+    <complete>false</complete>
+  </setup>
+  <!--LICENSE SETTING HERE!-->
+  <license/>
+  <!--SECURITY SETTING HERE!-->
+  <security>
+    <encrypt>
+      <algorithm>Blowfish</algorithm>
+      <key>
+        <current/>
+      </key>
+      <property>
+        <name>username</name>
+        <name>password</name>
+      </property>
+    </encrypt>
+    <authentication>
+      <encoding>
+        <algorithm>SHA-256</algorithm>
+      </encoding>
+    </authentication>
+  </security>
+  <!--SERVICES SETTING HERE !-->
+  <services>
+    <!--config service-->
+    <config>
+      <persistence>
+        <jdbc>
+          <enabled>false</enabled>
+        </jdbc>
+      </persistence>
+    </config>
+    <!--sqlquery service-->
+    <sqlquery>
+      <resource>
+        <location>sql</location>
+      </resource>
+    </sqlquery>
+  </services>
+  <!--COMPONENTS SETTING HERE!-->
+  <!--DATABASE SETTING-->
+  <database>
+    <default>
+      <!-- 1. jndi datasource example.-->
+      <!--
+      <jndiDataSourceProvider>
+      	<jndiName></jndiName>
+      </jndiDataSourceProvider>
+-->
+      <!-- 2. connection pool datasource using dbcp example. -->
+      <!--
+      <pooledDataSourceProvider> 
+          <driverClassName></driverClassName> 
+          <url></url>
+          <username></username>
+          <password></password>
+          <connectionProperties>
+              <initialSize>1</initialSize>
+              <maxActive>8</maxActive>
+              <maxIdle>8</maxIdle>
+              <maxWait>-1</maxWait>
+              <minIdle>0</minIdle>
+              <testOnBorrow>true</testOnBorrow>
+              <testOnReturn>false</testOnReturn>
+              <testWhileIdle>false</testWhileIdle>
+              <validationQuery>select 1 from dual</validationQuery>
+          </connectionProperties>
+      </pooledDataSourceProvider>-->
+      
+      <pooledDataSourceProvider>
+                                <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
+                                <url>jdbc:mysql://192.168.29.192:3306/islanddb?serverTimezone=Asia/Seoul
+                                </url>
+                                <username>studio</username>
+                                <password>studio007A@</password>
+                                <connectionProperties>
+                                        <initialSize>1</initialSize>
+                                        <maxActive>8</maxActive>
+                                        <maxIdle>8</maxIdle>
+                                        <maxWait>-1</maxWait>
+                                        <minIdle>0</minIdle>
+                                        <testOnBorrow>false</testOnBorrow>
+                                        <testOnReturn>false</testOnReturn>
+                                        <testWhileIdle>false</testWhileIdle>
+                                        <validationQuery>select
+                                                1
+                                        </validationQuery>
+                                </connectionProperties>
+                        </pooledDataSourceProvider>
+    </default>
+  </database>
+</startup-config>
