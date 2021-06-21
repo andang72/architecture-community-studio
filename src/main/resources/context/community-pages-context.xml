@@ -17,6 +17,12 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- ================================= -->
+    <!-- CONTENT BUNDEL 				   -->
+    <!-- ================================= -->
+    <beans:bean id="bundleService" class="architecture.community.content.bundles.CommunityBundleService"  />
+    <beans:bean id="bundleDao" class="architecture.community.content.bundles.dao.JdbcBundleDao" p:dataSource-ref="dataSource" />
+    
+	<!-- ================================= -->
     <!-- PAGE							   -->
     <!-- ================================= -->
     

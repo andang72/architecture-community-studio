@@ -105,8 +105,7 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 			if (!attachmentDir.exists()) {
 				boolean result = attachmentDir.mkdir();
 				if (!result)
-					log.error((new StringBuilder()).append("Unable to create attachment directory: '")
-							.append(attachmentDir).append("'").toString());
+					log.error((new StringBuilder()).append("Unable to create attachment directory: '").append(attachmentDir).append("'").toString());
 			}
 		}
 		return attachmentDir;
@@ -179,8 +178,7 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 		return attachment;
 	}
 
-	public Attachment createAttachment(int objectType, long objectId, String name, String contentType,
-			InputStream inputStream) {
+	public Attachment createAttachment(int objectType, long objectId, String name, String contentType, InputStream inputStream) {
 
 		DefaultAttachment attachment = new DefaultAttachment();
 		attachment.setObjectType(objectType);
@@ -196,8 +194,7 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 		return attachment;
 	}
 
-	public Attachment createAttachment(int objectType, long objectId, String name, String contentType,
-			InputStream inputStream, int size) {
+	public Attachment createAttachment(int objectType, long objectId, String name, String contentType, InputStream inputStream, int size) {
 
 		DefaultAttachment attachment = new DefaultAttachment();
 		attachment.setObjectType(objectType);
@@ -241,17 +238,14 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 			attachmentToUse = attachmentDao.createAttachment(attachmentToUse);
 		}
 
-		try {
-
+		try { 
 			if (attachmentToUse.getInputStream() != null) {
 				attachmentDao.saveAttachmentData(attachmentToUse, attachmentToUse.getInputStream());
-				Collection<File> files = FileUtils.listFiles(getAttachmentCacheDir(),
-						FileFilterUtils.prefixFileFilter(attachment.getAttachmentId() + ""), null);
+				Collection<File> files = FileUtils.listFiles(getAttachmentCacheDir(), FileFilterUtils.prefixFileFilter(attachment.getAttachmentId() + ""), null);
 				for (File file : files) {
 					FileUtils.deleteQuietly(file);
 				}
-			}
-
+			} 
 			return getAttachment(attachment.getAttachmentId());
 
 		} catch (Exception e) {

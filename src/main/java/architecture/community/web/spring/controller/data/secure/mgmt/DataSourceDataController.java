@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.support.DatabaseMetaDataCallback;
 import org.springframework.jdbc.support.MetaDataAccessException;
@@ -46,6 +47,7 @@ import architecture.community.services.database.schema.DatabaseFactory;
 import architecture.community.services.database.schema.Table;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
+import architecture.community.web.model.Result;
 import architecture.community.web.util.ServletUtils;
 import architecture.ee.component.editor.DataSourceConfig;
 import architecture.ee.component.editor.DataSourceConfigReader;
@@ -107,14 +109,15 @@ public class DataSourceDataController {
 		return list;
 	}
 	
-	private DataSourceConfig getDataSourceConfigFromCache(String key) throws NotFoundException {
+	
+	private DataSourceConfig getDataSourceConfigFromCache(String name) throws NotFoundException {
 		if( dataSourceConfigCache == null) {
 			dataSourceConfigCache = CacheBuilder.newBuilder().maximumSize(500).expireAfterAccess(5, TimeUnit.MINUTES).build(		
 				new CacheLoader<String, DataSourceConfig>(){			
 					@Override
-					public DataSourceConfig load(String key) throws Exception {  
+					public DataSourceConfig load(String name) throws Exception {  
 						DataSourceConfigReader reader = getDataSourceConfigReader();
-						DataSourceConfig dsc = reader.getDataSoruceConfig(key);
+						DataSourceConfig dsc = reader.getDataSoruceConfig(name);
 						dsc.setActive(adminService.isExists(dsc.getBeanName(), DataSource.class)); 
 						return dsc;
 					}
@@ -122,14 +125,13 @@ public class DataSourceDataController {
 			);	
 		}
 		try {
-			return dataSourceConfigCache.get(key);
+			return dataSourceConfigCache.get(name);
 		} catch (ExecutionException e) {
 			throw new NotFoundException(e);
 		}
 	}
 	
-	private DatabaseInfo getDatabaseInfoFromCache(DataSourceConfig key) { 
-		
+	private DatabaseInfo getDatabaseInfoFromCache(DataSourceConfig key) {  
 		if( databaseCache == null ) { 
 			logger.debug("create cahce." );
 			databaseCache = CacheBuilder.newBuilder().maximumSize(500).expireAfterAccess(5, TimeUnit.MINUTES).build(		
@@ -214,6 +216,7 @@ public class DataSourceDataController {
 		List<DataSourceConfig> list = listDataSourceConfig();
 		return list;
 	} 
+	
 		
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/datasource/{name}/get.json", method = { RequestMethod.POST, RequestMethod.GET })
@@ -250,6 +253,61 @@ public class DataSourceDataController {
 		ItemList itemList = new ItemList(list, list.size());
 		return itemList;
 	}
+	
+	
+	
+	/**
+	 * Data Sources API (JDBC)
+	******************************************/
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = { "/datasources" , "/datasources/list.json"}, method = { RequestMethod.GET, RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public List<DataSourceConfig> getJdbcDataSourcs(NativeWebRequest request){
+		
+		List<DataSourceConfig> list = listDataSourceConfig();
+		
+		return list;
+	} 
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = { "/datasources/{name}/get.json" ,"/datasources/{name}" }, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public DataSourceConfig getJdbcDataSource(@PathVariable String name, NativeWebRequest request){
+		return getDataSourceConfigReader().getDataSoruceConfig(name);
+	}
+
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = { "/datasources/{name}/save-or-update.json" ,"/datasources/{name}" }, method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Result saveOrUpdateJdbcDataSource(
+		@PathVariable String name, 
+		@RequestBody DataSourceConfig config,	
+		NativeWebRequest request){ 
+		
+		
+		
+		
+		
+		
+		return Result.newResult();
+	}
+	
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = { "/datasources/{name}/database/get.json" , "/datasources/{name}/database" }, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public DatabaseInfo getJdbcDataSourceInfo(@PathVariable String name, NativeWebRequest request) throws NotFoundException{  
+		DataSourceConfig dsc = getDataSourceConfigFromCache(name); 
+		if( adminService.isExists(dsc.getBeanName(), DataSource.class) ) {
+			DatabaseInfo db = getDatabaseInfoFromCache(dsc);
+			return db;
+		}else {
+			throw new NotFoundException();
+		}
+	}
+	
 	
 	
 	private static final int [] EXCLUDE_DATA_TYPED = { java.sql.Types.BLOB , java.sql.Types.BINARY }; 
@@ -323,6 +381,8 @@ public class DataSourceDataController {
 		ItemList itemList = new ItemList(list, totalCount ); 
 		return itemList;
 	}
+	
+	
 	
 	public static class DatabaseInfo implements Serializable { 
 		// 0, 1, 2

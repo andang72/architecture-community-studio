@@ -108,7 +108,7 @@ public class ServicesMailDataController {
 	
 	
 	private MailServiceConfigEditor getMailServiceConfigEditor (){   
-		File file = repository.getConfigRoot().getFile(CommunityMailService.CONFIG_FILENAME);
+		File file = repository.getConfigRoot().getFile(CommunityMailService.DEFAULT_CONFIG_FILENAME);
 		MailServiceConfigEditor editor = new MailServiceConfigEditor(file); 
 		return editor ;
 	}

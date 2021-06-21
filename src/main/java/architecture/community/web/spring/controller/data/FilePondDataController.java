@@ -107,6 +107,7 @@ public class FilePondDataController {
 		while (names.hasNext()) {
 		    String fileName = names.next();
 		    MultipartFile mpf = request.getFile(fileName);
+		    
 		    InputStream is = mpf.getInputStream();		    
 		    log.debug("upload - file:{}, size:{}, type:{} ", mpf.getOriginalFilename(), mpf.getSize() , mpf.getContentType() );
 		    Attachment attachment ;

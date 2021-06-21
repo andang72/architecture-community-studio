@@ -53,6 +53,7 @@ public class SetupDataController {
 		return new DataSourceConfigReader(repository.getSetupApplicationProperties());
 	}
 	
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/setup/menu/reload.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
@@ -64,6 +65,15 @@ public class SetupDataController {
 		return result;
 	}
 	
+	/**
+	 * SETUP API 
+	******************************************/
+	
+	/**
+	 * 
+	 * @param request
+	 * @return
+	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/setup/datasource/deploy.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody

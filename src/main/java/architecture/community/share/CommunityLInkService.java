@@ -35,8 +35,7 @@ public class CommunityLInkService implements SharedLinkService , InitializingBea
 	private com.google.common.cache.LoadingCache<String, SharedLink> linkCache = null;
 	
 	@Override
-	public void afterPropertiesSet() throws Exception {
-		
+	public void afterPropertiesSet() throws Exception { 
 		log.debug("Creating Cache for LInk.");
 		linkCache = CacheBuilder.newBuilder().maximumSize(5000).expireAfterAccess( 10, TimeUnit.MINUTES).build(		
 				new CacheLoader<String, SharedLink>(){			
@@ -47,17 +46,13 @@ public class CommunityLInkService implements SharedLinkService , InitializingBea
 	}
 	
 	
-	private NotFoundException newNotFoundException( String linkId, Exception e ) {
-		
-		String msg = (new StringBuilder()).append("Unable to find any object by ").append(linkId).toString();
-		
+	private NotFoundException newNotFoundException( String linkId, Exception e ) { 
+		String msg = (new StringBuilder()).append("Unable to find any object by ").append(linkId).toString(); 
 		return new NotFoundException(msg , e);
 	}
 	
-	private NotFoundException newNotFoundException( int objectType, long objectId, Exception e ) {
-		
-		String msg = (new StringBuilder()).append("Unable to find any object by t").append(objectType).append(" and ").append(objectId).toString();
-		
+	private NotFoundException newNotFoundException( int objectType, long objectId, Exception e ) { 
+		String msg = (new StringBuilder()).append("Unable to find any object by t").append(objectType).append(" and ").append(objectId).toString(); 
 		return new NotFoundException(msg , e);
 	}
 	
@@ -74,7 +69,6 @@ public class CommunityLInkService implements SharedLinkService , InitializingBea
 	}
  
 	public SharedLink getSharedLink(int objectType, long objectId, boolean createIfNotExist) throws NotFoundException {
-		
 		SharedLink link ;
 		try {
 			link = sharedLinkDao.getSharedLinkByObjectTypeAndObjectId(objectType, objectId);
@@ -93,16 +87,13 @@ public class CommunityLInkService implements SharedLinkService , InitializingBea
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void removeSharedLink(String linkId) {
 		linkCache.invalidate(linkId);
-		sharedLinkDao.removeSharedLinkById(linkId);
-		
+		sharedLinkDao.removeSharedLinkById(linkId); 
 	}
 	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
  	public void saveOrUpdate(SharedLink link) { 
 		linkCache.invalidate(link.getLinkId());
-		sharedLinkDao.saveOrUpdateSharedLink(link);
-		
-	}
-
+		sharedLinkDao.saveOrUpdateSharedLink(link); 
+	} 
 
 }

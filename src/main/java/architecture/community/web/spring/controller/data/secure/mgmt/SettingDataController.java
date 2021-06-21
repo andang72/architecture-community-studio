@@ -34,18 +34,16 @@ public class SettingDataController {
 	@Inject
 	@Qualifier("configService")
 	private ConfigService configService;
-	
-	/**
-	 * CONFIG API 
-	******************************************/
+
 	
 	public SettingDataController() { 
 	}
 
 	
 	/**
-	 * Settings API 
+	 * Locale API 
 	******************************************/
+ 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/security", method = { RequestMethod.GET },  produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -70,6 +68,9 @@ public class SettingDataController {
 		} 		
 		return config;
 	}
+	
+	
+	
 	
 	/**
 	 * Properties API 

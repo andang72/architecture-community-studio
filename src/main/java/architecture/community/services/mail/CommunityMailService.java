@@ -25,7 +25,7 @@ public class CommunityMailService implements MailService {
 
 	private Logger log = LoggerFactory.getLogger(CommunityMailService.class);
 	
-	public static String DEDFAULT_CONFIG_FILENAME = "services-mail-config.xml";
+	public static String DEFAULT_CONFIG_FILENAME = "services-mail-config.xml";
 	
 	@Inject
 	@Qualifier("repository")
@@ -45,7 +45,7 @@ public class CommunityMailService implements MailService {
 	public void initialize() throws Exception {   
 		try { 
 			
-			File file = repository.getConfigRoot().getFile(DEDFAULT_CONFIG_FILENAME);
+			File file = repository.getConfigRoot().getFile(DEFAULT_CONFIG_FILENAME);
 			log.debug("Read from {}", file.getPath());
 			
 			MailServiceConfigEditor editor = new MailServiceConfigEditor(file); 
