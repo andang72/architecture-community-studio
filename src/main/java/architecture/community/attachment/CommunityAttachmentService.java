@@ -39,6 +39,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -377,13 +378,19 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 			log.debug("prepare for {}.", attachment.getContentType());
 			if (StringUtils.endsWithIgnoreCase(attachment.getContentType(), "pdf")) {
 				// PDF
+				// fix for 
 				log.debug("extracting thumbnail from pdf");
-				PDDocument document = PDDocument.load(attachmentFile);
+				
+				// code for 3.x 
+				PDDocument document = Loader.loadPDF(attachmentFile);
+				// code for 2.x 
+				//PDDocument document = PDDocument.load(attachmentFile);
+				
 				PDFRenderer pdfRenderer = new PDFRenderer(document);
 				BufferedImage image = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
-				ImageIO.write(Thumbnails.of(image).size(thumbnail.getWidth(), thumbnail.getHeight()).asBufferedImage(),
-						IMAGE_PNG_FORMAT, thumbnailFile);
+				ImageIO.write(Thumbnails.of(image).size(thumbnail.getWidth(), thumbnail.getHeight()).asBufferedImage(), IMAGE_PNG_FORMAT, thumbnailFile);
 				thumbnail.setSize(thumbnailFile.length());
+				
 				return thumbnailFile;
 			} else if (attachment.getContentType().startsWith("video")) {
 				log.debug("extracting thumbnail from video");

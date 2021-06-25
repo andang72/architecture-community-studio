@@ -38,6 +38,8 @@ public class DefaultAttachment extends PropertyModelObjectAwareSupport implement
 
 	private User user ;
 	
+	private Integer order ;
+	
     private long attachmentId = UNKNOWN_OBJECT_ID;
 	
     private String name;
@@ -73,6 +75,7 @@ public class DefaultAttachment extends PropertyModelObjectAwareSupport implement
 		this.modifiedDate = this.creationDate;
 		this.sharedLink = null;
 		this.tags = null;
+		this.order = 0;
 	}
 	
 	public User getUser() {
@@ -188,6 +191,15 @@ public class DefaultAttachment extends PropertyModelObjectAwareSupport implement
 	public void setTags(String tags) {
 		this.tags = tags;
 	}
+	
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Attachement{");

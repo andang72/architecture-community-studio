@@ -25,19 +25,6 @@ import architecture.community.exception.NotFoundException;
 
 public interface ImageService {
 
-	/** ALBUM API **/
-		
-	public abstract void saveOrUpdate( Album album ); 
-	 
-	public abstract void delete(Album album) ; 
-	
-	public abstract Album getAlbum(long albumId) throws AlbumNotFoundException;
-	
-	public abstract List<Album> getAlbums();
-	
-	public abstract void saveOrUpdate( Album album , List<Image> images ); 
-	
-	public abstract List<AlbumImage> getAlbumImages(Album album);
 		
 	/** LOGO IMAGE LINK API **/
 	

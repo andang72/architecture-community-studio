@@ -244,7 +244,7 @@ public class ResourcesStreamsDataController {
 	
 	/**
 	 * 
-	 * POST /data/secure/mgm/streams/{streamsId}/threads
+	 * POST /data/secure/mgt/streams/{streamsId}/threads
 	 * 
 	 * @param fields
 	 * @param dataSourceRequest

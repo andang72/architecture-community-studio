@@ -1,12 +1,12 @@
 package architecture.community.model;
 
+import architecture.community.album.Album;
 import architecture.community.announce.Announce;
 import architecture.community.attachment.Attachment;
 import architecture.community.category.Category;
 import architecture.community.comment.Comment;
 import architecture.community.content.bundles.Asset;
 import architecture.community.i18n.I18nText;
-import architecture.community.image.Album;
 import architecture.community.image.Image;
 import architecture.community.image.LogoImage;
 import architecture.community.navigator.menu.Menu;

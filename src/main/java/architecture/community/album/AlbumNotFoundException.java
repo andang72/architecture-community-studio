@@ -1,4 +1,4 @@
-package architecture.community.image;
+package architecture.community.album;
 
 import architecture.community.exception.NotFoundException;
 

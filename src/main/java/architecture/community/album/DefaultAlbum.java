@@ -1,10 +1,11 @@
-package architecture.community.image;
+package architecture.community.album;
 
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import architecture.community.image.Image;
 import architecture.community.model.PropertyModelObjectAwareSupport;
 import architecture.community.model.json.JsonDateSerializer;
 import architecture.community.user.User;

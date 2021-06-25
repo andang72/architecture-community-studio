@@ -1,4 +1,4 @@
-package architecture.community.image;
+package architecture.community.album;
 
 import java.io.Serializable;
 

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Map;
 
 import architecture.community.model.PropertyModelObjectAware;
+import architecture.community.share.SharedLink;
 import architecture.community.user.User;
 
 public interface Attachment extends PropertyModelObjectAware {
@@ -58,6 +59,8 @@ public interface Attachment extends PropertyModelObjectAware {
 
     public abstract void setUser(User user);
 
+    public SharedLink getSharedLink();
+    
     public Date getCreationDate();
 
     public void setCreationDate(Date creationDate);

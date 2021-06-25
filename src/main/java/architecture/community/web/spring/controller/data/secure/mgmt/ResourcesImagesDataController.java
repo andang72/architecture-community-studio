@@ -35,12 +35,12 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import architecture.community.album.Album;
+import architecture.community.album.AlbumImage;
+import architecture.community.album.AlbumNotFoundException;
+import architecture.community.album.DefaultAlbum;
 import architecture.community.exception.NotFoundException;
 import architecture.community.exception.UnAuthorizedException;
-import architecture.community.image.Album;
-import architecture.community.image.AlbumImage;
-import architecture.community.image.AlbumNotFoundException;
-import architecture.community.image.DefaultAlbum;
 import architecture.community.image.DefaultImage;
 import architecture.community.image.Image;
 import architecture.community.image.ImageLink;
@@ -75,149 +75,6 @@ public class ResourcesImagesDataController {
 	@Qualifier("tagService")
 	private TagService tagService; 
 
-	/**
-	 * ALBUM API 
-	******************************************/
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/albums", "/albums/list.json"}, method = { RequestMethod.POST, RequestMethod.GET })
-	@ResponseBody
-	public ItemList getAlbums(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {  
-		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_ALBUM_BY_REQUEST");
-		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
-		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_ALBUM_IDS_BY_REQUEST");
-		
-		List<Long> items = customQueryService.list(dataSourceRequest, Long.class); 
-		List<Album> albums = new ArrayList<Album>(totalCount);
-		for( Long albumId : items ) {
-			try {
-				Album album = imageService.getAlbum(albumId);
-				setCoverImage(album);
-				albums.add(album); 
-			} catch (NotFoundException e) {
-			}
-		} 
-		return new ItemList(albums, totalCount ); 
-	}
-
-	private void setCoverImage(Album album) { 
-		List<AlbumImage> list = imageService.getAlbumImages(album);
-		if( list.size() > 0 ) { 
-			AlbumImage img = list.get(0);
-			try {
-				Image coverImage = imageService.getImage(img.getImageId());
-				((DefaultAlbum)album).setCoverImage(coverImage);
-			} catch (NotFoundException e) { 
-			}
-		}
-	}
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/albums/{albumId:[\\p{Digit}]+}"}, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
-	@ResponseBody
-	public Album getAlbum(@PathVariable Long albumId, NativeWebRequest request) throws AlbumNotFoundException {  
-		return imageService.getAlbum(albumId);
-	} 
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/albums/{albumId:[\\p{Digit}]+}/images", "/albums/{albumId:[\\p{Digit}]+}/images/list.json"}, 
-	method = { RequestMethod.POST, RequestMethod.GET }, 
-	produces = MediaType.APPLICATION_JSON_VALUE )
-	@ResponseBody
-	public ItemList getAlbumImages(
-			@PathVariable Long albumId, 
-			@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
-			@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) throws NotFoundException {  
-		
-		boolean includeImageLink = org.apache.commons.lang3.StringUtils.contains(fields, "imageLink");   
-		
-		Album album = imageService.getAlbum(albumId);
-		List<AlbumImage> items = imageService.getAlbumImages(album);
-		List<Image> images = new ArrayList<Image>(items.size());
-		for( AlbumImage img : items ) {
-			try { 
-				Image image = imageService.getImage(img.getImageId());
-				((DefaultImage)image).setOrder( img.getOrder() );
-				if( includeImageLink ) {
-					setImageLink(image);
-				}
-				images.add(image); 
-			} catch (NotFoundException e) {
-			}
-		} 
-		
-		/*
-		dataSourceRequest.getParameters().add(new ParameterValue(1, "ALBUM_ID", Types.NUMERIC, albumId));
-		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_ALBUM_IMAGE_IDS_BY_REQUEST"); 
-		List<Long> items = customQueryService.list(dataSourceRequest, Long.class); 
-		List<Image> images = new ArrayList<Image>(items.size());
-		int order = 0 ;
-		for( Long imageId : items ) {
-			try {
-				order ++;
-				Image image = imageService.getImage(imageId);
-				if( includeImageLink ) {
-					setImageLink(image);
-				}
-				setOrder(image, order );
-				images.add(image); 
-			} catch (NotFoundException e) {
-			}
-		}
-		*/
-		return new ItemList(images, images.size() ); 
-	}
-	
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/albums/{albumId:[\\p{Digit}]+}/images", "/albums/{albumId:[\\p{Digit}]+}/images/save-or-update.json"}, 
-		method = { RequestMethod.PUT },
-		produces = MediaType.APPLICATION_JSON_VALUE )
-	@ResponseBody
-	public Result saveOrUpdateAlbumImages (@RequestBody List<DefaultImage> images, @PathVariable Long albumId,  NativeWebRequest request) throws NotFoundException {
-		log.debug("save or update album ({}) images {}.", albumId, images.size());
-		Album album = imageService.getAlbum(albumId);
-		List<Image> imagesToUse = new ArrayList<Image>(images.size());
-		for( Image img : images )
-			imagesToUse.add(img);
-		imageService.saveOrUpdate(album, imagesToUse);
-		return Result.newResult();
-	}
-	
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/albums/{albumId:[\\p{Digit}]+}", "/albums/{albumId:[\\p{Digit}]+}/save-or-update.json"}, method = { RequestMethod.POST })
-	@ResponseBody
-	public Album saveOrUpdateAlbum(@RequestBody DefaultAlbum album, @PathVariable Long albumId,  NativeWebRequest request) throws NotFoundException {  
-		DefaultAlbum albumToUse = album;
-		if(albumToUse.getAlbumId() > 0  ) {
-			albumToUse = 	(DefaultAlbum)imageService.getAlbum(album.getAlbumId());
-			if( !StringUtils.isNullOrEmpty(album.getName()) )
-			{
-				albumToUse.setName(album.getName());
-			} 
-			if( !StringUtils.isNullOrEmpty(album.getDescription()) )
-			{
-				albumToUse.setDescription(album.getDescription());
-			} 
-		}else {
-			albumToUse.setUser( SecurityHelper.getUser() );
-		} 
-		imageService.saveOrUpdate(albumToUse); 
-		return albumToUse;
-	}
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/albumId/{albumId:[\\p{Digit}]+}/delete.json"}, method = { RequestMethod.POST, RequestMethod.GET })
-	@ResponseBody
-	public Result deleteAlbum(
-		@PathVariable Long albumId, 
-		NativeWebRequest request) throws NotFoundException {
-		Result result = Result.newResult();
-		Album album = 	imageService.getAlbum(albumId);
-		imageService.delete(album);
-		return result;
-	}
-	
 	
 	/**
 	 * IMAGES API 

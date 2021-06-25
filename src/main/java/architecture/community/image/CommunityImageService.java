@@ -111,10 +111,6 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 	@Qualifier("userManager")
 	private UserManager userManager;
 	
-	@Inject
-	@Qualifier("albumCache")
-	private Cache albumCache;
-	
 	
 	@Autowired
 	@Qualifier("customQueryJdbcDao")
@@ -126,7 +122,6 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 
 	public CommunityImageService() {
 		imageConfig = new ImageConfig(); 
-		createAlbumImageCache(1000L, 10L);
 	}
 
 	
@@ -847,12 +842,13 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 
 	
 	/**
-	 * create thumbnail image from org image.
+	 * create thumbnail image from Image.
+	 *  
 	 * 
-	 * @param image
+	 * @param image object
 	 * @param width
 	 * @param height
-	 * @return
+	 * @return thumbnail iamge file
 	 * @throws IOException
 	 * @throws JCodecException
 	 */
@@ -873,7 +869,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		
 		try {
 			lock.lock(); 
-			log.debug("creating thumbnail from ()({}).", sourceFile.getAbsoluteFile(), image.getContentType() );
+			log.debug("creating thumbnail from {} ({}).", sourceFile.getAbsoluteFile(), image.getContentType() );
 			if (image.getContentType().startsWith("video")) {  
 				Picture picture = FrameGrab.getFrameFromFile(sourceFile, 0); 
 				log.debug("extract picture frame with {} x {} ", picture.getWidth(), picture.getHeight());
@@ -883,23 +879,23 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 				return thumbnailFile;
 			}else
 			if (StringUtils.startsWithIgnoreCase(image.getContentType(), "image")) {  
-				BufferedImage originalImage = null;
+				BufferedImage proxyImage = null;
 				try {
-					originalImage = ImageIO.read(sourceFile); 
-					log.debug("creating from original image {} x {} ", originalImage.getWidth(), originalImage.getHeight());
+					proxyImage = ImageIO.read(sourceFile); 
+					log.debug("creating from original image {} x {} ", proxyImage.getWidth(), proxyImage.getHeight());
 				} catch (Exception e) {
 					log.error("fail to read image", e);
 				}
 
-				if (originalImage == null) {
-					log.debug("1");
+				if (proxyImage == null) { 
 					FileUtils.copyFile(sourceFile, thumbnailFile);
-				}else {
-					log.debug("2");
-					if ( originalImage.getHeight() < height || originalImage.getWidth() < width) {
+				}else { 
+					// case when image size smaller then thumbnail size.
+					if ( proxyImage.getHeight() < height || proxyImage.getWidth() < width) {
 						FileUtils.copyFile(sourceFile, thumbnailFile);
 					}else {
-						BufferedImage thumbnail = Thumbnails.of(originalImage).size(width, height).asBufferedImage();
+						
+						BufferedImage thumbnail = Thumbnails.of(proxyImage).size(width, height).asBufferedImage();
 						ImageIO.write(thumbnail, "png", thumbnailFile);					
 					} 
 					
@@ -982,87 +978,4 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		imageCache.remove(image.getImageId()); 
 	}
 	
-	private com.google.common.cache.LoadingCache<Long, List<AlbumImage>> albumImagesCache; 
-	
-	private void createAlbumImageCache (Long maximumSize, Long duration) { 
-		albumImagesCache = CacheBuilder.newBuilder().maximumSize(maximumSize).expireAfterAccess( duration , TimeUnit.MINUTES).build(		
-				new CacheLoader<Long, List<AlbumImage>>(){			
-					public List<AlbumImage>  load(Long albumId) throws Exception {
-					
-						return imageDao.getImages(new DefaultAlbum(albumId));
-				}}
-		);
-	}
-
-	
-	public List<AlbumImage> getAlbumImages(Album album){
-		try {
-			return albumImagesCache.get(album.getAlbumId());
-		} catch (ExecutionException e) {
-			return Collections.EMPTY_LIST;
-		}
-	};
-
-
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void saveOrUpdate(Album album) { 
-		try { 
-			if (album.getAlbumId() <= 0) {
-				Album newAlbum = imageDao.create(album); 
-			} else {
-				Date now = new Date();
-				((DefaultAlbum) album).setModifiedDate(now);
-				if( albumCache.isKeyInCache(album.getAlbumId())) 
-					albumCache.remove(album.getAlbumId());
-				imageDao.update(album);
-			} 
-			Album albumToUse = getAlbum(album.getAlbumId()); 
-		} catch (Exception e) {
-			throw new RuntimeError(e);
-		}
-	}
-
-
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void delete(Album album) { 
-		imageDao.delete(album);
-		if( albumCache.isKeyInCache(album.getAlbumId())) 
-			albumCache.remove(album.getAlbumId()); 
-	} 
-	
-	@Override
-	public Album getAlbum(long albumId) throws AlbumNotFoundException {
-		Album albumToUse = null;
-		if (albumCache.get(albumId) == null) {
-			try {
-				albumToUse = imageDao.getById(albumId);
-				if(	albumToUse.getUser() != null && albumToUse.getUser().getUserId() > 0 ) {
-					User user = userManager.getUser(albumToUse.getUser().getUserId());
-					albumToUse.setUser(user);
-				}
-				albumCache.put(new Element(albumId, albumToUse));
-			} catch (Exception e) {
-				String msg = (new StringBuilder()).append("Unable to find album ").append(albumId).toString();
-				throw new AlbumNotFoundException(msg, e);
-			}
-		} else {
-			albumToUse = (Album) albumCache.get(albumId).getObjectValue();
-		}
-		return albumToUse;
-	}
-
-	@Override
-	public List<Album> getAlbums() { 
-		return null;
-	}
-	 
-
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void saveOrUpdate(Album album, List<Image> images) {
-		if( album.getAlbumId() > 0 & albumCache.isKeyInCache(album.getAlbumId())) 
-			albumCache.remove(album.getAlbumId()); 	  
-		albumImagesCache.invalidate(album.getAlbumId()); 
-		imageDao.update(album, images);
-	}
-
 }
