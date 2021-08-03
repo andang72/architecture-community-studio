@@ -151,38 +151,22 @@
     	
     	
     <sql-query name="COUNT_STREAM_THREAD_BY_REQUEST" description="COUNT_STREAM_THREAD_BY_REQUEST"><![CDATA[
+	SELECT COUNT(*) FROM (
 	SELECT  
-		COUNT(T1.THREAD_ID)
-	FROM 
-    AC_UI_STREAMS_THREAD T1, AC_UI_STREAMS_MESSAGE T2
+		T1.OBJECT_TYPE,  
+        T1.OBJECT_ID , 
+        T1.THREAD_ID , 
+        T1.CREATION_DATE, 
+        T1.MODIFIED_DATE ,
+		T2.MESSAGE_ID,  
+        T2.USER_ID, 
+        T2.SUBJECT
+	FROM AC_UI_STREAMS_THREAD T1, AC_UI_STREAMS_MESSAGE T2
   	WHERE  T1.ROOT_MESSAGE_ID = T2.MESSAGE_ID
 	]]><dynamic><![CDATA[   
 	AND T1.OBJECT_TYPE = ${data.objectType} AND T1.OBJECT_ID = ${data.objectId}
-	<#if filter?? && ( filter.filters?size > 0 ) ><#if filter.logic?? >${filter.logic}</#if>(
-	<#list filter.filters as item >
-	<#if item.logic??>${item.logic}</#if> ${item.field} 
-	<#if item.value?? >
-	<#if item.operator == "startswith" > LIKE '${item.value}%'
-	<#elseif item.operator == "contains" > LIKE '%${item.value}%'
-	<#elseif item.operator == "eq" > = '${item.value}'
-	<#elseif item.operator == "neq"> != '${item.value}'
-	<#elseif item.operator == "gte"> >= ${item.value}
-	<#elseif item.operator == 'lte'> <= ${item.value}</#if>
-	<#else>
-	<#if item.operator == "eq" > IS NULL <#elseif item.operator == "neq"> IS NOT NULL </#if>
-	</#if>
- 	</#list>)</#if>	
- 	]]></dynamic></sql-query>	
-    	
-    <sql-query name="SELECT_STREAM_THREAD_IDS_BY_REQUEST" description="SELECT_STREAM_THREAD_IDS_BY_REQUEST"><![CDATA[
-	SELECT  
-		T1.THREAD_ID
-	FROM 
-    AC_UI_STREAMS_THREAD T1, AC_UI_STREAMS_MESSAGE T2
-  	WHERE T1.ROOT_MESSAGE_ID = T2.MESSAGE_ID
-	]]><dynamic><![CDATA[    
-	AND T1.OBJECT_TYPE = ${data.objectType} AND T1.OBJECT_ID = ${data.objectId}
-	<#if filter?? && ( filter.filters?size > 0 ) > <#if filter.logic?? >${filter.logic}</#if>(
+	) T3
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE (
 	<#list filter.filters as item >
 	<#if item.logic??>${item.logic}</#if> ${item.field} 
 	<#if item.value?? >
@@ -197,7 +181,42 @@
 	</#if>
  	</#list>)</#if>	
  	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else>
- 	ORDER BY T2.MODIFIED_DATE DESC
+ 	ORDER BY MODIFIED_DATE DESC
+ 	</#if>
+ 	]]></dynamic></sql-query>	
+
+    <sql-query name="SELECT_STREAM_THREAD_IDS_BY_REQUEST" description="SELECT_STREAM_THREAD_IDS_BY_REQUEST"><![CDATA[
+	SELECT THREAD_ID FROM (
+	SELECT  
+		T1.OBJECT_TYPE,  
+        T1.OBJECT_ID , 
+        T1.THREAD_ID , 
+        T1.CREATION_DATE, 
+        T1.MODIFIED_DATE ,
+		T2.MESSAGE_ID,  
+        T2.USER_ID, 
+        T2.SUBJECT
+	FROM AC_UI_STREAMS_THREAD T1, AC_UI_STREAMS_MESSAGE T2
+  	WHERE  T1.ROOT_MESSAGE_ID = T2.MESSAGE_ID
+	]]><dynamic><![CDATA[    
+	AND T1.OBJECT_TYPE = ${data.objectType} AND T1.OBJECT_ID = ${data.objectId}
+	) T3
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE (
+	<#list filter.filters as item >
+	<#if item.logic??>${item.logic}</#if> ${item.field} 
+	<#if item.value?? >
+	<#if item.operator == "startswith" > LIKE '${item.value}%'
+	<#elseif item.operator == "contains" > LIKE '%${item.value}%'
+	<#elseif item.operator == "eq" > = '${item.value}'
+	<#elseif item.operator == "neq"> != '${item.value}'
+	<#elseif item.operator == "gte"> >= ${item.value}
+	<#elseif item.operator == 'lte'> <= ${item.value}</#if>
+	<#else>
+	<#if item.operator == "eq" > IS NULL <#elseif item.operator == "neq"> IS NOT NULL </#if>
+	</#if>
+ 	</#list>)</#if>	
+ 	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else>
+ 	ORDER BY MODIFIED_DATE DESC
  	</#if>
     ]]></dynamic></sql-query>	
     
