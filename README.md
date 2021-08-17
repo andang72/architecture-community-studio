@@ -11,7 +11,7 @@ Java based RESTful API Server
 ------
 ## Getting Started
 5.1.x 버전 부터는 Java 8+ 지원
-
+Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
 
 
 ## Core RESTful API
@@ -42,7 +42,6 @@ Java based RESTful API Server
 
 /data/streams/me/photos/upload
  
-
 
 ## Libraries used in theme: 
 
