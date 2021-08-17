@@ -86,6 +86,9 @@ public class DataSourceDataController {
 	
 	public DataSourceDataController() { }
 	
+	/**
+	 * Data Sources API (Mgmt)
+	******************************************/
 	
 	private DataSource getDataSource(DataSourceConfig key) {
 		DataSource dataSource = adminService.getComponent(key.getBeanName(), DataSource.class);
@@ -284,12 +287,7 @@ public class DataSourceDataController {
 	public Result saveOrUpdateJdbcDataSource(
 		@PathVariable String name, 
 		@RequestBody DataSourceConfig config,	
-		NativeWebRequest request){ 
-		
-		
-		
-		
-		
+		NativeWebRequest request){  
 		
 		return Result.newResult();
 	}
@@ -310,6 +308,10 @@ public class DataSourceDataController {
 	
 	
 	
+	
+	/**
+	 * Data Sources API (Schema)
+	******************************************/
 	private static final int [] EXCLUDE_DATA_TYPED = { java.sql.Types.BLOB , java.sql.Types.BINARY }; 
 	private boolean isAllowed ( Column column ) {
 		for( int t : EXCLUDE_DATA_TYPED ) {
@@ -380,9 +382,7 @@ public class DataSourceDataController {
 		}
 		ItemList itemList = new ItemList(list, totalCount ); 
 		return itemList;
-	}
-	
-	
+	} 
 	
 	public static class DatabaseInfo implements Serializable { 
 		// 0, 1, 2

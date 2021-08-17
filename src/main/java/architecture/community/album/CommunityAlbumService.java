@@ -151,8 +151,8 @@ public class CommunityAlbumService implements AlbumService {
 		if( album.getAlbumId() > 0 & albumCache.isKeyInCache(album.getAlbumId())) 
 			albumCache.remove(album.getAlbumId()); 
 		
-		if( contents.size() > 0 ) {
-			albumImagesCache.invalidate(album.getAlbumId());
+		if( contents.size() > 0 ) { 
+			albumContentsCache.invalidate(album.getAlbumId());
 			albumDao.update(album, contents, true);
 		}
 	}

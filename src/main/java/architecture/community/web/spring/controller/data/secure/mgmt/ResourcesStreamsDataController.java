@@ -152,8 +152,7 @@ public class ResourcesStreamsDataController {
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = {"/streams/{streamId:[\\p{Digit}]+}/properties/list.json"}, method = { RequestMethod.GET, RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
-	public List<Property> getStreamsProperties(@PathVariable Long streamId, NativeWebRequest request)
-			throws NotFoundException { 
+	public List<Property> getStreamsProperties(@PathVariable Long streamId, NativeWebRequest request) throws NotFoundException { 
 		if (streamId <= 0) {
 			return Collections.EMPTY_LIST;
 		}
@@ -266,7 +265,9 @@ public class ResourcesStreamsDataController {
 		dataSourceRequest.getData().put("objectId", streams.getStreamId() ); 
 		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAM_THREAD_BY_REQUEST");
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
-		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_IDS_BY_REQUEST");
+		
+		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_IDS_BY_REQUEST"); 
+		
 		List<Long> threadIDs = customQueryService.list(dataSourceRequest, Long.class);
 		
 		List<StreamThread> list = new ArrayList<>(threadIDs.size());
@@ -278,6 +279,16 @@ public class ResourcesStreamsDataController {
 		return new ItemList(list, totalCount);
 	}
 	
+	
+	/**
+	 * delete selected threads .
+	 * 
+	 * @param streamId
+	 * @param bag
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/streams/{streamId:[\\p{Digit}]+}/threads", method = { RequestMethod.DELETE}, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
@@ -297,10 +308,8 @@ public class ResourcesStreamsDataController {
 				
 				for( Long threadId : threadIDs)
 				{
-					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.DELETE_STREAM_MESSAGE_BY_THREAD_ID").getSql(),
-						new SqlParameterValue(Types.NUMERIC, threadId ));
-					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.DELETE_STREAM_THREAD").getSql(),
-						new SqlParameterValue(Types.NUMERIC, threadId ));	
+					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.DELETE_STREAM_MESSAGE_BY_THREAD_ID").getSql(), new SqlParameterValue(Types.NUMERIC, threadId ));
+					dao.getExtendedJdbcTemplate().update(dao.getBoundSql("COMMUNITY_STREAMS.DELETE_STREAM_THREAD").getSql(), new SqlParameterValue(Types.NUMERIC, threadId ));	
 				}
 				
 			}});
@@ -470,19 +479,46 @@ public class ResourcesStreamsDataController {
 	public StreamThread getThread(@PathVariable Long threadId, NativeWebRequest request) throws NotFoundException {
 		if (threadId < 1) {
 			throw new StreamThreadNotFoundException();
+		} 
+		StreamThread thread = streamsService.getStreamThread(threadId); 
+		StreamThreadView view = new StreamThreadView(thread, true );
+		return view;
+	}
+	
+	/**
+	 * get thread by threadId with dataSourceRequest
+	 * 
+	 * POST /data/secure/mgmt/threads/{threadId}
+	 * 
+	 */
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/threads/{threadId:[\\p{Digit}]+}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public StreamThread getThreadBy(@PathVariable Long threadId, @RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) throws NotFoundException {
+		if (threadId < 1) {
+			throw new StreamThreadNotFoundException();
+		}  
+		
+		StreamThread thread = streamsService.getStreamThread(threadId); 
+		StreamThreadView view = new StreamThreadView(thread, true );  
+		
+		//it's paged when pageSize value bigger then 0
+		dataSourceRequest.setPageSize(0);
+		dataSourceRequest.getData().put("objectType", thread.getObjectType());
+		dataSourceRequest.getData().put("objectId", thread.getObjectId() ); 
+		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_IDS_BY_REQUEST");  
+		List<Long> threadIDs = customQueryService.list(dataSourceRequest, Long.class); 
+		
+		int idx = threadIDs.indexOf(thread.getThreadId());
+		if( idx > 0 ) {
+			// has prev. 
+			view.setPrevId(threadIDs.get(idx-1));
 		}
-		
-		StreamThread t = streamsService.getStreamThread(threadId);
-		
-		StreamThreadView v = new StreamThreadView(streamsService.getStreamThread(threadId), true );
-		
-		/*
-		 * if( t.getObjectType() == Models.STREAMS.getObjectType() && t.getObjectId() >
-		 * 0 ) { Streams s = streamsService.getStreamsById(t.getObjectType()); boolean
-		 * lightbox = Boolean.parseBoolean(
-		 * s.getProperties().getOrDefault("filters.lightbox", "false") ); }
-		 */	
-		return new StreamThreadView(streamsService.getStreamThread(threadId), true );
+		if( idx > 0 && idx < ( threadIDs.size()-1 ) ) {
+			// has next.
+			view.setNextId( threadIDs.get(idx + 1) );
+		}
+		return view;
 	}
 	
 	

@@ -234,36 +234,41 @@ public class SecurityDataController {
 		return userManager.getUser(userId);
 	}
 
+	
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/avatar/upload.json", method = RequestMethod.POST)
+	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/avatar", "/users/{userId:[\\p{Digit}]+}/avatar/upload.json"}, method = { RequestMethod.POST , RequestMethod.PUT })
 	@ResponseBody
-	public Result uploadMyAvatarImage(@PathVariable Long userId, MultipartHttpServletRequest request)
-			throws IOException, UserNotFoundException {
+	public Result uploadMyAvatarImage(@PathVariable Long userId, MultipartHttpServletRequest request) throws IOException, UserNotFoundException {
 		Result result = Result.newResult();
 		result.setAnonymous(false);
-		User user = userManager.getUser(userId);
+		
+		User user = SecurityHelper.getUser();
+		if( userId > 0L ) {
+			user = userManager.getUser(userId);
+		} 
+		
 		AvatarImage imageToUse = new AvatarImage(user);
 		Iterator<String> names = request.getFileNames();
 		while (names.hasNext()) {
 			String fileName = names.next();
 			MultipartFile mpf = request.getFile(fileName);
 			InputStream is = mpf.getInputStream();
-			log.debug("upload  file:{}, size:{}, type:{} ", mpf.getOriginalFilename(), mpf.getSize(),
-					mpf.getContentType());
+			log.debug("upload  file:{}, size:{}, type:{} ", mpf.getOriginalFilename(), mpf.getSize(), mpf.getContentType());
 			imageToUse.setFilename(mpf.getOriginalFilename());
 			imageToUse.setImageContentType(mpf.getContentType());
 			imageToUse.setImageSize((int) mpf.getSize());
-
 			userAvatarService.addAvatarImage(imageToUse, is, user);
-
 			result.setCount(result.getCount() + 1);
 		}
 		return result;
 	}
+	
+	
+	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST,
-			RequestMethod.GET })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public List<Property> getUserProperties(@PathVariable Long userId, NativeWebRequest request)
 			throws UserNotFoundException {
@@ -294,8 +299,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST,
-			RequestMethod.DELETE })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.DELETE })
 	@ResponseBody
 	public List<Property> deleteUserProperties(@PathVariable Long userId, @RequestBody List<Property> newProperties,
 			NativeWebRequest request) throws NotFoundException, UserNotFoundException, UserAlreadyExistsException {
@@ -355,9 +359,7 @@ public class SecurityDataController {
 	 * USER & ROLE API
 	 ******************************************/
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/roles",
-			"/users/{userId:[\\p{Digit}]+}/roles/list.json" }, method = {
-					RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/roles", "/users/{userId:[\\p{Digit}]+}/roles/list.json" }, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getUserRoles(@PathVariable Long userId, NativeWebRequest request)
 			throws UserNotFoundException, UserAlreadyExistsException {

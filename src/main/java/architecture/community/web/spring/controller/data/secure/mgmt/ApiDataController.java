@@ -58,7 +58,7 @@ public class ApiDataController {
 	
 
 	/**
-	 * API API 
+	 * API MGMT API 
 	******************************************/ 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/apis/list.json", method = { RequestMethod.POST, RequestMethod.GET })
@@ -117,6 +117,10 @@ public class ApiDataController {
 		return Result.newResult("item", api);
 	}	
 	
+	
+	/**
+	 * API PROPERTIES API 
+	******************************************/ 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/apis/{apiId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody

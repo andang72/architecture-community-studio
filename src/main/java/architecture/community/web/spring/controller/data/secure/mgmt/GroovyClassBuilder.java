@@ -47,11 +47,7 @@ public class GroovyClassBuilder {
 	}
 	
 	private Template getTemplate() throws NotFoundException {
-		try {
-			//Resource resource = loader.getResource("groovy-template.ftl");   
-			//InputStream is = resource.getInputStream();
-			// InputStreamReader reader = new InputStreamReader( is ); 
-			
+		try {			
 			File file = repository.getConfigRoot().getFile("groovy-template.ftl");
 			FileReader reader = new FileReader(file);
 			freemarker.template.Template template = new freemarker.template.Template("groovy-template", reader, null);

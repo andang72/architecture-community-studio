@@ -86,7 +86,6 @@ public class ServicesMailDataController {
     @ResponseBody
     public List<Property> properties(
     		NativeWebRequest request) throws NotFoundException, IOException {  
-		
 		MailServicesConfig config = mailService.getMailServicesConfig(); 
 		return Utils.toList(config.getProperties());
     } 
@@ -102,6 +101,7 @@ public class ServicesMailDataController {
 		getMailServiceConfigEditor().setMailServicesConfig(config);
 		log.debug("Restart mail service : {}", restart);
 		mailService.refresh();	
+		
 		return config;
     } 
 	

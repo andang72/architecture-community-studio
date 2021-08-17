@@ -413,6 +413,10 @@ public class StreamsDataController {
 	public static class StreamThreadView implements StreamThread {
 
 		
+		private Long prevId;
+		
+		private Long nextId;
+		
 		@JsonIgnore
 		private StreamThread thread ;
 		
@@ -498,5 +502,22 @@ public class StreamsDataController {
 		public Integer getEmbedMediaCount() {
 			return ((DefaultStreamThread)thread).getEmbedMediaCount();
 		}
+
+		public Long getPrevId() {
+			return prevId;
+		}
+
+		public void setPrevId(Long prevId) {
+			this.prevId = prevId;
+		}
+
+		public Long getNextId() {
+			return nextId;
+		}
+
+		public void setNextId(Long nextId) {
+			this.nextId = nextId;
+		}
+		
 	}
 }
