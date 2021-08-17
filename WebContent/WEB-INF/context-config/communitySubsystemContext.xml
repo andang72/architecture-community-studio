@@ -22,13 +22,9 @@
 	<beans:bean id="menuService" class="architecture.community.navigator.menu.CommunityMenuService" />
 	
 	<!-- ================================= -->
-	<!-- IMAGE 							   -->
+	<!-- ALBUM 							   -->
 	<!-- ================================= -->
 	
-	<beans:bean id="imageDao" class="architecture.community.image.dao.jdbc.JdbcImageDao" p:dataSource-ref="dataSource" />
-	
-	<beans:bean id="imageLinkDao" class="architecture.community.image.dao.jdbc.JdbcImageLinkDao" p:dataSource-ref="dataSource" />
-
 	<beans:bean id="albumCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="albumCache" 
 		p:maxElementsInMemory="5000"
@@ -39,6 +35,19 @@
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
 		p:statisticsEnabled="true" />
+		
+	<beans:bean id="albumDao" class="architecture.community.album.dao.JdbcAlbumDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="albumService" class="architecture.community.album.CommunityAlbumService" />		
+		
+	<!-- ================================= -->
+	<!-- IMAGE 							   -->
+	<!-- ================================= -->
+	
+	<beans:bean id="imageDao" class="architecture.community.image.dao.jdbc.JdbcImageDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="imageLinkDao" class="architecture.community.image.dao.jdbc.JdbcImageLinkDao" p:dataSource-ref="dataSource" />
+
 		
 	<beans:bean id="logoImageIdsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="logoImageIdsCache" 
