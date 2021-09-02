@@ -2,6 +2,7 @@ package tests;
 
 import static org.junit.Assert.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,4 +40,11 @@ public class StringTest {
 		log.debug( "z==zz : {}", z == zz);
 	}
 		
+	
+	@Test 
+	public void testReplaceFirst() {
+		String str = "http://"; 
+		str = StringUtils.replaceOnce(str, "http:", "https:");
+		log.debug(str);
+	}
 }

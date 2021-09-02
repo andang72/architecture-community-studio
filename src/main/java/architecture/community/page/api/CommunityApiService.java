@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 
-import architecture.community.page.Page;
 import architecture.community.page.PathPattern;
 import architecture.community.page.api.dao.ApiDao;
 import architecture.community.user.UserManager;

@@ -93,7 +93,7 @@ public class DownloadImagesFromHantai {
 	    
 		
 		String serviceUrl = "https://mangahentai.me/manga-hentai/"+ title +"/chapter-" + i + "/"; 
-        
+	
         row.put("page", serviceUrl );
         
 		Document doc = communityHttpClientService.get(serviceUrl, null, new ResponseCallBack<Document>(){
@@ -102,7 +102,6 @@ public class DownloadImagesFromHantai {
 			row.put("response", responseString );
 			return _document;
 		}});	
-		
 		
 		
 		

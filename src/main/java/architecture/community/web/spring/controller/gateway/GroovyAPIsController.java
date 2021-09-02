@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import architecture.community.audit.event.AuditLogEvent;
 import architecture.community.exception.NotFoundException;
@@ -113,7 +114,7 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		if(!isAllowed(api))
 			throw new UnAuthorizedException("Access Permission Required."); 
 		
-		ScriptSource scriptSource = communityGroovyService.getScriptSource(api.getScriptSource());
+		ScriptSource scriptSource = communityGroovyService.getResourceAsScriptSource(api.getScriptSource());
 		GroovyScriptFactory factory = communityGroovyService.getGroovyScriptFactory(api.getScriptSource(), true);
 		setUriTemplateVariables(path, matchePattern.getPattern(), request);  
 		try {  
@@ -167,9 +168,9 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		
 		if(!isAllowed(api))
 			throw new UnAuthorizedException("Access Permission Required.");
-
+ 
 		
-		ScriptSource scriptSource = communityGroovyService.getScriptSource(api.getScriptSource());
+		ScriptSource scriptSource = communityGroovyService.getResourceAsScriptSource(api.getScriptSource());
 		GroovyScriptFactory factory = communityGroovyService.getGroovyScriptFactory(api.getScriptSource(), true);
 		
 		if( StringUtils.isNotEmpty( api.getContentType() )){
@@ -178,11 +179,13 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		
 		String path =  getRequestPath(request);
 		boolean isPattern = isPattern(api.getPattern()); 
+		
 		setUriTemplateVariables(path, api.getPattern(), request);
 		 
 		try {  
 			Class<?> handlerType = communityGroovyService.getScriptedObjectType(scriptSource, factory);
-			Object object = communityGroovyService.getScriptedObject(scriptSource, handlerType, factory, true);
+			Object object = communityGroovyService.getScriptedObject(scriptSource, handlerType, factory, true); 
+			
 			Method method = resolveHandlerMethod(handlerType); 
 			List<Object> args = resolveHandlerMethodArguments(api, method, webRequest);
 			String[] urls = determineUrlsForHandlerMethods(object.getClass(), false);

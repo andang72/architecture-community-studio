@@ -12,7 +12,6 @@ import java.util.zip.ZipInputStream;
 import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import architecture.community.attachment.Attachment;
 import architecture.community.content.bundles.dao.BundleDao;
 import architecture.community.exception.NotFoundException;
 import architecture.community.user.User;

@@ -4,12 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -18,7 +16,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.util.StringUtils;
 
 import architecture.community.model.Models;
 import architecture.community.page.Parameter;
@@ -179,7 +176,7 @@ public class JdbcApiDao extends ExtendedJdbcDaoSupport implements ApiDao  {
 					new SqlParameterValue(Types.NUMERIC, toUse.getCreator().getUserId()),
 					new SqlParameterValue(Types.TIMESTAMP, toUse.getCreationDate()),
 					new SqlParameterValue(Types.TIMESTAMP, toUse.getModifiedDate()));  
-			deleteApiHTTPParameters(api);
+			deleteApiHTTPParameters(toUse);
 		} else {
 			Date now = Calendar.getInstance().getTime();
 			toUse.setModifiedDate(now);		
@@ -198,7 +195,7 @@ public class JdbcApiDao extends ExtendedJdbcDaoSupport implements ApiDao  {
 			); 
 			
 		}			
-		setApiHTTPParameters(api);
+		setApiHTTPParameters(toUse);
 	}
  
 	public Long getApiIdByName(String name) { 

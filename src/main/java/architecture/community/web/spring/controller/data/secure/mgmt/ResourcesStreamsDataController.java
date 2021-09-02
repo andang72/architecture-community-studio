@@ -38,7 +38,6 @@ import architecture.community.query.CustomQueryService;
 import architecture.community.query.CustomTransactionCallbackWithoutResult;
 import architecture.community.query.dao.CustomQueryJdbcDao;
 import architecture.community.streams.DefaultStreamMessage;
-import architecture.community.streams.DefaultStreamThread;
 import architecture.community.streams.DefaultStreams;
 import architecture.community.streams.StreamMessage;
 import architecture.community.streams.StreamMessageNotFoundException;

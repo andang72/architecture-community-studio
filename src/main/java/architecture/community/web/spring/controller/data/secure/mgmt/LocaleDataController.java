@@ -44,22 +44,29 @@ public class LocaleDataController {
 	
 	} 
 	
+	/**
+	 * Countries REST API 
+	******************************************/
+
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/locale/available-list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
-	public List<LanguageAndCountry> getAvailableLocales( NativeWebRequest request){ 
+	public List<LocaleBean> getAvailableLocales( NativeWebRequest request){ 
 		
+	
 		Locale locales[] = Locale.getAvailableLocales();
+		
 		Arrays.sort(locales, new Comparator<Locale>() {
 		    public int compare(Locale locale1, Locale locale2) {
 		    	return locale1.getDisplayName().compareTo(locale2.getDisplayName());
 		    }
 		});
-		List<LanguageAndCountry> list = new ArrayList<LanguageAndCountry>(locales.length);
+		List<LocaleBean> list = new ArrayList<LocaleBean>(locales.length);
 		for( Locale locale : locales)
 		{
 			if(StringUtils.isNotEmpty(locale.getCountry())&& StringUtils.isNotEmpty(locale.getLanguage()))
-				list.add(LanguageAndCountry.build(locale));
+				list.add(LocaleBean.build(locale));
 		}
 		return list ;
 	}
@@ -87,11 +94,9 @@ public class LocaleDataController {
 		NativeWebRequest request) throws NotFoundException {	
 				 
 		String languageTag = dataSourceRequest.getDataAsString("locale", null);
-		String timeZoneID = dataSourceRequest.getDataAsString("timeZone", null);
-		
+		String timeZoneID = dataSourceRequest.getDataAsString("timeZone", null); 
 		TimeZone newTimeZone = null;
-		Locale newLocale = null;
-		
+		Locale newLocale = null; 
 		if( StringUtils.isNotEmpty(languageTag)) { 
 			newLocale = Locale.forLanguageTag(languageTag);
 		}
@@ -138,44 +143,58 @@ public class LocaleDataController {
 	}
 	
 
-	public static class LanguageAndCountry {
+	public static class LocaleBean {
 		
 		@JsonIgnore
 		private Locale localeToUse;
 		 
-		public LanguageAndCountry(Locale localeToUse) {
+		public LocaleBean(Locale localeToUse) {
 			this.localeToUse = localeToUse;
 		}
 
 		public String getDisplayName() {
+			if( localeToUse == null )
+				return null;
 			return localeToUse.getDisplayName();
 		} 
 		
 		public String getDisplayLanguage() {
+			if( localeToUse == null )
+				return null;
 			return localeToUse.getDisplayLanguage();
 		} 
 		
 		public String getDisplayCountry() {
+			if( localeToUse == null )
+				return null;
 			return localeToUse.getDisplayCountry();
 		}  
 		
 		public String getLanguage() {
+			if( localeToUse == null )
+				return null;
 			return localeToUse.getLanguage();
 		}  
 		
 		public String getCountry() {
+			if( localeToUse == null )
+				return null;
 			return localeToUse.getCountry();
 		}
 		
 		public String getVariant() {
+			if( localeToUse == null )
+				return null;
 			return localeToUse.getVariant();
 		}
 		
 		public String getLanguageTag() {
+			if( localeToUse == null )
+				return null;
 			return localeToUse.toLanguageTag();
 		}
-		public static LanguageAndCountry build(Locale locale) {  
-			return new LanguageAndCountry(locale);
+		public static LocaleBean build(Locale locale) {  
+			return new LocaleBean(locale);
 		}
 	}
 }

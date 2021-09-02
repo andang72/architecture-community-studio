@@ -14,7 +14,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.support.SqlLobValue;
 
-import architecture.community.attachment.Attachment;
 import architecture.community.content.bundles.Asset;
 import architecture.community.content.bundles.DefaultAsset;
 import architecture.community.model.Models;

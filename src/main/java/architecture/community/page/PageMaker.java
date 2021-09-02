@@ -79,10 +79,7 @@ public class PageMaker {
 	}
 	
 	protected SimpleHash buildTemplateModel(Map<String, Object> model, ObjectWrapper wrapper, HttpServletRequest request, HttpServletResponse response) {				
-		AllHttpScopesHashModel fmModel = new AllHttpScopesHashModel(wrapper, getServletContext(), request);
-		
-		//fmModel.put(FreemarkerServlet.KEY_JSP_TAGLIBS, this.taglibFactory);
-		
+		AllHttpScopesHashModel fmModel = new AllHttpScopesHashModel(wrapper, getServletContext(), request); 
 		fmModel.put(FreemarkerServlet.KEY_APPLICATION, buildServletContextHashModel(wrapper, null));
 		fmModel.put(FreemarkerServlet.KEY_SESSION, buildSessionModel(wrapper, request, response));
 		fmModel.put(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, response, wrapper));

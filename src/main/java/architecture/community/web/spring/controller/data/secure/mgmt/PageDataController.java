@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import architecture.community.exception.NotFoundException;
-import architecture.community.image.DefaultImage;
-import architecture.community.image.Image;
 import architecture.community.model.Models;
 import architecture.community.model.Property;
 import architecture.community.page.DefaultBodyContent;

@@ -83,7 +83,7 @@ public class ApiDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/apis/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = { "/apis/save-or-update.json" , "/apis/0/save-or-update.json"  }, method = { RequestMethod.POST, RequestMethod.PUT })
     @ResponseBody
     public Result updateApi(@RequestBody Api api , NativeWebRequest request) throws  UserNotFoundException, UserAlreadyExistsException, EmailAlreadyExistsException { 
 		log.debug("Save or update api {} ",  api );

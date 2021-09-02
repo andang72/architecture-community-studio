@@ -23,6 +23,7 @@ import architecture.community.exception.NotFoundException;
 import architecture.community.model.Property;
 import architecture.community.web.spring.controller.data.model.SecurityConfig;
 import architecture.community.web.spring.controller.data.model.SecurityConfig.Builder;
+import architecture.community.web.spring.controller.data.secure.mgmt.LocaleDataController.LocaleBean;
 import architecture.ee.service.ConfigService;
 
 @Controller("community-mgmt-settings-secure-data-controller")
@@ -38,16 +39,54 @@ public class SettingDataController {
 	
 	public SettingDataController() { 
 	}
-
 	
 	/**
-	 * Locale API 
+	 * Application Config API 
+	******************************************/
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = { "/config", "/config.json"}, method = { RequestMethod.GET },  produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public AppConfig getConfig(NativeWebRequest request){  
+		
+		return AppConfig.build(configService);
+	} 
+	
+	/**
+	 * Application Property 
+	 */
+	public static class AppConfig {
+		
+		private String timezone ;
+		
+		private LocaleBean locale ; 
+
+		public LocaleBean getLocale() {
+			return locale;
+		} 
+
+		public String getTimezone() {
+			return timezone;
+		} 
+
+		public static AppConfig build(ConfigService configService) {
+			AppConfig props = new AppConfig();
+			
+			props.locale = LocaleBean.build(configService.getLocale()); 
+			props.timezone = configService.getTimeZone().getID(); 
+			
+			return props;
+		}
+	}
+	
+	
+	/**
+	 * Security API 
 	******************************************/
  
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/security", method = { RequestMethod.GET },  produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public SecurityConfig getSecurityConfig(NativeWebRequest request){  
+	public SecurityConfig getSecuritySettings(NativeWebRequest request){  
 		Builder builder = new Builder(); 
 		if(configService.isDatabaseInitialized())
 		{
@@ -57,7 +96,7 @@ public class SettingDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/security", method = RequestMethod.POST , produces = MediaType.APPLICATION_JSON_VALUE )
+	@RequestMapping(value = "/security", method = { RequestMethod.POST , RequestMethod.PUT}, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public SecurityConfig saveOrUpdate(@RequestBody SecurityConfig config, NativeWebRequest request) throws NotFoundException {  
 	
@@ -68,8 +107,6 @@ public class SettingDataController {
 		} 		
 		return config;
 	}
-	
-	
 	
 	
 	/**
@@ -86,7 +123,7 @@ public class SettingDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/properties", method = { RequestMethod.GET },  produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = {"/properties", "/properties/list.json" }, method = { RequestMethod.GET },  produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Property> getProperties(NativeWebRequest request){ 
 		if(!configService.isDatabaseInitialized())
@@ -96,8 +133,9 @@ public class SettingDataController {
 		return getApplicationProperties() ;
 	}
 	
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/properties", method = RequestMethod.POST , produces = MediaType.APPLICATION_JSON_VALUE )
+	@RequestMapping(value = { "/properties" , "/properties/update.json"}, method = { RequestMethod.POST , RequestMethod.PUT }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public List<Property> saveOrUpdate(@RequestBody List<Property> newProperties, NativeWebRequest request) throws NotFoundException {  
 		if(!configService.isDatabaseInitialized())
@@ -110,6 +148,7 @@ public class SettingDataController {
 		return newProperties;
 	}
 	
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/properties/{key}", method = RequestMethod.GET)
 	@ResponseBody
@@ -117,8 +156,9 @@ public class SettingDataController {
 		return new Property(key, configService.getApplicationProperty(key));
 	}
 	
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/properties", method = { RequestMethod.DELETE })
+	@RequestMapping(value = { "/properties" , "/properties/delete.json"}, method = { RequestMethod.DELETE })
 	@ResponseBody
 	public List<Property> deleteProperties(@RequestBody List<Property> newProperties, NativeWebRequest request) throws NotFoundException { 
 		if(!configService.isDatabaseInitialized())

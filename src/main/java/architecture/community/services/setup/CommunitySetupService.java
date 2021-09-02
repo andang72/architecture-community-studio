@@ -25,7 +25,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import architecture.community.i18n.CommunityLogLocalizer;
@@ -212,6 +211,13 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 		}
 	}  
 	
+	
+	/**
+	 * register bean using 'GenericBeanDefinition'
+	 * 
+	 * @param beanName
+	 * @param connectionProperties
+	 */
 	protected void registerDataSourceBean(PooledDataSourceConfig dataSource) { 
 		
 		DataSourceFactoryBean bean = new DataSourceFactoryBean();
@@ -228,6 +234,12 @@ public class CommunitySetupService implements ApplicationContextAware , Initiali
 		registry.registerBeanDefinition(dataSource.getBeanName(), myBeanDefinition);  
 	}	
 	
+	/**
+	 * register bean using 'GenericBeanDefinition'
+	 * 
+	 * @param beanName
+	 * @param connectionProperties
+	 */
 	protected void registerDataSourceBean(String beanName, Properties connectionProperties) {  
 		BeanDefinitionRegistry registry = getBeanDefinitionRegistry();  
 		if(registry.containsBeanDefinition(beanName)) {

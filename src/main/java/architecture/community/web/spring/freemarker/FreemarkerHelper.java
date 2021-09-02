@@ -31,8 +31,7 @@ public class FreemarkerHelper {
 			model.put("WebApplicationContextUtils",	staticModels.get("org.springframework.web.context.support.WebApplicationContextUtils"));
 		} catch (TemplateModelException e) {
 
-		}
-
+		} 
 		model.put("statics", BeansWrapper.getDefaultInstance().getStaticModels());
 
 	}

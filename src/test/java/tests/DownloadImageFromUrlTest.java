@@ -28,6 +28,7 @@ public class DownloadImageFromUrlTest {
 		
 	}
 	
+	
 	/**
 	 * get content type from file.
 	 * @param image

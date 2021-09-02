@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import architecture.community.attachment.AttachmentService;
 import architecture.community.comment.CommentService;
-import architecture.community.exception.NotFoundException;
 import architecture.community.model.Models;
 import architecture.community.model.PropertyModelObjectAwareSupport;
 import architecture.community.model.json.JsonDateSerializer;

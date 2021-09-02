@@ -6,7 +6,6 @@ import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import architecture.community.model.Models;
 import architecture.community.model.json.JsonDateSerializer;
 
 public class Parameter implements Serializable {

@@ -21,9 +21,10 @@
 		<javac.target.version>1.8</javac.target.version>
 		<project.javadoc.docEncoding>UTF-8</project.javadoc.docEncoding>
 		<project.build.version>1.0.0-RELEASE</project.build.version>
-		<project.dependency.framework.version>5.1.3-RELEASE</project.dependency.framework.version>
-		<project.dependency.spring.version>4.3.23.RELEASE</project.dependency.spring.version>
-		<project.dependency.spring-security.version>4.2.12.RELEASE</project.dependency.spring-security.version>
+		<project.dependency.framework.version>5.1.6-RELEASE</project.dependency.framework.version>
+		<project.dependency.spring.version>4.3.30.RELEASE</project.dependency.spring.version>
+		<project.dependency.spring-security.version>4.2.20.RELEASE</project.dependency.spring-security.version>
+		<!-- JAVA 1.8.x 에서는 주석처리 필요 (javadocExecutable) -->
 		<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
 		<snippetsDirectory>${project.build.directory}/generated-snippets</snippetsDirectory>
 	</properties>
@@ -129,13 +130,27 @@
 		</dependency>
 		<!-- SPRINGFRAMEWORK.MOBILE END -->
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-groovy -->
+
+		<!-- SPRINGFRAMEWORK GROOVY INTEGRATION START -->
 		<dependency>
 			<groupId>org.springframework.integration</groupId>
 			<artifactId>spring-integration-groovy</artifactId>
-			<version>4.3.20.RELEASE</version>
+			<version>4.3.24.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.codehaus.groovy</groupId>
+					<artifactId>groovy-all</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+		<!-- SPRINGFRAMEWORK GROOVY INTEGRATION END -->
 
+		<dependency>
+		    <groupId>org.codehaus.groovy</groupId>
+		    <artifactId>groovy-all</artifactId>
+		    <version>3.0.8</version>
+		    <type>pom</type>
+		</dependency>
 
 		<!-- SERVLET/JSP START -->
 		<dependency>
@@ -218,7 +233,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.27</version>
+			<version>1.2.17</version>
 			<type>jar</type>
 			<scope>test</scope>
 		</dependency>
@@ -293,10 +308,11 @@
 
 		<!-- https://mvnrepository.com/artifact/net.coobird/thumbnailator -->
 		<dependency>
-			<groupId>net.coobird</groupId>
-			<artifactId>thumbnailator</artifactId>
-			<version>0.4.8</version>
+		  <groupId>net.coobird</groupId>
+		  <artifactId>thumbnailator</artifactId>
+		  <version>[0.4, 0.5)</version>
 		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
 		<dependency>
