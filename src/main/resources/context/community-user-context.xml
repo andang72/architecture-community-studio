@@ -26,8 +26,7 @@
 		p:timeToIdle="30" 
 		p:timeToLive="60"  
 		p:eternal="false"  
-		p:diskExpiryThreadIntervalSeconds="0" 
-		p:statisticsEnabled="true"  />
+		p:diskExpiryThreadIntervalSeconds="0"   />
 	
 	<beans:bean id="userCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
 		p:cacheName="userCache"  
@@ -38,7 +37,7 @@
 		p:timeToLive="60" 
 		p:eternal="false"  
 		p:diskExpiryThreadIntervalSeconds="0"  
-		p:statisticsEnabled="true" />
+		 />
 
 
 	<beans:bean id="userProviderCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
@@ -50,7 +49,7 @@
 		p:timeToLive="60" 
 		p:eternal="false"  
 		p:diskExpiryThreadIntervalSeconds="0"  
-		p:statisticsEnabled="true" />
+		 />
 		
 	<beans:bean id="companyIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
 		p:cacheName="companyIdCache"  
@@ -61,7 +60,7 @@
 		p:timeToLive="60"  
 		p:eternal="false"  
 		p:diskExpiryThreadIntervalSeconds="0" 
-		p:statisticsEnabled="true"  />
+		  />
 	
 	<beans:bean id="companyCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
 		p:cacheName="companyCache"  
@@ -72,7 +71,7 @@
 		p:timeToLive="60" 
 		p:eternal="false"  
 		p:diskExpiryThreadIntervalSeconds="0"  
-		p:statisticsEnabled="true" />
+		 />
 				
 	<!--  DAO  -->  
 	<beans:bean id="userDao" class="architecture.community.user.dao.JdbcUserDao" p:dataSource-ref="dataSource" />

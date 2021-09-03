@@ -772,7 +772,44 @@
 			SORT_ORDER
 		) VALUES ( ?, ? ,?)
     ]]></sql-query>
-        	
+
+
+	<sql-query name="SELECT_ALBUM_CONTENT_IDS" description="SELECT_ALBUM_CONTENT_IDS"><![CDATA[
+	-- SELECT_ALBUM_CONTENT_IDS
+	SELECT 
+		ALBUM_ID, CONTENT_TYPE, CONTENT_ID, SORT_ORDER
+	FROM AC_UI_ALBUM_CONTENTS 
+	WHERE ALBUM_ID = ?
+	ORDER BY SORT_ORDER ASC
+	]]></sql-query> 	
+
+	<sql-query name="SELECT_ALBUM_CONTENT_IDS_BY_REQUEST" description="SELECT_ALBUM_CONTENT_IDS_BY_REQUEST"><![CDATA[
+	-- SELECT_ALBUM_CONTENT_IDS_BY_REQUEST
+	SELECT 
+		CONTENT_TYPE, CONTENT_ID, SORT_ORDER
+	FROM AC_UI_ALBUM_CONTENTS 
+	]]><dynamic><![CDATA[  
+	WHERE ALBUM_ID = ?
+	<#if filter?? && ( filter.filters?size > 0 ) > AND 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY SORT_ORDER ASC </#if>
+	]]></dynamic></sql-query> 
+	
+    <sql-query name="DELETE_ALBUM_CONTENTS_BY_ID" description="DELETE_ALBUM_CONTENTS_BY_ID"><![CDATA[    
+ 		DELETE FROM AC_UI_ALBUM_CONTENTS WHERE ALBUM_ID = ?
+    ]]></sql-query> 
+    	
+	<sql-query name="INSERT_ABLUM_CONTENTS" description="INSERT_ABLUM_CONTENTS"><![CDATA[    
+  		INSERT INTO AC_UI_ALBUM_CONTENTS (
+	  		ALBUM_ID,
+			CONTENT_TYPE,
+			CONTENT_ID,
+			SORT_ORDER
+		) VALUES ( ?, ? , ?, ?)
+    ]]></sql-query>	
+	        	
 	<!-- ==================== -->
 	<!--  IMAGE LINK 		  -->
 	<!-- ==================== -->

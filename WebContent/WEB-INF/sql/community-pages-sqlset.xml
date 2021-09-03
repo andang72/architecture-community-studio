@@ -508,7 +508,7 @@
 		CREATION_DATE,
 		MODIFIED_DATE
 	FROM AC_UI_HTTP_PARAMETERS
-	WHERE OBJECT_TYPE = ? AND OBJECT_ID ?
+	WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
 	]]></sql-query>		
 	
 	<sql-query name="INSERT_HTTP_PARAMETER" description="HTTP Parameter Insert"><![CDATA[	
@@ -536,8 +536,7 @@
 	]]></sql-query>		
 	
 	<sql-query name="DELETE_HTTP_PARAMETERS" description="HTTP Parameter 삭제"><![CDATA[
-	DELETE FROM AC_UI_HTTP_PARAMETERS
-	WHERE OBJECT_TYPE = ? AND OBJECT_ID ?
+	DELETE FROM AC_UI_HTTP_PARAMETERS WHERE OBJECT_TYPE = ? AND OBJECT_ID = ?
 	]]></sql-query>	 
 	
 			

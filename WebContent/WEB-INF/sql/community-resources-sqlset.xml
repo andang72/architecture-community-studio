@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>COMMUNITY_RESOURCES</name>
+	<description>Resources query</description> 
+	
+
+	<!-- ==================== -->
+	<!-- BUNDLE : ASSET		  -->
+	<!-- ==================== --> 
+	<sql-query name="COUNT_ASSETS_BY_REQUEST" description="SELECT ASSETS COUNT BY REQUEST"><![CDATA[    
+	-- COUNT_ASSETS_BY_REQUEST
+	SELECT 
+		COUNT( ASSET_ID )
+	FROM AC_UI_ASSETS 
+	]]><dynamic><![CDATA[
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+    ]]></dynamic></sql-query>
+
+	<sql-query name="SELECT_ASSETS_IDS_BY_REQUEST" description="SELECT ASSETS IDS BY REQUEST"><![CDATA[    
+	-- SELECT_ASSETS_IDS_BY_REQUEST
+	SELECT 
+		ASSET_ID
+	FROM AC_UI_ASSETS 
+	]]><dynamic><![CDATA[  
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY ASSET_ID DESC </#if>
+	]]></dynamic></sql-query>
+	    
+    
+	<sql-query name="SELECT_ASSET_BY_ID" description="ID로 조회"><![CDATA[    
+    SELECT 
+		ASSET_ID,
+		OBJECT_ID,
+		OBJECT_TYPE,
+		LINK_ID,
+		FILE_NAME,
+		FILE_SIZE,
+		DESCRIPTION,
+		ENABLED,
+		SECURED,
+		USER_ID,
+		CREATION_DATE,
+		MODIFIED_DATE
+    FROM 
+    	AC_UI_ASSETS
+    WHERE 
+    	ASSET_ID = ?	    
+    ]]></sql-query>
+	 
+	<sql-query name="SELECT_ASSET_DATA_BY_ID" description="ID 값으로 파일 데이터 조회"><![CDATA[    
+    SELECT 
+		ASSET_ID,
+		ASSET_DATA
+    FROM 
+    	AC_UI_ASSETS_DATA
+    WHERE 
+    	ASSET_ID = ?
+    ]]></sql-query>
+    
+	<sql-query name="INSERT_ASSET" description="파일생성"><![CDATA[    
+    INSERT INTO AC_UI_ASSETS (
+	ASSET_ID,
+	OBJECT_ID,
+	OBJECT_TYPE,
+	LINK_ID,
+	FILE_NAME,
+	FILE_SIZE,
+	DESCRIPTION,
+	ENABLED,
+	SECURED,
+	USER_ID,
+	CREATION_DATE,
+	MODIFIED_DATE
+	) VALUES ( 	?,?,?,?,?,?,?,?,?,?, ?,? )
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_ASSET" description="파일생성"><![CDATA[    
+    UPDATE AC_UI_ASSETS SET 		
+		OBJECT_TYPE = ?,
+		OBJECT_ID = ?,
+		FILE_NAME = ?,
+		FILE_SIZE = ?,
+		DESCRIPTION = ?,
+		ENABLED = ?,
+		SECURED = ?,
+		CREATION_DATE = ?,
+		MODIFIED_DATE = ?
+	WHERE ASSET_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_ASSET_BY_ID" description="파일삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_ASSETS WHERE ASSET_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="CREATE_EMPTY_ASSET_DATA" description="파일 데이터 생성"><![CDATA[    
+ 		INSERT INTO AC_UI_ASSETS_DATA (ASSET_ID, ASSET_DATA) VALUES (?, EMPTY_BLOB())
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_ASSET_DATA" description="파일 데이터 업데이트"><![CDATA[    
+ 		UPDATE AC_UI_ASSETS_DATA  SET ASSET_DATA = ? WHERE ASSET_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="CREATE_ASSET_DATA" description="파일 데이터 생성"><![CDATA[    
+ 		INSERT AC_UI_ASSETS_DATA  (ASSET_ID, ASSET_DATA) VALUES (?, ?)
+    ]]></sql-query>
+
+	<sql-query name="SELECT_ASSET_DATA_BY_ID" description="파일 데이터 조회"><![CDATA[    
+ 		SELECT ASSET_DATA FROM AC_UI_ASSETS_DATA WHERE ASSET_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_ASSET_DATA_BY_ID" description="파일 데이터 삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_ASSETS_DATA WHERE ASSET_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_ALL_ASSET_DATAS" description="전체 파일 데이터 삭제"><![CDATA[    
+ 		DELETE FROM AC_UI_ASSETS_DATA
+    ]]></sql-query>
+
+	
+	
+</sqlset>	

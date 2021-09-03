@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ import architecture.community.user.event.UserRemovedEvent;
 import architecture.ee.spring.event.EventSupport;
 import architecture.ee.util.StringUtils;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element; 
 
 public class CommunityUserManager extends EventSupport implements UserManager, MultiUserManager {
@@ -35,17 +37,17 @@ public class CommunityUserManager extends EventSupport implements UserManager, M
 	@Qualifier("passwordEncoder")
 	protected PasswordEncoder passwordEncoder;
 
-	@Inject
+	@Autowired(required=false)
 	@Qualifier("userCache")
-	private Cache userCache;
+	private Ehcache userCache;
 
-	@Inject
+	@Autowired(required=false)
 	@Qualifier("userIdCache")
-	private Cache userIdCache;
+	private Ehcache userIdCache;
 
-	@Inject
+	@Autowired(required=false)
 	@Qualifier("userProviderCache")
-	private Cache userProviderCache;
+	private Ehcache userProviderCache;
 	
 	protected List<UserProvider> providers;
 	
@@ -372,19 +374,25 @@ public class CommunityUserManager extends EventSupport implements UserManager, M
 	}
 	
 	protected void evictCaches(User user) {
-		userCache.remove(Long.valueOf(user.getUserId()));
-		userIdCache.remove(user.getUsername());
+		if (userCache!=null) { 
+			userIdCache.remove(user.getUsername());
+		}
+		if (userIdCache!=null) { 
+			userIdCache.remove(user.getUsername());
+		}
 	}
 
 	protected long getUserIdInCache(String username) {
-		if (userIdCache.get(username) != null) {
+        log.debug("finding user({}) in cache {}", username, userIdCache );
+		
+		if (userIdCache!=null & userIdCache.get(username) != null) {
 			return (Long) userIdCache.get(username).getObjectValue();
 		}
 		return -2L;
 	}
 
 	protected void updateCaches(User user) {
-		if (user != null) {
+		if (user != null && userCache!=null) {
 			log.debug(  CommunityLogLocalizer.format("010021", user.getUsername(), user.getUserId()) );
 			if (user.getUserId() > 0 && !StringUtils.isNullOrEmpty(user.getUsername())) { 
 				if(userIdCache.get(user.getUsername()) != null)
@@ -398,7 +406,8 @@ public class CommunityUserManager extends EventSupport implements UserManager, M
 	}
 
 	protected User getUserInCache(Long userId) {
-		if (userCache.get(userId) != null) {
+		
+		if (userCache!=null && userCache.get(userId) != null) {
 			log.debug(CommunityLogLocalizer.format("010017", userId));
 			return (User) userCache.get(userId).getObjectValue();
 		}

@@ -38,7 +38,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />
+     	 />
      	
     <beans:bean id="pageIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
      	p:cacheName="pageIdCache"  
@@ -49,7 +49,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />
+     	 />
      	
     <beans:bean id="pageVersionCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
      	p:cacheName="pageVersionCache"  
@@ -60,7 +60,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />
+     	 />
      	
     <beans:bean id="pageVersionsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
      	p:cacheName="pageVersionsCache"  
@@ -71,7 +71,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />     
+     	 />     
      		     	     	   
     <beans:bean id="pageService" class="architecture.community.page.CommunityPageService"  />	
 
@@ -89,7 +89,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />
+     	 />
 		
 	<beans:bean id="viewCountService" class="architecture.community.viewcount.CommunityViewCountService"  />	
 
