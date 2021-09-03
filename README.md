@@ -57,9 +57,9 @@ Touch enabled, responsive and fully customizable.
 ## Opensource java libs
 | Opensource | Version |
 |------------|---------|
-| architecture-ee | 5.1.2-RELEASE |
-| springframework | 4.3.23.RELEASE |
-| springframework security | 4.2.12.RELEASE|
+| architecture-ee | 5.2.0-RELEASE |
+| springframework | 5.2.16.RELEASE |
+| springframework security | 5.3.11.RELEASE|
 | springframework oauth | 1.5.6 |
 | FasterXML | 2.9.9 |
 | javax.mail | 1.5.6 |
