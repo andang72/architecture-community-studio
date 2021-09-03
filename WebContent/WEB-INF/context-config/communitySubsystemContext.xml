@@ -34,7 +34,7 @@
      	p:timeToLive="3600"
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
-		p:statisticsEnabled="true" />
+		/>
 		
 	<beans:bean id="albumDao" class="architecture.community.album.dao.JdbcAlbumDao" p:dataSource-ref="dataSource" />
 	
@@ -58,7 +58,7 @@
 		p:timeToLive="600" 
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
-		p:statisticsEnabled="true" />
+		/>
 
 
 	<beans:bean id="logoImageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
@@ -70,7 +70,7 @@
 		p:timeToLive="600" 
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
-		p:statisticsEnabled="true" />
+		/>
 
 	<beans:bean id="imageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="imageCache" 
@@ -81,7 +81,7 @@
      	p:timeToLive="3600"
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
-		p:statisticsEnabled="true" />
+		/>
 
 	<beans:bean id="imageLinkCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="imageLinkCache" 
@@ -92,7 +92,7 @@
      	p:timeToLive="3600"
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
-		p:statisticsEnabled="true" />
+		/>
 		
 	<beans:bean id="imageLinkIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="imageLinkIdCache" 
@@ -103,7 +103,7 @@
      	p:timeToLive="3600"
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
-		p:statisticsEnabled="true" />	
+		/>	
 			
 	<beans:bean id="imageService" class="architecture.community.image.CommunityImageService" />	
 
@@ -121,7 +121,7 @@
      	p:timeToLive="3600"
 		p:eternal="false" 
 		p:diskExpiryThreadIntervalSeconds="0"
-		p:statisticsEnabled="true" />
+		/>
 	<beans:bean id="attachmentService" class="architecture.community.attachment.CommunityAttachmentService" />
 
 	<!-- ================================= -->
@@ -138,7 +138,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />
+     	/>
      	
     <beans:bean id="tagCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
      	p:cacheName="tagCache"  
@@ -149,7 +149,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />
+     	/>
      	
 	<beans:bean id="tagContentCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
      	p:cacheName="tagContentCache"  
@@ -160,7 +160,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" /> 
+     	/> 
 		
 	<beans:bean id="tagService" class="architecture.community.tag.DefaultTagService"  />	
 			
@@ -189,7 +189,7 @@
      	p:timeToLive="3600"
 		p:eternal="false"
 		p:diskExpiryThreadIntervalSeconds="0" 
-		p:statisticsEnabled="true" />
+		/>
 		
 	<beans:bean id="avatarImageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
 		p:cacheName="avatarImageCache" 
@@ -200,7 +200,7 @@
      	p:timeToLive="3600"
 		p:eternal="false"
 		p:diskExpiryThreadIntervalSeconds="0" 
-		p:statisticsEnabled="true" />
+		/>
 
 	<beans:bean id="userAvatarService" class="architecture.community.user.CommunityUserAvatarService" />
 	
@@ -219,7 +219,7 @@
      	p:timeToLive="3600"
 		p:eternal="false"
 		p:diskExpiryThreadIntervalSeconds="0" 
-		p:statisticsEnabled="true" />
+		/>
 
 	<beans:bean id="announceService" class="architecture.community.announce.CommunityAnnounceService" />	
 
@@ -237,7 +237,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />
+     	/>
      	
     <beans:bean id="commentTreeWalkerCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
      	p:cacheName="commentTreeWalkerCache"  
@@ -248,7 +248,7 @@
      	p:timeToLive="600" 
      	p:eternal="false"  
      	p:diskExpiryThreadIntervalSeconds="0"  
-     	p:statisticsEnabled="true" />	
+     	/>	
      		
 	<beans:bean id="commentService" class="architecture.community.comment.CommunityCommentService"  />	
 		
