@@ -98,6 +98,7 @@ public class SecurityConfig {
 		}
 		
 		public Builder(ConfigService configService) { 
+			 
 			settings = new SecurityConfig(); 
 			settings.allowPageSignup = configService.getApplicationBooleanProperty("settings.security.allowPageSignup", false);
 			settings.allowPageSignin = configService.getApplicationBooleanProperty("settings.security.allowPageSignin", false);
@@ -105,9 +106,10 @@ public class SecurityConfig {
 			settings.userRegistration = configService.getApplicationIntProperty("settings.security.userRegistration", 0);
 			settings.passwordMinLength = configService.getApplicationIntProperty("settings.security.passwordMinLength", 8);
 			settings.passwordMaxAge = configService.getApplicationIntProperty("settings.security.passwordMaxAge", 8); 
-			settings.passwordRequiredCharClasses = CollectionUtils.arrayToList(  
-				StringUtils.split(configService.getApplicationProperty("settings.security.passwordRequiredCharClasses", ""), ",")
-			);
+			
+			String[] array = StringUtils.split(configService.getApplicationProperty("settings.security.passwordRequiredCharClasses", ""), ",");
+			settings.passwordRequiredCharClasses = (List<String>) CollectionUtils.arrayToList( array );
+			
 		}
 		public SecurityConfig build() {
 			return settings;

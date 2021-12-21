@@ -11,6 +11,7 @@ Java based RESTful API Server
 ------
 ## Getting Started
 5.1.x 버전 부터는 Java 8+ 지원
+Spring 5.3.x 지원
 Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
 
 
@@ -57,9 +58,9 @@ Touch enabled, responsive and fully customizable.
 ## Opensource java libs
 | Opensource | Version |
 |------------|---------|
-| architecture-ee | 5.2.0-RELEASE |
+| architecture-ee | 5.3.1 |
 | springframework | 5.2.16.RELEASE |
-| springframework security | 5.3.11.RELEASE|
+| springframework security | 5.3.14 |
 | springframework oauth | 1.5.6 |
 | FasterXML | 2.9.9 |
 | javax.mail | 1.5.6 |

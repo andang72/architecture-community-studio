@@ -33,8 +33,8 @@ public class PooledHttpClientSupport {
 
 	public static final String DEFAULT_CHARSET = "UTF-8";
 
-	public static final String DEFAULT_CONTENT_TYPE = "text/xml; charset=utf-8";
-
+	public static final String DEFAULT_CONTENT_TYPE = "text/xml; charset=utf-8"; 
+	
 	protected Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private HttpClient client;
@@ -46,8 +46,7 @@ public class PooledHttpClientSupport {
 		return client;
 	}
 	
-
-	public <T> T get (String serviceUrl, Map<String, String> values, ResponseCallBack<T> handler) throws Exception { 	
+	public <T> T get (String serviceUrl, Map<String, String> headers, Map<String, String> values, ResponseCallBack<T> handler) throws Exception { 
 		
 		HttpUriRequest requestToUse;
 		HttpClient client = getHttpClient(); // 송신 클라이언트 생성 				
@@ -64,7 +63,13 @@ public class PooledHttpClientSupport {
 			HttpGet method = createGetMethod(serviceUrl); // 송신 메소드 선언	
 			requestToUse = method;
 		}
-					
+		
+		if( headers != null ) {
+			headers.forEach((k, v) -> {
+				requestToUse.setHeader(k, v); 
+		    });
+		} 
+		
 		HttpResponse response = client.execute(requestToUse);
 
 		// Read the response
@@ -79,6 +84,10 @@ public class PooledHttpClientSupport {
 		responseString = IOUtils.toString(buffer);
 		EntityUtils.consume(responseHttpEntity);
 		return handler.process(statusCode, responseString);
+	}
+	
+	public <T> T get (String serviceUrl, Map<String, String> values, ResponseCallBack<T> handler) throws Exception { 	
+		return get(serviceUrl, null, values, handler);
 	}
 
 	public <T> T post (String serviceUrl, Map<String, String> values, ResponseCallBack<T> handler) throws Exception { 

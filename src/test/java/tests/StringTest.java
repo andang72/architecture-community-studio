@@ -1,7 +1,5 @@
 package tests;
 
-import static org.junit.Assert.*;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -45,6 +43,15 @@ public class StringTest {
 	public void testReplaceFirst() {
 		String str = "http://"; 
 		str = StringUtils.replaceOnce(str, "http:", "https:");
+		log.debug(str);
+	}
+	
+	@Test 
+	public void testFormat() {
+		
+
+		
+		String str = String.format("https://%s/manga/%s/chapter-10", "hentai20.com", "fdsafdas");
 		log.debug(str);
 	}
 }

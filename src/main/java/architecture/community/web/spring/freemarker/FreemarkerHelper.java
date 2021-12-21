@@ -32,7 +32,10 @@ public class FreemarkerHelper {
 		} catch (TemplateModelException e) {
 
 		} 
-		model.put("statics", BeansWrapper.getDefaultInstance().getStaticModels());
-
+		
+		//BeansWrapper beansWrapper = new BeansWrapperBuilder(Configuration.VERSION_2_3_31).build(); 
+		//beansWrapper.getStaticModels();
+		//model.put("statics", BeansWrapper.getDefaultInstance().getStaticModels());
+		model.put("statics", staticModels);
 	}
 }

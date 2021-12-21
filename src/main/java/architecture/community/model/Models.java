@@ -21,6 +21,8 @@ import architecture.community.user.AvatarImage;
 import architecture.community.user.Company;
 import architecture.community.user.Role;
 import architecture.community.user.User;
+import architecture.studio.component.email.SendBulkEmail;
+import architecture.studio.component.templates.Templates;
 
 public enum Models { 
 	
@@ -43,6 +45,9 @@ public enum Models {
 	STREAMS_MESSAGE(22, StreamMessage.class),
 	API(30, Api.class),
 	ASSET(31, Asset.class),
+	TEMPLATES(33, Templates.class),
+	SEND_BULK_EMAIL(34, SendBulkEmail.class),
+	
 	I18N(35, I18nText.class),
 	ANNOUNCE(41, Announce.class),
 	ALBUM(45, Album.class)

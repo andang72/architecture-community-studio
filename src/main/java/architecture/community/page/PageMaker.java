@@ -54,7 +54,6 @@ public class PageMaker {
 		return ServletContext;
 	}
 
-	
 	/**
 	 * @return configuration
 	 */
