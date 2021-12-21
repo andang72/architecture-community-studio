@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>architecture.community</groupId>
 	<artifactId>architecture-community-studio</artifactId>
-	<version>2.0.0-RELEASE</version>
+	<version>3.0.1</version>
 	<inceptionYear>2019</inceptionYear>
 	<name>architecture-community-studio</name>
 	<description>자바기반의 엔터프라이즈 어플리케이션 개발도구(Community Version)</description>
@@ -20,7 +20,7 @@
 		<javac.src.version>1.8</javac.src.version>
 		<javac.target.version>1.8</javac.target.version>
 		<project.javadoc.docEncoding>UTF-8</project.javadoc.docEncoding>
-		<project.build.version>2.0.0-RELEASE</project.build.version>
+		<project.build.version>3.0.1</project.build.version>
 		<project.dependency.framework.version>5.3.1</project.dependency.framework.version>
 		<project.dependency.spring.version>5.3.14</project.dependency.spring.version>
 		<project.dependency.spring-integration.version>5.5.6</project.dependency.spring-integration.version>
