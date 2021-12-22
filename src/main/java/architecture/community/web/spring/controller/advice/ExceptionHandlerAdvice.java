@@ -33,6 +33,7 @@ import architecture.community.web.model.Result;
 public class ExceptionHandlerAdvice {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
+	
 	@ExceptionHandler
 	@ResponseBody
 	public Result handleExceptioin(HttpServletRequest request, HttpServletResponse response, Exception e){ 

@@ -70,21 +70,28 @@ public class AccountsDataController {
 	}
 
 	private String resolveToken(HttpServletRequest request) {
+		
 		String bearerToken = request.getHeader(JwtTokenProvider.HEADER_STRING);
 		if (StringUtils.isNotBlank(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
 			String jwt = bearerToken.substring(7, bearerToken.length());
 			return jwt;
 		}
+		
 		return null;
 	}
 
  
 	@RequestMapping(value = { "/signin.json", "/jwt/authorize" }, method = { RequestMethod.POST })
 	public ResponseEntity<JwtResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
+		
+		logger.debug("Authentication for {}", loginRequest.getUsername() );
+		
 		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));		
+		
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtTokenProvider.createToken(authentication);
 		CommuintyUserDetails details = SecurityHelper.getUserDetails(authentication);
+		
 		return ResponseEntity.ok(new JwtResponse(jwt, details.getUser(), getRoles(details.getAuthorities())));
 
 	}
@@ -175,6 +182,7 @@ public class AccountsDataController {
 	}
 
 	private static class UserForm {
+		
 		private String username;
 		private String name;
 		private String password;

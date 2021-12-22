@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -56,7 +57,7 @@ public class ServicesTagsDataController {
 	******************************************/	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/tags/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public ItemList getTags(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {
 		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_CONTENT_TAGS"); 
@@ -89,7 +90,7 @@ public class ServicesTagsDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/tags/0/objects/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public ItemList getTagObjects(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {
 		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_TAG_OBJECTS");
@@ -130,7 +131,7 @@ public class ServicesTagsDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/tags/0/objects/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public Result saveOrUpdateTagsObjects(@RequestBody TagsObjects tagsObjects, NativeWebRequest request) throws NotFoundException, UnAuthorizedException {
 		

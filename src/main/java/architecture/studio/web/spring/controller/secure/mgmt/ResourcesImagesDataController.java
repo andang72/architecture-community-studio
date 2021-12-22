@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data.secure.mgmt;
+package architecture.studio.web.spring.controller.secure.mgmt;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,7 +53,7 @@ import architecture.community.web.model.Result;
 import architecture.community.web.spring.controller.data.Utils;
 import architecture.ee.util.StringUtils;
 
-@Controller("community-mgmt-resources-images-secure-data-controller")
+@Controller("studio-mgmt-resources-images-secure-data-controller")
 @RequestMapping("/data/secure/mgmt")
 public class ResourcesImagesDataController {
  
@@ -75,7 +76,7 @@ public class ResourcesImagesDataController {
 	 * IMAGES API 
 	******************************************/
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/images/list.json", "images"}, method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = {"/images/list.json", "images"}, method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public ItemList getImages(
 		@RequestBody DataSourceRequest dataSourceRequest, 

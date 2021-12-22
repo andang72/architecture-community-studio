@@ -53,8 +53,8 @@ import architecture.community.user.UserTemplate;
 import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
-import architecture.community.web.spring.controller.data.secure.mgmt.ResourcesImagesDataController.UrlImageUploader;
 import architecture.ee.util.StringUtils;
+import architecture.studio.web.spring.controller.secure.mgmt.ResourcesImagesDataController.UrlImageUploader;
 
 @Controller("community-steemas-resources-filepond-data-controller")
 public class StreamsResourcesDataController extends AbstractResourcesDataController{

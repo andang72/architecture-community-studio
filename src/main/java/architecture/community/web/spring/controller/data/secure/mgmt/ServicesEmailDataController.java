@@ -41,7 +41,7 @@ import architecture.studio.component.templates.Templates;
 import architecture.studio.service.SendBulkEmailService;
 
 @Controller("community-mgmt-services-email-secure-data-controller")
-@RequestMapping("/data/secure/mgmt/services/email")
+@RequestMapping("/data/secure/mgmt/services/mail")
 public class ServicesEmailDataController {
 	
 	private Logger log = LoggerFactory.getLogger(getClass());
