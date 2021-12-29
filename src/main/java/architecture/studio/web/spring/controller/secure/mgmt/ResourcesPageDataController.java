@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -41,7 +42,7 @@ import architecture.ee.service.ConfigService;
 
 @Controller("community-mgmt-page-secure-data-controller")
 @RequestMapping("/data/secure/mgmt")
-public class PageDataController {
+public class ResourcesPageDataController {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired( required = false) 
@@ -60,12 +61,12 @@ public class PageDataController {
 	@Qualifier("aclService")
 	private CommunityAclService communityAclService;
 	
-	public PageDataController() { 
+	public ResourcesPageDataController() { 
 	}
  
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/pages/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getPages(
 			@RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
@@ -221,7 +222,7 @@ public class PageDataController {
 	}		
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Property> getPageProperties(@PathVariable Long pageId,
 			@RequestParam(value = "versionId", defaultValue = "1") Integer versionId, NativeWebRequest request)

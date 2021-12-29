@@ -33,6 +33,6 @@
 
 	<aop:aspectj-autoproxy/>
 
-	<context:component-scan base-package="architecture.community" /> 
+	<context:component-scan base-package="architecture.community,architecture.studio" /> 
 	
 </beans:beans> 

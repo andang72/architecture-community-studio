@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data.secure.mgmt;
+package architecture.studio.web.spring.controller.secure.mgmt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +58,7 @@ import architecture.community.web.model.Result;
 import architecture.community.web.spring.controller.data.model.PasswordUpdate;
 import architecture.ee.util.StringUtils;
 
-@Controller("community-mgmt-security-secure-data-controller")
+@Controller("studio-mgmt-security-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/security")
 public class SecurityDataController {
 
@@ -101,7 +101,7 @@ public class SecurityDataController {
 	 */
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/providers/{name}/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/users/providers/{name}/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList findProviderUsers(@PathVariable String name, @RequestBody DataSourceRequest dataSourceRequest,
 			NativeWebRequest request) throws NotFoundException {
@@ -125,7 +125,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/providers/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/users/providers/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList listUserProvider(
 			@RequestParam(value = "enabled", defaultValue = "true", required = false) Boolean enabled,
@@ -143,7 +143,7 @@ public class SecurityDataController {
 	 ******************************************/
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/find.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/users/find.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList findUsers(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request)
 			throws NotFoundException {
@@ -193,7 +193,7 @@ public class SecurityDataController {
 	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/users/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result saveOrUpdateUser(@RequestBody CommunityUser user, NativeWebRequest request)
 			throws UserNotFoundException, UserAlreadyExistsException, EmailAlreadyExistsException {
@@ -209,7 +209,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/users/delete.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result deleteUsers(@RequestBody List<Long> users, NativeWebRequest request)
 			throws UserNotFoundException, UserAlreadyExistsException, EmailAlreadyExistsException {
@@ -227,8 +227,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST,
-			RequestMethod.GET })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUser(@PathVariable Long userId, NativeWebRequest request) throws UserNotFoundException {
 		return userManager.getUser(userId);
@@ -237,7 +236,7 @@ public class SecurityDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/avatar", "/users/{userId:[\\p{Digit}]+}/avatar/upload.json"}, method = { RequestMethod.POST , RequestMethod.PUT })
+	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/avatar", "/users/{userId:[\\p{Digit}]+}/avatar/upload.json"}, method = { RequestMethod.POST , RequestMethod.PUT }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result uploadMyAvatarImage(@PathVariable Long userId, MultipartHttpServletRequest request) throws IOException, UserNotFoundException {
 		Result result = Result.newResult();
@@ -268,7 +267,7 @@ public class SecurityDataController {
 	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Property> getUserProperties(@PathVariable Long userId, NativeWebRequest request)
 			throws UserNotFoundException {
@@ -281,7 +280,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/update.json", method = RequestMethod.POST)
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/update.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public List<Property> updateUserProperties(@PathVariable Long userId, @RequestBody List<Property> newProperties,
 			NativeWebRequest request) throws UserNotFoundException, UserAlreadyExistsException {
@@ -299,7 +298,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.DELETE })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public List<Property> deleteUserProperties(@PathVariable Long userId, @RequestBody List<Property> newProperties,
 			NativeWebRequest request) throws NotFoundException, UserNotFoundException, UserAlreadyExistsException {
@@ -374,7 +373,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles", method = { RequestMethod.POST })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result saveOrUpdateUserRole(@PathVariable Long userId, @RequestBody List<DefaultRole> roles,
 			NativeWebRequest request) throws UserNotFoundException, UserAlreadyExistsException, RoleNotFoundException {
@@ -389,8 +388,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/save-or-update.json", method = { RequestMethod.POST,
-			RequestMethod.GET })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result saveOrUpdateUserRoles(@PathVariable Long userId, @RequestBody List<DefaultRole> roles,
 			NativeWebRequest request) throws UserNotFoundException, UserAlreadyExistsException, RoleNotFoundException {
@@ -435,8 +433,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/add.json", method = { RequestMethod.POST,
-			RequestMethod.GET })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/add.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result addUserRoles(@PathVariable Long userId,
 			@RequestParam(value = "roleId", defaultValue = "0", required = false) Long roleId, NativeWebRequest request)
@@ -455,8 +452,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/remove.json", method = { RequestMethod.POST,
-			RequestMethod.GET })
+	@RequestMapping(value = "/users/{userId:[\\p{Digit}]+}/roles/remove.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result removeUserRoles(@PathVariable Long userId,
 			@RequestParam(value = "roleId", defaultValue = "0", required = false) Long roleId, NativeWebRequest request)
@@ -478,7 +474,7 @@ public class SecurityDataController {
 	 * ROLE API
 	 ******************************************/
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/roles/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/roles/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getRoles(NativeWebRequest request) {
 		List<Role> roles = roleManager.getRoles();
@@ -486,19 +482,17 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/roles/create.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/roles/create.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Result createRole(@RequestBody DefaultRole newRole, NativeWebRequest request)
-			throws RoleNotFoundException, RoleAlreadyExistsException {
+	public Result createRole(@RequestBody DefaultRole newRole, NativeWebRequest request) throws RoleNotFoundException, RoleAlreadyExistsException {
 		roleManager.createRole(newRole.getName(), newRole.getDescription());
 		return Result.newResult();
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/roles/update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/roles/update.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Result updateRole(@RequestBody DefaultRole newRole, NativeWebRequest request)
-			throws RoleNotFoundException, RoleAlreadyExistsException {
+	public Result updateRole(@RequestBody DefaultRole newRole, NativeWebRequest request) throws RoleNotFoundException, RoleAlreadyExistsException {
 
 		log.debug("update role ({}) {}", newRole.getRoleId(), newRole.getName());
 		DefaultRole role = (DefaultRole) roleManager.getRole(newRole.getRoleId());
@@ -524,7 +518,7 @@ public class SecurityDataController {
 	 */
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = {"/permissions"}, method = { RequestMethod.GET })
+	@RequestMapping(value = {"/permissions"}, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getPermissions(NativeWebRequest request) {
 
@@ -545,7 +539,7 @@ public class SecurityDataController {
 	 * @return
 	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.GET })
+	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getAssignedPermissions(@PathVariable Integer objectType, @PathVariable Long objectId, NativeWebRequest request) {
 
@@ -567,7 +561,7 @@ public class SecurityDataController {
 	 * @throws RoleNotFoundException
 	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.POST })
+	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result addPermission(@PathVariable Integer objectType, @PathVariable Long objectId, @RequestBody ObjectAccessControlEntry entry) throws UserNotFoundException, RoleNotFoundException {
 		Result result = Result.newResult();
@@ -587,7 +581,7 @@ public class SecurityDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
-	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.DELETE })
+	@RequestMapping(value = "/permissions/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}", method = { RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result removePermission(@PathVariable Integer objectType, @PathVariable Long objectId, @RequestBody ObjectAccessControlEntry entry) throws UserNotFoundException, RoleNotFoundException {
 		Result result = Result.newResult();
