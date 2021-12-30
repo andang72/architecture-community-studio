@@ -1,7 +1,9 @@
 # architecture-community-studio
 ## Overview
 
-Java based RESTful API Server
+[![Build Status](https://github.com/google/auto/actions/workflows/ci.yml/badge.svg)](https://github.com/google/auto/actions/workflows/ci.yml)
+
+[Java][java] based RESTful API Studio.
 
 - 실시간 웹 페이지 및 RESTful API 생성 및 배포
 - JWT based stateless session 
@@ -44,7 +46,7 @@ Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
 /data/streams/me/photos/upload
  
 
-## Libraries used in theme: 
+## JavaScript libraries used in theme: 
 
 - Kendo UI 
 The ultimate collection of JavaScript UI components with libraries for jQuery, Angular, React, and Vue. Quickly build eye-catching, high-performance, responsive web applications.
@@ -55,12 +57,12 @@ Touch enabled, responsive and fully customizable.
 
 
 
-## Opensource java libs
+## Java libraries used in this project:
 | Opensource | Version |
 |------------|---------|
 | architecture-ee | 5.3.1 |
-| springframework | 5.2.16.RELEASE |
-| springframework security | 5.3.14 |
+| springframework | 5.3.14 |
+| springframework security | 5.6.1  |
 | springframework oauth | 1.5.6 |
 | FasterXML | 2.9.9 |
 | javax.mail | 1.5.6 |
@@ -71,9 +73,12 @@ Touch enabled, responsive and fully customizable.
 GrapesJS https://github.com/artf/grapesjs
 
 
-## Database 
+## Supported Database 
 MySQL 8.x
 Oracle
 
 ## TODO
 Spring Cloud 사용을 위해서는 5.0 버전 사용이 필수적임.
+
+
+[java]: https://en.wikipedia.org/wiki/Java_(programming_language)
