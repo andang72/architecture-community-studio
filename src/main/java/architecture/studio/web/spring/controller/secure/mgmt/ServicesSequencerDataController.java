@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data.secure.mgmt;
+package architecture.studio.web.spring.controller.secure.mgmt;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -26,7 +27,7 @@ import architecture.community.web.model.Result;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;
 
-@Controller("community-mgmt-services-sequencers-secure-data-controller")
+@Controller("studio-mgmt-services-sequencers-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/services/sequencers")
 public class ServicesSequencerDataController {
 
@@ -47,7 +48,7 @@ public class ServicesSequencerDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/list.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/list.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList list (NativeWebRequest request) throws NotFoundException {   
 		List<Sequencer> list = getSequencers();
@@ -56,7 +57,7 @@ public class ServicesSequencerDataController {
 
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/0/next.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/0/next.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Sequencer next ( 
 			@RequestBody Sequencer sequencerToUse, 
@@ -71,7 +72,7 @@ public class ServicesSequencerDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/0/create.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/0/create.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result create ( 
 			@RequestBody Sequencer sequencerToUse, 
@@ -92,7 +93,7 @@ public class ServicesSequencerDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/0/save-or-update.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/0/save-or-update.json", method = { RequestMethod.POST },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result saveOrUpdate ( 
 			@RequestBody Sequencer sequencerToUse, 

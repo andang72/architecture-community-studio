@@ -104,7 +104,7 @@ public class ResourcesPageDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/save-or-update.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/pages/save-or-update.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result saveOrUpdate(
 			@RequestBody DefaultPage page,
@@ -164,7 +164,7 @@ public class ResourcesPageDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/update-state.json", method = RequestMethod.POST)
+	@RequestMapping(value = "/pages/update-state.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result updatePageState(@RequestBody DefaultPage page, NativeWebRequest request) throws NotFoundException { 
 		
@@ -176,7 +176,7 @@ public class ResourcesPageDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Page getPage(@PathVariable Long pageId,
 			@RequestParam(value = "versionId", defaultValue = "1") Integer versionId, 
@@ -189,7 +189,7 @@ public class ResourcesPageDataController {
 	}	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/delete.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/pages/delete.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public Result deletePages(@RequestBody List<DefaultPage> pages, NativeWebRequest request) throws NotFoundException { 
 		
@@ -205,7 +205,7 @@ public class ResourcesPageDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result deletePage(@PathVariable Long pageId,
 			@RequestParam(value = "versionId", defaultValue = "1") Integer versionId,  
@@ -237,7 +237,7 @@ public class ResourcesPageDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/properties/update.json", method = RequestMethod.POST)
+	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/properties/update.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public List<Property> updatePageProperties(
 			@PathVariable Long pageId,
@@ -262,7 +262,7 @@ public class ResourcesPageDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.DELETE })
+	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public List<Property> deletePageProperties(
 			@PathVariable Long pageId,

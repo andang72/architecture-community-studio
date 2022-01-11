@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data.secure.mgmt;
+package architecture.studio.web.spring.controller.secure.mgmt;
 
 import java.util.List;
 import java.util.Map;
@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +27,7 @@ import architecture.community.web.spring.controller.data.model.ServicesConfig;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;
 
-@Controller("community-mgmt-services-viewcounts-secure-data-controller")
+@Controller("studio-mgmt-services-viewcounts-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/services/viewcounts")
 public class ServicesViewCountDataController {
 	
@@ -53,7 +54,7 @@ public class ServicesViewCountDataController {
 	}
   
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/refresh.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/refresh.json", method = { RequestMethod.POST },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result refresh (NativeWebRequest request) throws NotFoundException { 
 		
@@ -63,7 +64,7 @@ public class ServicesViewCountDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/config.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/config.json", method = { RequestMethod.POST },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ServicesConfig getConfig (NativeWebRequest request) throws NotFoundException { 
 		boolean enabled = configService.getApplicationBooleanProperty(CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false);
@@ -73,7 +74,7 @@ public class ServicesViewCountDataController {
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/config/save-or-update.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/config/save-or-update.json", method = { RequestMethod.POST },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ServicesConfig saveOrUpdate (
 			@RequestBody  ServicesConfig config, 
@@ -86,7 +87,7 @@ public class ServicesViewCountDataController {
 	}	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/stats.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/stats.json", method = { RequestMethod.POST },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getStats (
 			@RequestBody DataSourceRequest dataSourceRequest, 

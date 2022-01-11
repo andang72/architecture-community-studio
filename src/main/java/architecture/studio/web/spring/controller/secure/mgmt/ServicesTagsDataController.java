@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data.secure.mgmt;
+package architecture.studio.web.spring.controller.secure.mgmt;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ import architecture.community.web.model.Result;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;
 
-@Controller("community-mgmt-services-tags-secure-data-controller")
+@Controller("studio-mgmt-services-tags-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/services/")
 public class ServicesTagsDataController {
 
@@ -72,7 +72,7 @@ public class ServicesTagsDataController {
 	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/create.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/tags/0/create.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ContentTag saveOrUpdate(@RequestBody DefaultContentTag tag, NativeWebRequest request) throws NotFoundException { 
 		if (tag.getTagId() > 0) { 
@@ -83,7 +83,7 @@ public class ServicesTagsDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/delete.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/tags/0/delete.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ContentTag deleteTag(@RequestBody DefaultContentTag tag, NativeWebRequest request) throws NotFoundException { 
 		return tag;
@@ -103,7 +103,7 @@ public class ServicesTagsDataController {
 	}	 
  
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/create.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/tags/0/objects/create.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public TagObject createTagObject(@RequestBody TagObject tagObject, NativeWebRequest request) throws NotFoundException, UnAuthorizedException {
 		
@@ -115,7 +115,7 @@ public class ServicesTagsDataController {
 	}
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/add.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/tags/0/objects/add.json", method = { RequestMethod.POST, RequestMethod.GET },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result addTagObject(@RequestBody TagsObjects tagsObjects, NativeWebRequest request) throws NotFoundException, UnAuthorizedException {
 		Result result = Result.newResult();
@@ -151,7 +151,7 @@ public class ServicesTagsDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
-	@RequestMapping(value = "/tags/0/objects/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/tags/0/objects/delete.json", method = { RequestMethod.POST, RequestMethod.GET },produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public TagObject removeTagObject(@RequestBody TagObject tagObject, NativeWebRequest request)
 			throws NotFoundException, UnAuthorizedException { 

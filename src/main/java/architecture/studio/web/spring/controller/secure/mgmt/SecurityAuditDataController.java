@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data.secure.mgmt;
+package architecture.studio.web.spring.controller.secure.mgmt;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,10 +26,11 @@ import architecture.community.util.CommunityConstants;
 import architecture.community.util.DateUtils;
 import architecture.community.web.model.Result;
 import architecture.community.web.spring.controller.data.AbstractResourcesDataController;
+import architecture.community.web.spring.controller.data.secure.mgmt.ResourceType;
 import architecture.community.web.util.ServletUtils;
 import architecture.ee.service.ConfigService;
 
-@Controller("community-mgmt-security-audit-secure-data-controller")
+@Controller("studio-mgmt-security-audit-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/security/audit")
 public class SecurityAuditDataController extends AbstractResourcesDataController { 
 	
@@ -43,7 +45,7 @@ public class SecurityAuditDataController extends AbstractResourcesDataController
 	private AuditTrailsService auditTrailsService;
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/enable.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/enable.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
     public Result enable(NativeWebRequest request) throws NotFoundException, IOException {  
 		configService.setApplicationProperty(CommunityConstants.SERVICES_AUDIT_ENABLED_PROP_NAME, "true");
@@ -52,7 +54,7 @@ public class SecurityAuditDataController extends AbstractResourcesDataController
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/config.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/config.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public AuditServiceConfig getProfileServicesConfig(NativeWebRequest request) throws NotFoundException, IOException {  		
 		return getAuditServiceConfig(); 
@@ -68,7 +70,7 @@ public class SecurityAuditDataController extends AbstractResourcesDataController
 	 * @throws IOException
 	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/config/save-or-update.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/config/save-or-update.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public FileInfo saveOrUpdate(
     		@PathVariable String type, 
@@ -103,10 +105,9 @@ public class SecurityAuditDataController extends AbstractResourcesDataController
 		return config;
 	}
 	
-	public static class AuditServiceConfig implements java.io.Serializable {
+	public static class AuditServiceConfig implements java.io.Serializable { 
 		
-		private boolean enabled; 
-		
+		private boolean enabled;  
 		private FileInfo scriptSource; 
 		
 		public AuditServiceConfig() {  
