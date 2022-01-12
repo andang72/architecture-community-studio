@@ -46,16 +46,6 @@ Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
 /data/streams/me/photos/upload
  
 
-## JavaScript libraries used in theme: 
-
-- Kendo UI 
-The ultimate collection of JavaScript UI components with libraries for jQuery, Angular, React, and Vue. Quickly build eye-catching, high-performance, responsive web applications.
-
-- fancyBox 
-jQuery lightbox script for displaying images, videos and more.
-Touch enabled, responsive and fully customizable.
-
-
 
 ## Java libraries used in this project:
 | Opensource | Version |
@@ -75,10 +65,10 @@ GrapesJS https://github.com/artf/grapesjs
 
 ## Supported Database 
 MySQL 8.x
-Oracle
+Oracle 11g 이상 
 
 ## TODO
-Spring Cloud 사용을 위해서는 5.0 버전 사용이 필수적임.
+Spring Cloud 사용을 위해서는 5.0 버전 이상 사용이 필수적임.
 
 
 [java]: https://en.wikipedia.org/wiki/Java_(programming_language)
