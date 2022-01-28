@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.gateway;
+package architecture.studio.web.spring.controller.functions;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import architecture.community.audit.event.AuditLogEvent;
 import architecture.community.exception.NotFoundException;
@@ -38,6 +37,7 @@ import architecture.community.services.CommunitySpringEventPublisher;
 import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.Result;
 import architecture.community.web.util.ServletUtils;
+import architecture.studio.web.functions.ApiAware;
 
 /**
  * This restful controller for groovy data api.
@@ -179,7 +179,6 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 		
 		String path =  getRequestPath(request);
 		boolean isPattern = isPattern(api.getPattern()); 
-		
 		setUriTemplateVariables(path, api.getPattern(), request);
 		 
 		try {  
@@ -190,8 +189,12 @@ public class GroovyAPIsController  extends AbstractGroovyController {
 			List<Object> args = resolveHandlerMethodArguments(api, method, webRequest);
 			String[] urls = determineUrlsForHandlerMethods(object.getClass(), false);
 			
+			if(object instanceof ApiAware)
+				((ApiAware)object).setApi(api);
+			
 			for( String url : urls )
 				log.debug("mapping url : {}", url);
+			
 			
 			if( method.getReturnType().equals(Void.TYPE)){
 				method.invoke(object, args.toArray()); 

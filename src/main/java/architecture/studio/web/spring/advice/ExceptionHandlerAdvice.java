@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package architecture.community.web.spring.controller.advice;
+package architecture.studio.web.spring.advice;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import architecture.community.web.model.Result;
 
 
-@ControllerAdvice(basePackages={ "architecture.community.web.spring.controller.data", "architecture.community.web.spring.controller.gateway" })
+@ControllerAdvice(basePackages={ "architecture.community.web.spring.controller.data", "architecture.community.web.spring.controller.gateway", "architecture.studio.web.spring.controller.data" })
 public class ExceptionHandlerAdvice {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);

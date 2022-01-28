@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.gateway;
+package architecture.studio.web.spring.controller.functions;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
