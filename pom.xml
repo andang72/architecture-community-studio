@@ -7,7 +7,7 @@
 	<version>3.0.1</version>
 	<inceptionYear>2019</inceptionYear>
 	<name>architecture-community-studio</name>
-	<description>자바기반의 엔터프라이즈 어플리케이션 개발도구(Community Version)</description>
+	<description>자바기반의 DATA API 개발도구(Community Version)</description>
 	<developers>
 		<developer>
 			<name>donghyuck, son</name>
@@ -23,7 +23,7 @@
 		<project.build.version>3.0.1</project.build.version>
 		<project.dependency.framework.version>5.3.1</project.dependency.framework.version>
 		<project.dependency.spring.version>5.3.14</project.dependency.spring.version>
-		<project.dependency.spring-integration.version>5.5.6</project.dependency.spring-integration.version>
+		<project.dependency.spring-integration.version>5.5.7</project.dependency.spring-integration.version>
 		<project.dependency.spring-security.version>5.6.1</project.dependency.spring-security.version>
 		<project.dependency.slf4j.version>1.7.32</project.dependency.slf4j.version>
 		<project.dependency.log4j.version>2.17.0</project.dependency.log4j.version>
@@ -158,7 +158,7 @@
 		<dependency>
 			<groupId>org.springframework.mobile</groupId>
 			<artifactId>spring-mobile-device</artifactId>
-			<version>1.1.0.RELEASE</version>
+			<version>1.1.5.RELEASE</version>
 		</dependency>
 		<!-- SPRINGFRAMEWORK.MOBILE END -->
 
@@ -171,7 +171,7 @@
 			<exclusions>
 				<exclusion>
 					<groupId>org.codehaus.groovy</groupId>
-					<artifactId>groovy-all</artifactId>
+					<artifactId>groovy</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -179,7 +179,7 @@
 		<dependency>
 		    <groupId>org.codehaus.groovy</groupId>
 		    <artifactId>groovy-all</artifactId>
-		    <version>3.0.8</version>
+		    <version>3.0.9</version>
 		    <type>pom</type>
 		</dependency>
 
@@ -200,6 +200,7 @@
 		<!-- SERVLET/JSP END -->
 
 		<!-- JSP JSTL/TAG START -->
+		<!--
 		<dependency>
 			<groupId>taglibs</groupId>
 			<artifactId>standard</artifactId>
@@ -218,6 +219,7 @@
 			<version>1.2.5</version>
 			<scope>compile</scope>
 		</dependency>
+		-->
 		<!-- JSP JSTL/TAG END --> 
 		
 		<dependency>
@@ -251,6 +253,12 @@
 			<version>[2.9.10.7,)</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+			<version>[2.9.10.7,)</version>
+		</dependency>		
+
 		<!-- JACKSON END -->
  
         <!--For and sfl4j Bridge maintenance-->
@@ -277,6 +285,7 @@
 		  <groupId>junit</groupId>
 		  <artifactId>junit</artifactId>
 		  <version>[4.13.1,)</version>
+		  <scope>test</scope>
 		</dependency>
 
 		<!-- SITEMESH START -->
@@ -311,7 +320,7 @@
 			<version>1.4</version>
 		</dependency>
 
-
+		<!-- APACHE POI START -->
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -323,14 +332,16 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.16</version>
+			<version>[3.17,)</version>
 		</dependency>
- 
+ 		<!-- APACHE POI END -->
+
 		<!--   CACHE START -->
-		<dependency>
+		
+					<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>2.10.6</version>
+			<version>2.10.9.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -338,6 +349,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency> 
+		<!--
+		<dependency>
+      		<groupId>org.ehcache</groupId>
+      		<artifactId>ehcache</artifactId>
+      		<version>3.9.6</version>
+    	</dependency> -->
+
 	    <!--   CACHE END -->
 
 		<!-- https://mvnrepository.com/artifact/net.coobird/thumbnailator -->
@@ -380,7 +398,7 @@
 		<dependency>
 		    <groupId>com.google.code.gson</groupId>
 		    <artifactId>gson</artifactId>
-		    <version>2.8.6</version>
+		    <version>2.8.9</version>
 		</dependency> 
 		
 		<dependency>
@@ -422,7 +440,7 @@
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-dbcp2</artifactId>
-		    <version>2.0</version>
+		    <version>2.9.0</version>
 		</dependency>
 
 		<!--  JDBC DRIVER -->
@@ -430,7 +448,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.16</version>
+			<version>8.0.27</version>
 		</dependency> 
 
 		
@@ -459,9 +477,39 @@
 		</dependency>
 		<!--  IMAGE META ECTRACTOR END -->
 		
+		<!-- VIDEO TRANSCODING START -->
+		<dependency>
+			<groupId>ws.schild</groupId>
+			<artifactId>jave-core</artifactId>
+			<version>3.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>ws.schild</groupId>
+			<artifactId>jave-nativebin-osx64</artifactId>
+			<version>3.2.0</version>
+		</dependency>		
+		<!-- VIDEO TRANSCODING END -->	
+		
+		<!--  OPENCV START -->
+		<dependency>
+			<groupId>opencv</groupId>
+			<artifactId>opencv</artifactId>
+			<version>4.5.4</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/opencv/opencv-454.jar</systemPath>
+		</dependency>
+		<!--  OPENCV END -->
+
 	</dependencies>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-Djava.library.path=${project.basedir}/lib/opencv</argLine>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>

@@ -1,8 +1,6 @@
 # architecture-community-studio
 ## Overview
 
-[![Build Status](https://github.com/google/auto/actions/workflows/ci.yml/badge.svg)](https://github.com/google/auto/actions/workflows/ci.yml)
-
 [Java][java] based RESTful API Studio.
 
 - 실시간 웹 페이지 및 RESTful API 생성 및 배포
@@ -54,6 +52,7 @@ Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
 | springframework | 5.3.14 |
 | springframework security | 5.6.1  |
 | springframework oauth | 1.5.6 |
+| springframework mobile device | 1.1.5.RELEASE |
 | FasterXML | 2.9.9 |
 | javax.mail | 1.5.6 |
 | Sitemesh| 3.0.1 |
