@@ -126,6 +126,15 @@ public class Parameter implements Serializable {
 
 	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Parameter [creationDate=" + creationDate + ", defaultValue=" + defaultValue + ", isHeader=" + isHeader
+				+ ", isPathVariable=" + isPathVariable + ", isRequestParam=" + isRequestParam + ", key=" + key
+				+ ", modifiedDate=" + modifiedDate + ", objectId=" + objectId + ", objectType=" + objectType
+				+ ", value=" + value + "]";
 	} 
 	
 	

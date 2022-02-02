@@ -175,8 +175,7 @@ public class JdbcApiDao extends ExtendedJdbcDaoSupport implements ApiDao  {
 					new SqlParameterValue(Types.NUMERIC, toUse.isEnabled() ? 1 : 0 ),
 					new SqlParameterValue(Types.NUMERIC, toUse.getCreator().getUserId()),
 					new SqlParameterValue(Types.TIMESTAMP, toUse.getCreationDate()),
-					new SqlParameterValue(Types.TIMESTAMP, toUse.getModifiedDate()));  
-			deleteApiHTTPParameters(toUse);
+					new SqlParameterValue(Types.TIMESTAMP, toUse.getModifiedDate()));   
 		} else {
 			Date now = Calendar.getInstance().getTime();
 			toUse.setModifiedDate(now);		
@@ -193,7 +192,7 @@ public class JdbcApiDao extends ExtendedJdbcDaoSupport implements ApiDao  {
 					new SqlParameterValue(Types.TIMESTAMP, toUse.getModifiedDate()),
 					new SqlParameterValue(Types.NUMERIC, toUse.getApiId())
 			); 
-			
+			deleteApiHTTPParameters(toUse);
 		}			
 		setApiHTTPParameters(toUse);
 	}
