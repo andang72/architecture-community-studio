@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:beans="http://www.springframework.org/schema/beans" 
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	<beans:description><![CDATA[
+    Studio Component Defined Context ..
+	]]></beans:description>
+
+	<!-- ================================= -->
+	<!-- Content Templates				   -->
+	<!-- ================================= -->
+	
+	<beans:bean id="templatesDao" class="architecture.studio.component.templates.dao.JdbcTemplatesDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="templatesService" class="architecture.studio.service.DefaultTemplatesService" init-method="initialize" />
+
+
+	<!-- ================================= -->
+	<!-- Outbound Email				  	   -->
+	<!-- ================================= -->
+	
+	<beans:bean id="simpleEmailSendDao" class="architecture.studio.component.email.dao.JdbcSimpleEmailSendDao" p:dataSource-ref="dataSource" />
+	
+	<beans:bean id="simpleEmailSendSerivce" class="architecture.studio.service.DefaultSendBulkEmailSerivce" init-method="initialize" />
+
+	<!-- ================================= -->
+	<!-- Media Editor 				  	   -->
+	<!-- ================================= -->
+	<beans:bean id="mediaEditorService" class="architecture.studio.service.OpenCvMediaEditorService"  />
+	<!-- 	
+	<lang:groovy id="mediaEditorService" script-source="/WEB-INF/groovy-script/services/openCvMediaEditorService.groovy" refresh-check-delay="10"></lang:groovy> -->
+
+
+</beans:beans> 

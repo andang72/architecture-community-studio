@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>STUDIO_CONTENT</name>
+	<description>Content query</description> 
+	
+
+	<!-- ==================== -->
+	<!-- TEMPLATES				  -->
+	<!-- ==================== --> 
+	<sql-query name="COUNT_TEMPLATES_BY_REQUEST" description="SELECT TEMPLATES COUNT BY REQUEST"><![CDATA[    
+	-- COUNT_TEMPLATES_BY_REQUEST
+	SELECT 
+		COUNT( TEMPLATE_ID )
+	FROM AC_UI_CONTENT_TEMPLATES 
+	]]><dynamic><![CDATA[
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+    ]]></dynamic></sql-query>
+
+	<sql-query name="SELECT_TEMPLATES_IDS_BY_REQUEST" description="SELECT TEMPLATES IDS BY REQUEST"><![CDATA[    
+	-- SELECT_TEMPLATES_IDS_BY_REQUEST
+	SELECT 
+		TEMPLATE_ID
+	FROM AC_UI_CONTENT_TEMPLATES 
+	]]><dynamic><![CDATA[  
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY TEMPLATE_ID DESC </#if>
+	]]></dynamic></sql-query>	
+	  
+	<sql-query name="SELECT_TEMPLATES_BY_ID" description="ID로 조회"><![CDATA[    
+    SELECT 
+		TEMPLATE_ID,
+		OBJECT_ID,
+		OBJECT_TYPE,
+		NAME,
+		DISPLAY_NAME, 
+		DESCRIPTION,
+		SUBJECT,
+		BODY,
+		CREATOR,
+		LAST_MODIFIER,
+		CREATION_DATE,
+		MODIFIED_DATE
+    FROM 
+    	AC_UI_CONTENT_TEMPLATES
+    WHERE 
+    	TEMPLATE_ID = ?	    
+    ]]></sql-query>
+ 
+    
+	<sql-query name="INSERT_TEMPLATES" description="INSERT TEMPLATES"><![CDATA[    
+    INSERT INTO AC_UI_CONTENT_TEMPLATES ( 
+		TEMPLATE_ID,
+		OBJECT_ID,
+		OBJECT_TYPE,
+		NAME,
+		DISPLAY_NAME, 
+		DESCRIPTION,
+		SUBJECT,
+		BODY,
+		CREATOR,
+		LAST_MODIFIER,
+		CREATION_DATE,
+		MODIFIED_DATE
+	) VALUES ( 	?,?,?,?,?, ?,?,?,?,?, ?,? )
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_TEMPLATES" description="UPDATE TEMPLATES"><![CDATA[    
+    UPDATE AC_UI_CONTENT_TEMPLATES SET 	 
+		OBJECT_ID = ?,
+		OBJECT_TYPE = ?,
+		NAME = ?,
+		DISPLAY_NAME = ?, 
+		DESCRIPTION = ?,
+		SUBJECT = ?,
+		BODY = ?,
+		LAST_MODIFIER = ?,
+		MODIFIED_DATE = ?
+	WHERE TEMPLATE_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_TEMPLATES_BY_ID" description="DELETE TEMPLATES"><![CDATA[    
+ 		DELETE FROM AC_UI_CONTENT_TEMPLATES WHERE TEMPLATE_ID = ?
+    ]]></sql-query>
+	
+</sqlset>	

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlset>
+	<name>STUDIO_OUTBOUND</name>
+	<description>Outbound query</description> 
+	
+
+	<!-- ==================== -->
+	<!-- EMAIL SEND			  -->
+	<!-- ==================== --> 
+	<sql-query name="COUNT_BULK_EMAILS_BY_REQUEST" description="COUNT_BULK_EMAILS_BY_REQUEST"><![CDATA[    
+	-- COUNT_BULK_EMAILS_BY_REQUEST
+	SELECT 
+		COUNT( BULK_EMAIL_ID )
+	FROM AC_UI_BULK_EMAIL 
+	]]><dynamic><![CDATA[
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+    ]]></dynamic></sql-query>
+
+	<sql-query name="SELECT_BULK_EMAIL_IDS_BY_REQUEST" description="SELECT_BULK_EMAIL_IDS_BY_REQUEST"><![CDATA[    
+	-- SELECT_BULK_EMAIL_IDS_BY_REQUEST
+	SELECT 
+		BULK_EMAIL_ID
+	FROM AC_UI_BULK_EMAIL 
+	]]><dynamic><![CDATA[  
+	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
+	<#list filter.filters as item >
+	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
+	</#list></#if>	
+	<#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY BULK_EMAIL_ID DESC </#if>
+	]]></dynamic></sql-query>	
+	  
+	<sql-query name="SELECT_BULK_EMAIL_BY_ID" description="ID로 조회"><![CDATA[    
+    SELECT 
+		BULK_EMAIL_ID,
+   	  	TEMPLATE_ID,
+   	  	FROM_EMAIL_ADDRESS,
+   		CREATOR,
+		LAST_MODIFIER,
+		CREATION_DATE,
+		MODIFIED_DATE  
+    FROM 
+    	AC_UI_BULK_EMAIL
+    WHERE 
+    	BULK_EMAIL_ID = ?	    
+    ]]></sql-query>
+ 
+    
+	<sql-query name="INSERT_BULK_EMAIL" description="INSERT_BULK_EMAIL"><![CDATA[    
+    INSERT INTO AC_UI_BULK_EMAIL ( 
+		BULK_EMAIL_ID,
+   	  	TEMPLATE_ID,
+   	  	FROM_EMAIL_ADDRESS,
+   		CREATOR,
+		LAST_MODIFIER,
+		CREATION_DATE,
+		MODIFIED_DATE  
+	) VALUES ( 	?,?,?,?,?, ?,? )
+    ]]></sql-query>
+
+	<sql-query name="UPDATE_BULK_EMAIL" description="UPDATE_BULK_EMAIL"><![CDATA[    
+    UPDATE AC_UI_BULK_EMAIL SET 	 
+		TEMPLATE_ID,
+   	  	FROM_EMAIL_ADDRESS,
+		LAST_MODIFIER = ?,
+		MODIFIED_DATE = ?
+	WHERE BULK_EMAIL_ID = ?
+    ]]></sql-query>
+
+	<sql-query name="DELETE_BULK_EMAIL_BY_ID" description="DELETE_BULK_EMAIL_BY_ID"><![CDATA[    
+ 		DELETE FROM AC_UI_BULK_EMAIL WHERE BULK_EMAIL_ID = ?
+    ]]></sql-query>
+	
+</sqlset>	
