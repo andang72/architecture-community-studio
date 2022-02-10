@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data.secure.mgmt;
+package architecture.studio.web.spring.controller.secure.mgmt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,12 +46,11 @@ import architecture.community.web.spring.controller.data.AbstractResourcesDataCo
 import architecture.community.web.spring.controller.data.Utils;
 import architecture.ee.util.StringUtils; 
 
-@Controller("community-mgmt-resources-attachment-secure-data-controller")
+@Controller("studio-mgmt-resources-attachment-secure-data-controller")
 @RequestMapping({ "/data/secure/mgmt" })
 public class ResourcesAttachmentDataController extends AbstractResourcesDataController {
 
 	
-
 	@Inject
 	@Qualifier("attachmentService")
 	private AttachmentService attachmentService;
@@ -147,6 +146,19 @@ public class ResourcesAttachmentDataController extends AbstractResourcesDataCont
 		User user = SecurityHelper.getUser();
 		Attachment attachment = attachmentService.getAttachment(attachmentId);
 		deleteAttachment(attachment);
+		return Result.newResult();
+	}
+
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+    @RequestMapping(value = { "/attachments/{attachmentId:[\\p{Digit}]+}/cache" } , method = RequestMethod.DELETE)
+    @ResponseBody
+    public Result clearCache (
+    		@PathVariable Long attachmentId,	
+    		NativeWebRequest request ) throws NotFoundException, IOException, UnAuthorizedException { 
+		User user = SecurityHelper.getUser();
+		Attachment attachment = attachmentService.getAttachment(attachmentId);
+		attachmentService.refresh(attachment);
 		return Result.newResult();
 	}	
 	

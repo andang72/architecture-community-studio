@@ -24,8 +24,11 @@ import java.util.List;
 import architecture.community.exception.NotFoundException;
 
 public interface ImageService {
+	public static final String IMAGE_DIR = "images";
+	public static final String IMAGE_CACHE_DIR = "cache";
+	public static final String IMAGE_TEMP_DIR = "temp";
+	public static final String IMAGE_EFFECTS_DIR = "effects";
 
-		
 	/** LOGO IMAGE LINK API **/
 	
 	public LogoImage createLogoImage();
@@ -114,6 +117,8 @@ public interface ImageService {
 	public abstract Image saveImage( Image image );
 	
 	public abstract InputStream getImageInputStream(Image image);
+
+	public abstract File getImageFile(Image image);
 	
 	public abstract InputStream getImageThumbnailInputStream(Image image, int width, int height ) ;
 	
@@ -136,6 +141,5 @@ public interface ImageService {
 	public void removeImageLink( Image image ) ;
 	
 	public List<Image> getImages(int objectType, long objectId );
-	
 		
 }

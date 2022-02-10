@@ -46,6 +46,7 @@ import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
 import architecture.community.web.spring.controller.data.AbstractResourcesDataController.FileInfo;
 import architecture.community.web.util.ServletUtils;
+import architecture.studio.web.spring.controller.secure.mgmt.ResourcesAttachmentDataController;
 
 @Controller("community-mgmt-resources-bundle-secure-data-controller")
 @RequestMapping("/data/secure/mgmt")

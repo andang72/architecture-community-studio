@@ -263,19 +263,18 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 		}
 	}
 
+	/**
+	 * clear local cache ... 
+	 */
 	public void refresh(Attachment attachment) {
-
 		File dir = getAttachmentCacheDir();
 		StringBuilder sb = new StringBuilder();
 		sb.append(attachment.getAttachmentId()).append(".bin");
 		String cached = sb.toString();
-
 		sb = new StringBuilder();
 		sb.append(attachment.getAttachmentId()).append("_");
-		String prefix = sb.toString();
-
-		Collection<File> list = FileUtils.listFiles(dir, new IOFileFilter() {
-
+		String prefix = sb.toString(); 
+		Collection<File> list = FileUtils.listFiles(dir, new IOFileFilter() { 
 			@Override
 			public boolean accept(File file) {
 				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), file.getName());
@@ -285,8 +284,7 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 				if (StringUtils.startsWithIgnoreCase(file.getName(), prefix))
 					accept = true;
 				return accept;
-			}
-
+			} 
 			@Override
 			public boolean accept(File dir, String name) {
 				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), name);
@@ -295,8 +293,7 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 		}, null);
 
 		for (File file : list)
-			FileUtils.deleteQuietly(file);
-
+			FileUtils.deleteQuietly(file); 
 		attachmentCache.remove(attachment.getAttachmentId());
 	}
 

@@ -26,10 +26,10 @@ import architecture.community.exception.NotFoundException;
 import architecture.community.image.ThumbnailImage;
 import architecture.community.query.CustomQueryService;
 import architecture.community.web.spring.controller.data.ResourceUtils;
-import architecture.community.web.spring.controller.data.secure.mgmt.ResourcesAttachmentDataController;
 import architecture.community.web.util.ServletUtils;
 import architecture.ee.service.ConfigService;
 import architecture.ee.util.StringUtils;
+import architecture.studio.web.spring.controller.secure.mgmt.ResourcesAttachmentDataController;
 
 
 @Controller("community-secure-download-data-controller")

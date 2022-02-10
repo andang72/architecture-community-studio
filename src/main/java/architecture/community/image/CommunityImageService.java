@@ -387,8 +387,16 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		return imageDir;
 	}
 
+	protected File getImageEffectsDir() {
+		File dir = new File(getImageDir(), IMAGE_EFFECTS_DIR);
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
+		return dir;
+	}
+
 	protected File getImageCacheDir() {
-		File dir = new File(getImageDir(), "cache");
+		File dir = new File(getImageDir(), IMAGE_CACHE_DIR);
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
@@ -396,7 +404,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 	}
 
 	protected File getImageTempDir() {
-		File dir = new File(getImageDir(), "temp");
+		File dir = new File(getImageDir(), IMAGE_TEMP_DIR);
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
@@ -712,6 +720,15 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		}
 	}
 
+	public File getImageFile(Image image){
+		try {
+			return getImageFromCacheIfExist(image);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e.getMessage());
+			throw new RuntimeError(e);
+		}
+	}
+
 	public InputStream getImageThumbnailInputStream(Image image, int width, int height) {
 		try {
 			File file = getThumbnailFromCacheIfExist(image, width, height);
@@ -936,40 +953,50 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		return list;
 	}
 
- 
-	public void clearCache(Image image) {
-		File dir = getImageCacheDir();
+	
+	public void clearCache(Image image) { 
 		StringBuilder sb = new StringBuilder();
 		sb.append(image.getImageId()).append(".bin");
-		String cached = sb.toString();
+		String filename = sb.toString();
 		
 		sb = new StringBuilder();
 		sb.append(image.getImageId()).append("_");
-		String prefix = sb.toString();
+		String prefix = sb.toString(); 
 
-		Collection<File> list = FileUtils.listFiles(dir, new IOFileFilter() { 
+		Collection<File> list = FileUtils.listFiles(getImageCacheDir(), new IOFileFilter() { 
 			@Override
-			public boolean accept(File file) {
-				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), file.getName());
+			public boolean accept(File file) { 
 				boolean accept = false;
-				if (StringUtils.equals(file.getName(), cached))
-					accept = true;
-				if (StringUtils.startsWithIgnoreCase(file.getName(), prefix))
+				if (StringUtils.equals(file.getName(), filename) || StringUtils.startsWithIgnoreCase(file.getName(), prefix) )
 					accept = true;
 				return accept;
 			}
-
 			@Override
-			public boolean accept(File dir, String name) {
-				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), name);
+			public boolean accept(File dir, String name) { 
 				return false;
 			}
 		}, null);
 
 		for (File file : list)
 			FileUtils.deleteQuietly(file); 
-		
+
 		imageCache.remove(image.getImageId()); 
+		
+		if( getImageEffectsDir().exists() ){
+		Collection<File> effects = FileUtils.listFiles(getImageEffectsDir(), new IOFileFilter(){ 
+			@Override
+			public boolean accept(File file) { 
+				if (StringUtils.startsWithIgnoreCase(file.getName(), prefix))
+					return true;
+				return false;
+			} 
+			@Override
+			public boolean accept(File dir, String name) { 
+				return false;
+			}}, null); 
+		for (File file : effects)
+			FileUtils.deleteQuietly(file); 
+		}
 	}
 	
 }

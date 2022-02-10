@@ -494,6 +494,17 @@ public class ResourcesImagesDataController {
 	}	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/cache", method = { RequestMethod.DELETE})
+	@ResponseBody
+	public Result clearCacheFilResult (
+		@PathVariable Long imageId,
+		NativeWebRequest request) throws NotFoundException { 
+		Image image = 	imageService.getImage(imageId); 
+		imageService.clearCache(image); 
+		return Result.newResult();
+	}	
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = {"/images/{imageId:[\\p{Digit}]+}/delete-link.json", "/images/{imageId:[\\p{Digit}]+}/link/delete.json"}, method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Result removeLink (

@@ -100,7 +100,7 @@ public class ApiDataController {
     }
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/apis/{apiId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = { "/apis/{apiId:[\\p{Digit}]+}/get.json"  }, method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Api getApi(@PathVariable Long apiId, NativeWebRequest request) throws NotFoundException {
 		User user = SecurityHelper.getUser();
