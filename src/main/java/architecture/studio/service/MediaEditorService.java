@@ -7,7 +7,7 @@ public interface MediaEditorService {
     enum Effects {
         BLUR, GRAYSCALE, STYLIZATION, EROSION, SKETCHER, CARTOONIZER, OILPAINTING, PAINTING,
         GRAYSCALE_PENCIL_SKETCH , PENCIL_SKETCH, HDR , INVERT ,
-        SEPIA,SHARP
+        SEPIA, SHARP , BINARY
     }
 
     public static final String IMAGE_EFFECT_DIR= "effects";

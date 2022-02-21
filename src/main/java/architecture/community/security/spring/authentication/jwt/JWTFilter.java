@@ -76,10 +76,8 @@ public class JWTFilter extends OncePerRequestFilter {
 			logger.debug("Exception " + eje.getMessage(), eje);
 			return;
 		}
-		
 		filterChain.doFilter(request, response);
-		
-		this.resetAuthenticationAfterRequest();
+		//this.resetAuthenticationAfterRequest();
 	}
 
 

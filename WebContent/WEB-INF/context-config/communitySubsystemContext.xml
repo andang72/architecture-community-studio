@@ -74,7 +74,7 @@
 
 	<beans:bean id="imageCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="imageCache" 
-		p:maxElementsInMemory="5000"
+		p:maxElementsInMemory="10000"
 		p:diskPersistent="false" 
 		p:overflowToDisk="false" 
      	p:timeToIdle="1800"   
@@ -85,7 +85,7 @@
 
 	<beans:bean id="imageLinkCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="imageLinkCache" 
-		p:maxElementsInMemory="5000"
+		p:maxElementsInMemory="10000"
 		p:diskPersistent="false" 
 		p:overflowToDisk="false" 
      	p:timeToIdle="1800"   
@@ -96,7 +96,7 @@
 		
 	<beans:bean id="imageLinkIdCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="imageLinkIdCache" 
-		p:maxElementsInMemory="5000"
+		p:maxElementsInMemory="10000"
 		p:diskPersistent="false" 
 		p:overflowToDisk="false" 
      	p:timeToIdle="1800"   
@@ -114,7 +114,7 @@
 
 	<beans:bean id="attachmentCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"
 		p:cacheName="attachmentCache" 
-		p:maxElementsInMemory="5000"
+		p:maxElementsInMemory="10000"
 		p:diskPersistent="false" 
 		p:overflowToDisk="false" 
      	p:timeToIdle="1800"   

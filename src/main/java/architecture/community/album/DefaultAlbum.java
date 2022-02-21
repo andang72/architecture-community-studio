@@ -34,12 +34,19 @@ public class DefaultAlbum extends PropertyModelObjectAwareSupport  implements Al
 		this.user = SecurityHelper.ANONYMOUS;
 		this.albumId = UNKNOWN_OBJECT_ID; 
 		this.name = null;
+		Date now = new Date();
+		this.creationDate = now ;
+		this.modifiedDate = now ;
 	}
 	
 	public DefaultAlbum(Long albumId) {
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
 		this.albumId = albumId;
 		this.name = null;
+
+		Date now = new Date();
+		this.creationDate = now ;
+		this.modifiedDate = now ;
 	}
 
 	public Long getAlbumId() {

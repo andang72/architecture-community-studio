@@ -145,15 +145,11 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		DefaultLogoImage image = new DefaultLogoImage(objectType, objectId, primary);
 		
 		image.setContentType(contentType);
-		
 		image.setName(name);
-		
 		if(StringUtils.isNullOrEmpty(image.getName())){
 			image.setName(file.getName());
 		}
-		
 		image.setSize((int) FileUtils.sizeOf(file));
-		
 		try {
 			image.setInputStream(FileUtils.openInputStream(file));
 		} catch (IOException e) {
@@ -403,7 +399,7 @@ public class CommunityImageService extends AbstractAttachmentService implements 
 		return dir;
 	}
 
-	protected File getImageTempDir() {
+	public File getImageTempDir() {
 		File dir = new File(getImageDir(), IMAGE_TEMP_DIR);
 		if (!dir.exists()) {
 			dir.mkdir();

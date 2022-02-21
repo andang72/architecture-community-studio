@@ -41,8 +41,7 @@ public class ClientInfoThreadLocalFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 			logger.debug("filter client info..");
-            final ClientInfo clientInfo =
-                    new ClientInfo((HttpServletRequest) request,
+            final ClientInfo clientInfo =  new ClientInfo((HttpServletRequest) request,
                             this.alternateServerAddrHeaderName,
                             this.alternateLocalAddrHeaderName,
                             this.useServerHostAddress);

@@ -4,7 +4,6 @@ import java.io.File;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.fontbox.ttf.table.common.LookupTable;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -154,6 +153,18 @@ public class OpenCvMediaEditorService extends AbstractMediaEditorService {
             Mat src = Imgcodecs.imread(source.getPath());
             Mat dst = new Mat(src.rows(), src.cols(), src.type());  
             Photo.stylization(src, dst, 150, new Float(0.25));
+            Imgcodecs.imwrite(target.getPath(), dst );
+        }else if (effect == Effects.BINARY){
+            Mat src = Imgcodecs.imread(source.getPath());
+            
+            //1. converting the image into gray-scale
+            Mat gray = new Mat(src.rows(), src.cols(), src.type());  
+            Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+
+            //2. converting the image into binary
+            Mat dst = new Mat(src.rows(), src.cols(), src.type());  
+            Imgproc.threshold(gray, dst, 200, 500, Imgproc.THRESH_BINARY);
+            
             Imgcodecs.imwrite(target.getPath(), dst );
         }
 

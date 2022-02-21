@@ -277,7 +277,7 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 		Collection<File> list = FileUtils.listFiles(dir, new IOFileFilter() { 
 			@Override
 			public boolean accept(File file) {
-				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), file.getName());
+				//log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), file.getName());
 				boolean accept = false;
 				if (StringUtils.equals(file.getName(), cached))
 					accept = true;
@@ -287,13 +287,22 @@ public class CommunityAttachmentService extends AbstractAttachmentService implem
 			} 
 			@Override
 			public boolean accept(File dir, String name) {
-				log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), name);
+				//log.debug("check dir : {} , file : {} ", dir.getAbsolutePath(), name);
 				return false;
 			}
 		}, null);
 
+		log.debug("delete cache files ({}) for  attachment {}", list.size(), attachment.getAttachmentId());
+
 		for (File file : list)
 			FileUtils.deleteQuietly(file); 
+
+		try {
+			getAttachmentFromCacheIfExist(attachment);
+		} catch (IOException e) {
+			log.error("fail to create new cache.", e);
+		}
+			
 		attachmentCache.remove(attachment.getAttachmentId());
 	}
 

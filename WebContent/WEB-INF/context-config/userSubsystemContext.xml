@@ -45,7 +45,7 @@
 
 	<beans:bean id="userProviderCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
 		p:cacheName="userProviderCache"  
-		p:maxElementsInMemory="5000"  
+		p:maxElementsInMemory="10"  
 		p:diskPersistent="false" 
 		p:overflowToDisk="false"  
 		p:timeToIdle="30"  

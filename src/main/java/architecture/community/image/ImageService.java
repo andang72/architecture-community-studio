@@ -24,10 +24,14 @@ import java.util.List;
 import architecture.community.exception.NotFoundException;
 
 public interface ImageService {
+
 	public static final String IMAGE_DIR = "images";
 	public static final String IMAGE_CACHE_DIR = "cache";
 	public static final String IMAGE_TEMP_DIR = "temp";
 	public static final String IMAGE_EFFECTS_DIR = "effects";
+
+	/** IMAGE LOCAL LOCATION API */
+	public File getImageTempDir() ;
 
 	/** LOGO IMAGE LINK API **/
 	

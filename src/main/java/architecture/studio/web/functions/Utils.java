@@ -21,6 +21,36 @@ public class Utils {
         return value;
     }
 
+    public static Long getLongParameter( NativeWebRequest request, Api api, String paramName ){
+        String value = request.getParameter(paramName);
+        if( StringUtils.isBlank(value)){
+            for(Parameter param : api.getParameters() ){
+                if( StringUtils.equals(param.getKey(), paramName) )
+                    value = param.getValue();
+            }
+        } 
+        try{ 
+        return Long.parseLong(value); 
+        }catch(Throwable e ){
+            return 0L;
+        }
+    }
+
+    public static Integer getIntParameter( NativeWebRequest request, Api api, String paramName ){
+        String value = request.getParameter(paramName);
+        if( StringUtils.isBlank(value)){
+            for(Parameter param : api.getParameters() ){
+                if( StringUtils.equals(param.getKey(), paramName) )
+                    value = param.getValue();
+            }
+        } 
+        try{ 
+        return Integer.parseInt(value); 
+        }catch(Throwable e ){
+            return 0;
+        }
+    }
+
     public static Result newIllegalArgumentException(String msg){
         return Result.newResult(new IllegalArgumentException(msg));
     }
