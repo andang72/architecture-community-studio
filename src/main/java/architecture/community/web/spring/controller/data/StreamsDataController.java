@@ -41,7 +41,7 @@ import architecture.community.streams.Streams;
 import architecture.community.streams.StreamsNotFoundException;
 import architecture.community.streams.StreamsService;
 import architecture.community.user.User;
-import architecture.community.user.UserAvatarService;
+import architecture.community.user.AvatarService;
 import architecture.community.user.UserManager;
 import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
@@ -60,8 +60,8 @@ public class StreamsDataController {
 	private ConfigService configService;
 	
 	@Autowired(required = false) 
-	@Qualifier("userAvatarService")
-	private UserAvatarService userAvatarService;
+	@Qualifier("avatarService")
+	private AvatarService avatarService;
 	
 	@Autowired(required = false) 
 	@Qualifier("userManager")

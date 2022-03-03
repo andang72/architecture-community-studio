@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data;
+package architecture.studio.web.spring.controller;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +38,7 @@ import architecture.community.web.spring.controller.data.model.JwtResponse;
 import architecture.community.web.spring.controller.data.model.LoginRequest;
 import architecture.ee.service.ConfigService;
 
-@Controller("accounts-data-controller")
+@Controller("studio-accounts-data-controller")
 @RequestMapping("/data/accounts")
 public class AccountsDataController {
 
@@ -63,20 +63,18 @@ public class AccountsDataController {
 	public ResponseEntity<Result> verify (HttpServletRequest request) { 
 		Result result = Result.newResult();
 		if(!jwtTokenProvider.verify(request) ) {
-			result.setError(new UnAuthorizedException());
+			result.setError(new UnAuthorizedException("JWT Token not valid."));
 			return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body(result);
 		}
 		return ResponseEntity.ok(result);
 	}
 
-	private String resolveToken(HttpServletRequest request) {
-		
+	private String resolveToken(HttpServletRequest request) { 
 		String bearerToken = request.getHeader(JwtTokenProvider.HEADER_STRING);
 		if (StringUtils.isNotBlank(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
 			String jwt = bearerToken.substring(7, bearerToken.length());
 			return jwt;
-		}
-		
+		} 
 		return null;
 	}
 

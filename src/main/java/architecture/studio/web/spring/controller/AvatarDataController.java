@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data;
+package architecture.studio.web.spring.controller;
 
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
@@ -25,30 +25,31 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 
 import architecture.community.user.AvatarImage;
-import architecture.community.user.UserAvatarService;
+import architecture.community.user.AvatarService;
 import architecture.community.user.UserManager;
+import architecture.community.web.spring.controller.data.ResourceUtils;
 import architecture.community.web.util.ServletUtils;
 import architecture.ee.service.ConfigService;
 
-@Controller("community-user-data-controller")
-public class UserDataController {
+@Controller("studio-avatar-data-controller")
+public class AvatarDataController {
 
-	private Logger log = LoggerFactory.getLogger(UserDataController.class);
+	private Logger log = LoggerFactory.getLogger(AvatarDataController.class);
 	
 	@Autowired(required=false)
 	@Qualifier("configService")
 	private ConfigService configService;
 	
 	@Autowired(required = false) 
-	@Qualifier("userAvatarService")
-	private UserAvatarService userAvatarService;
+	@Qualifier("avatarService")
+	private AvatarService avatarService;
 	
 	@Autowired(required = false) 
 	@Qualifier("userManager")
 	private UserManager userManager;
 	
-	private boolean isSetUserAvatarService() {
-		return userAvatarService != null ? true : false;
+	private boolean isSetAvatarService() {
+		return avatarService != null ? true : false;
 	}
 	
 	private com.google.common.cache.LoadingCache<String, AvatarImage> avatars = null;
@@ -62,7 +63,7 @@ public class UserDataController {
 						AvatarImage image = null;
 						if( StringUtils.isNotEmpty(username))
 						try {
-							image = userAvatarService.getAvatareImageByUsername(username);
+							image = avatarService.getAvatareImageByUsername(username);
 						} catch (Exception e) { 
 							image = new AvatarImage();
 						} 
@@ -72,12 +73,12 @@ public class UserDataController {
 			);
 	}
 	
-	public UserDataController() {
+	public AvatarDataController() {
 
 	}	
 	
 	private boolean hasAvatarImageInCache ( String username ) {
-		if( !isSetUserAvatarService() )
+		if( !isSetAvatarService() )
 			return false;  
 		if( avatars != null) {
 			AvatarImage avatar = avatars.getIfPresent(username);
@@ -92,7 +93,7 @@ public class UserDataController {
 		return false;
 	}
 	
-	@RequestMapping(value = "/download/avatar/{username:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/download/avatars/{username:.+}/thumbnail", method = RequestMethod.GET)
 	@ResponseBody
 	public void downloadUserAvatarImage (
 			@PathVariable("username") String username, 
@@ -107,18 +108,18 @@ public class UserDataController {
 				log.debug("not found avata for {}", username);
 				ResourceUtils.noAvatars(request, response);
 			} 
-			//AvatarImage image = userAvatarService.getAvatareImageByUsername(username);  
+
 			AvatarImage image = avatars.getIfPresent(username);
 			if (image != null && image.getAvatarImageId() > 0) {
 				InputStream input;
 				String contentType;
 				int contentLength;				
 				if (width > 0 && width > 0) {
-					input = userAvatarService.getImageThumbnailInputStream(image, width, height);
+					input = avatarService.getImageThumbnailInputStream(image, width, height);
 					contentType = image.getThumbnailContentType();
 					contentLength = image.getThumbnailSize();
 				} else {
-					input = userAvatarService.getImageInputStream(image);
+					input = avatarService.getImageInputStream(image);
 					contentType = image.getImageContentType();
 					contentLength = image.getImageSize();
 				}				

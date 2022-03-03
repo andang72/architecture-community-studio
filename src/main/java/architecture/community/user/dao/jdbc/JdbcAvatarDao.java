@@ -22,14 +22,14 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import architecture.community.model.Models;
 import architecture.community.user.AvatarImage;
 import architecture.community.user.AvatarImageNotFoundException;
-import architecture.community.user.dao.UserAvatarDao;
+import architecture.community.user.dao.AvatarDao;
 import architecture.ee.jdbc.sequencer.SequencerFactory;
 import architecture.ee.service.ConfigService;
 import architecture.ee.spring.jdbc.ExtendedJdbcDaoSupport;
 import architecture.ee.spring.jdbc.ExtendedJdbcUtils.DB;
 import architecture.ee.spring.jdbc.InputStreamRowMapper;
 
-public class JdbcUserAvatarDao extends ExtendedJdbcDaoSupport implements UserAvatarDao {
+public class JdbcAvatarDao extends ExtendedJdbcDaoSupport implements AvatarDao {
 
 	private final RowMapper<AvatarImage> imageMapper = new RowMapper<AvatarImage>() {
 		public AvatarImage mapRow(ResultSet rs, int rowNum) throws SQLException {

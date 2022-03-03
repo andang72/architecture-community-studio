@@ -43,12 +43,11 @@ import architecture.studio.web.functions.ApiAware;
  * This restful controller for groovy data api.
  * 
  * 
- * 
  * @author donghyuck.son
  *
  */
-@RestController("groovy-apis-v1-data-controller")
-@RequestMapping({"/data/v1", "/data/apis"})
+@RestController("groovy-actions-gateway-v1-data-controller")
+@RequestMapping({"/data/v1/actions"})
 public class GroovyAPIsController  extends AbstractGroovyController {
 
 	private Logger log = LoggerFactory.getLogger(getClass());

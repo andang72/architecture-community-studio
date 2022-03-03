@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.eventbus.Subscribe;
 
-import architecture.community.user.dao.UserAvatarDao;
+import architecture.community.user.dao.AvatarDao;
 import architecture.community.user.event.UserRemovedEvent;
 import architecture.ee.exception.RuntimeError;
 import architecture.ee.service.ConfigService;
@@ -37,9 +37,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class CommunityUserAvatarService implements UserAvatarService {
+public class CommunityAvatarService implements AvatarService {
 
-	private static final Logger log = LoggerFactory.getLogger(CommunityUserAvatarService.class);
+	private static final Logger log = LoggerFactory.getLogger(CommunityAvatarService.class);
 
 	private Lock lock = new ReentrantLock();
 
@@ -56,8 +56,8 @@ public class CommunityUserAvatarService implements UserAvatarService {
 	private Repository repository;
 
 	@Inject
-	@Qualifier("userAvatarDao")
-	private UserAvatarDao userAvatarDao;
+	@Qualifier("avatarDao")
+	private AvatarDao avatarDao;
 
 	@Inject
 	@Qualifier("avatarImageIdsCache")
@@ -70,7 +70,7 @@ public class CommunityUserAvatarService implements UserAvatarService {
 	 
 	private File imageDir;
 	
-	public CommunityUserAvatarService() {
+	public CommunityAvatarService() {
 	}
 
 
@@ -90,14 +90,14 @@ public class CommunityUserAvatarService implements UserAvatarService {
 	 */
 	public AvatarImage getAvatarImage(User user) throws AvatarImageNotFoundException { 
 		
-		AvatarImage image = getPrimaryUserAvatar(user);
+		AvatarImage image = getPrimaryAvatar(user);
 		if( image == null)
 			throw new AvatarImageNotFoundException();
 		
 		return image;
 	}
 
-	public AvatarImage getPrimaryUserAvatar(User user) {  
+	public AvatarImage getPrimaryAvatar(User user) {  
 		List<AvatarImage> list = getAvatarImages(user);
 		AvatarImage finalAvatarImage = null;
 		for (AvatarImage image : list) {
@@ -136,7 +136,7 @@ public class CommunityUserAvatarService implements UserAvatarService {
 				avatarImageCache.remove(avatarId);
 			}
 		    avatarImageIdsCache.remove(image.getUserId()); 
-		    userAvatarDao.addAvatarImage(image, file);
+		    avatarDao.addAvatarImage(image, file);
 		}
 	}
 	
@@ -148,7 +148,7 @@ public class CommunityUserAvatarService implements UserAvatarService {
 				avatarImageCache.remove(logoImageId);
 			}
 		    avatarImageIdsCache.remove(image.getUserId()); 
-		    userAvatarDao.addAvatarImage(image, is);
+		    avatarDao.addAvatarImage(image, is);
 		}
 	}
 
@@ -161,7 +161,7 @@ public class CommunityUserAvatarService implements UserAvatarService {
 				avatarImageCache.remove(logoImageId);
 			}
 			avatarImageIdsCache.remove(image.getUserId()); 
-			userAvatarDao.removeAvatarImage(image);
+			avatarDao.removeAvatarImage(image);
 			
 			deleteImageFileCache(image);
 		}		
@@ -172,7 +172,7 @@ public class CommunityUserAvatarService implements UserAvatarService {
 		    throw new AvatarImageNotFoundException();
 		AvatarImage imageToUse;
 		if (avatarImageCache.get(profileImageId) == null) {
-		    imageToUse = userAvatarDao.getAvatarImageById(profileImageId);
+		    imageToUse = avatarDao.getAvatarImageById(profileImageId);
 		    avatarImageCache.put( new Element(imageToUse.getAvatarImageId(), imageToUse) );
 		} else {
 		    imageToUse = (AvatarImage) avatarImageCache.get(profileImageId).getObjectValue() ;
@@ -207,10 +207,10 @@ public class CommunityUserAvatarService implements UserAvatarService {
 	protected List<Long> getAvatarImageIdList(long userId) {
 		List<Long> idsList;
 		if (avatarImageIdsCache.get(userId) == null) {
-			idsList = userAvatarDao.getAvatarImageIds(userId);
+			idsList = avatarDao.getAvatarImageIds(userId);
 			avatarImageIdsCache.put( new Element( userId, idsList ) );
 		} else {
-			idsList = (List<Long>) avatarImageIdsCache.get(userId).getObjectValue() ;
+			idsList = (List<Long>)avatarImageIdsCache.get(userId).getObjectValue() ;
 		}
 		return idsList;
 	}
@@ -224,12 +224,12 @@ public class CommunityUserAvatarService implements UserAvatarService {
 			long size = FileUtils.sizeOf(file);
 			if (size != image.getImageSize()) {
 				// size different make cache new one....
-				InputStream inputStream = userAvatarDao.getInputStream(image);
+				InputStream inputStream = avatarDao.getInputStream(image);
 				FileUtils.copyInputStreamToFile(inputStream, file);
 			}
 		} else {
 			// doesn't exist, make new one ..
-			InputStream inputStream = userAvatarDao.getInputStream(image);
+			InputStream inputStream = avatarDao.getInputStream(image);
 			FileUtils.copyInputStreamToFile(inputStream, file);
 		}
 		return file;

@@ -46,7 +46,7 @@ import architecture.community.user.RoleManager;
 import architecture.community.user.RoleNotFoundException;
 import architecture.community.user.User;
 import architecture.community.user.UserAlreadyExistsException;
-import architecture.community.user.UserAvatarService;
+import architecture.community.user.AvatarService;
 import architecture.community.user.UserManager;
 import architecture.community.user.UserNotFoundException;
 import architecture.community.user.UserProvider;
@@ -76,8 +76,8 @@ public class SecurityDataController {
 	private List<UserProvider> userProvisers;
 
 	@Autowired(required = false)
-	@Qualifier("userAvatarService")
-	private UserAvatarService userAvatarService;
+	@Qualifier("avatarService")
+	private AvatarService avatarService;
 
 	@Autowired(required = false)
 	@Qualifier("roleManager")
@@ -257,7 +257,7 @@ public class SecurityDataController {
 			imageToUse.setFilename(mpf.getOriginalFilename());
 			imageToUse.setImageContentType(mpf.getContentType());
 			imageToUse.setImageSize((int) mpf.getSize());
-			userAvatarService.addAvatarImage(imageToUse, is, user);
+			avatarService.addAvatarImage(imageToUse, is, user);
 			result.setCount(result.getCount() + 1);
 		}
 		return result;

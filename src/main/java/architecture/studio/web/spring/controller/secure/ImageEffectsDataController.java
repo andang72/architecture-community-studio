@@ -3,39 +3,33 @@ package architecture.studio.web.spring.controller.secure;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import architecture.community.image.Image;
 import architecture.community.image.ImageService;
 import architecture.community.web.spring.controller.data.ResourceUtils;
-import architecture.studio.service.MediaEditorService;
-import architecture.studio.service.MediaEditorService.Effects;;
+import architecture.studio.service.ImageEffectsService;
+import architecture.studio.service.ImageEffectsService.Effects;;
 
-@Controller("studio-mediae-editor-data-controller")
+@Controller("studio-media-image-effects-data-controller")
 @RequestMapping("/data/images")
-public class MediaEditorDataController {
+public class ImageEffectsDataController {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 	
@@ -44,8 +38,8 @@ public class MediaEditorDataController {
 	private ImageService imageService;
 
     @Autowired( required = false)
-	@Qualifier("mediaEditorService") 
-	private MediaEditorService mediaEditorService;
+	@Qualifier("imageEffectsService") 
+	private ImageEffectsService imageEffectsService;
 
     @Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/{imageId:[\\p{Digit}]+}/effect:{effect}", method = { RequestMethod.GET, RequestMethod.POST })
@@ -62,14 +56,14 @@ public class MediaEditorDataController {
 
 			Image image = imageService.getImage(imageId);
             File source = imageService.getImageFile(image); 
-			Effects effectToUse = MediaEditorService.Effects.valueOf(effect.toUpperCase());
+			Effects effectToUse = ImageEffectsService.Effects.valueOf(effect.toUpperCase());
 
-            File dir = mediaEditorService.getImageEffectDir() ;
+            File dir = imageEffectsService.getImageEffectDir() ;
             StringBuilder sb = new StringBuilder();
             sb.append(image.getImageId()).append("_").append(effectToUse.name().toLowerCase()).append(".jpeg");
             File target = new File( dir , sb.toString() ); 
             if( !target.exists() ) {
-                mediaEditorService.effect(source, target, effectToUse);
+                imageEffectsService.effect(source, target, effectToUse);
             }
 			response.setContentType("image/jpeg");
 			response.setContentLength((int)FileUtils.sizeOf(target)); 

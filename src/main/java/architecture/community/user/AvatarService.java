@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-public interface UserAvatarService {
+public interface AvatarService {
 
 	public List<AvatarImage> getAvatarImages(User user);
 	

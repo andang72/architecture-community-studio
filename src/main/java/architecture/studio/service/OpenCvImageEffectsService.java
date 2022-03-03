@@ -13,7 +13,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.photo.Photo;
 import org.opencv.xphoto.Xphoto;
 
-public class OpenCvMediaEditorService extends AbstractMediaEditorService {
+public class OpenCvImageEffectsService extends AbstractImageEffectsService {
 
 	@PostConstruct
 	public void initialize() throws Exception {
@@ -86,12 +86,14 @@ public class OpenCvMediaEditorService extends AbstractMediaEditorService {
             //3. Applying erosion on the Image
             Imgproc.erode(src, dst, kernel);
             Imgcodecs.imwrite(target.getPath(), dst);
-        }else if (effect == Effects.OILPAINTING ){ 
+
+        }else if (effect == Effects.OILPAINTING ){  
             Mat src = Imgcodecs.imread(source.getPath());
             Mat dst = new Mat(src.rows(), src.cols(), src.type());  
-            Xphoto.oilPainting(src, dst, 10, 1);
-            Imgcodecs.imwrite(target.getPath(), dst );
+            oilPaintingEffect(src, dst);
+            Imgcodecs.imwrite(target.getPath(), dst ); 
         }else if (effect == Effects.PAINTING ){ 
+
             Mat src = Imgcodecs.imread(source.getPath());
             //1. Preparing the kernel matrix object
             Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(6,6));
@@ -105,7 +107,9 @@ public class OpenCvMediaEditorService extends AbstractMediaEditorService {
             Core.normalize(morph, dst, 20, 255, Core.NORM_MINMAX );
             Xphoto.oilPainting(src, dst, 10, 1);
             Imgcodecs.imwrite(target.getPath(), dst );
+
         }else if (effect == Effects.SKETCHER ){  
+
             Mat src = Imgcodecs.imread(source.getPath());
             // 1. gray image 
             Mat gray = new Mat(src.rows(), src.cols(), src.type()); 
@@ -117,6 +121,7 @@ public class OpenCvMediaEditorService extends AbstractMediaEditorService {
             Mat dst = new Mat(src.rows(), src.cols(), src.type());  
             Core.divide(gray, blur, dst, 255.0);  
             Imgcodecs.imwrite(target.getPath(), dst);
+
         }else if (effect == Effects.GRAYSCALE_PENCIL_SKETCH ){  
             Mat src = Imgcodecs.imread(source.getPath());
             Mat dst1 = new Mat(src.rows(), src.cols(), src.type()); // gray
@@ -128,6 +133,7 @@ public class OpenCvMediaEditorService extends AbstractMediaEditorService {
 
             Photo.pencilSketch(src, dst1, dst2, sigma_s, sigma_r, shade_factor);
             Imgcodecs.imwrite(target.getPath(), dst1);
+
         }else if (effect == Effects.PENCIL_SKETCH ){  
             Mat src = Imgcodecs.imread(source.getPath());
             Mat dst1 = new Mat(src.rows(), src.cols(), src.type()); // gray
@@ -156,17 +162,34 @@ public class OpenCvMediaEditorService extends AbstractMediaEditorService {
             Imgcodecs.imwrite(target.getPath(), dst );
         }else if (effect == Effects.BINARY){
             Mat src = Imgcodecs.imread(source.getPath());
-            
+             
             //1. converting the image into gray-scale
             Mat gray = new Mat(src.rows(), src.cols(), src.type());  
             Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
 
             //2. converting the image into binary
             Mat dst = new Mat(src.rows(), src.cols(), src.type());  
-            Imgproc.threshold(gray, dst, 200, 500, Imgproc.THRESH_BINARY);
-            
+            Imgproc.threshold(gray, dst, 200, 500, Imgproc.THRESH_BINARY); 
+            Imgcodecs.imwrite(target.getPath(), dst );
+        }else if ( effect == Effects.WATERCOLOR ){
+            Mat src = Imgcodecs.imread(source.getPath());
+            Mat dst = new Mat(src.rows(), src.cols(), src.type());  
+            waterColorEffect(src, dst);
             Imgcodecs.imwrite(target.getPath(), dst );
         }
 
     } 
+
+    private void waterColorEffect (Mat src, Mat dst){
+        float sigma_s = new Float(60) ;
+        float sigma_r = new Float(0.6) ;
+        Photo.stylization(src, dst, sigma_s, sigma_r ); 
+    } 
+
+    private void oilPaintingEffect (Mat src, Mat dst){
+        int size = 7 ;
+        int dynRatio = 1 ;
+        Xphoto.oilPainting(src, dst, size, dynRatio );
+    } 
+
 }

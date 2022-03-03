@@ -178,7 +178,7 @@
 	<!-- USER PROFILE IMAGE SERVICE        -->
 	<!-- ================================= -->
 	
-	<beans:bean id="userAvatarDao" class="architecture.community.user.dao.jdbc.JdbcUserAvatarDao" p:dataSource-ref="dataSource" />
+	<beans:bean id="avatarDao" class="architecture.community.user.dao.jdbc.JdbcAvatarDao" p:dataSource-ref="dataSource" />
 	
 	<beans:bean id="avatarImageIdsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean" 
 		p:cacheName="avatarImageIdsCache" 
@@ -202,7 +202,7 @@
 		p:diskExpiryThreadIntervalSeconds="0" 
 		/>
 
-	<beans:bean id="userAvatarService" class="architecture.community.user.CommunityUserAvatarService" />
+	<beans:bean id="avatarService" class="architecture.community.user.CommunityAvatarService" />
 	
 	<!-- ================================= -->
 	<!-- ANNOUNCE		 				   -->

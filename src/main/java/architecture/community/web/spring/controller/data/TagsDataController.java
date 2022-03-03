@@ -26,14 +26,14 @@ import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
 import architecture.ee.service.ConfigService;
-import architecture.ee.service.Repository;
+import architecture.ee.service.Repository; 
 
  
 @Controller("community-tags-data-controller")
 @RequestMapping("/data")	
 public class TagsDataController {
 	
-	private Logger log = LoggerFactory.getLogger(UserDataController.class);
+	private Logger log = LoggerFactory.getLogger(TagsDataController.class);
 	
 	@Autowired
 	@Qualifier("repository")

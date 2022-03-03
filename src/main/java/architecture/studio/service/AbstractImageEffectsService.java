@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import architecture.community.image.ImageService;
 import architecture.ee.service.Repository;
 
-public abstract class AbstractMediaEditorService implements MediaEditorService {
+public abstract class AbstractImageEffectsService implements ImageEffectsService {
 
     @Inject
 	@Qualifier("repository")

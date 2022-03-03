@@ -68,6 +68,7 @@ DELETE – Delete
  * @author donghyuck.son
  *
  */
+
 @Controller("community-mgmt-resources-streams-secure-data-controller")
 @RequestMapping("/data/secure/mgmt")
 public class ResourcesStreamsDataController {
@@ -82,7 +83,7 @@ public class ResourcesStreamsDataController {
 	@Qualifier("streamsService")
 	private StreamsService streamsService;
 	
-	@Inject
+	@Autowired(required = false) 
 	@Qualifier("commentService")
 	private CommentService commentService;
 

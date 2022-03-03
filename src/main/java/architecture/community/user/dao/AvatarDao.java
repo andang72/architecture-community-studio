@@ -7,7 +7,7 @@ import java.util.List;
 import architecture.community.user.AvatarImage;
 import architecture.community.user.AvatarImageNotFoundException;
 
-public interface UserAvatarDao {
+public interface AvatarDao {
 	
 	public void removeAvatarImage(AvatarImage image);
 

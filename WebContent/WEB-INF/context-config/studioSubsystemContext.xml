@@ -33,11 +33,8 @@
 	<beans:bean id="simpleEmailSendSerivce" class="architecture.studio.service.DefaultSendBulkEmailSerivce" init-method="initialize" />
 
 	<!-- ================================= -->
-	<!-- Media Editor 				  	   -->
+	<!-- Image Effects Service			   -->
 	<!-- ================================= -->
-	<beans:bean id="mediaEditorService" class="architecture.studio.service.OpenCvMediaEditorService"  />
-	<!-- 	
-	<lang:groovy id="mediaEditorService" script-source="/WEB-INF/groovy-script/services/openCvMediaEditorService.groovy" refresh-check-delay="10"></lang:groovy> -->
-
+	<beans:bean id="imageEffectsService" class="architecture.studio.service.OpenCvImageEffectsService"  />
 
 </beans:beans> 
