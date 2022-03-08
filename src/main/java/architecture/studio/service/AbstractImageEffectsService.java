@@ -42,4 +42,12 @@ public abstract class AbstractImageEffectsService implements ImageEffectsService
 		return dir;
 	}
 
+	public File getImageAnnotationDir() {
+		File dir = new File(getImageDir(), ImageEffectsService.IMAGE_ANNOTATION_DIR);
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
+		return dir;
+	}	
+	
 }
