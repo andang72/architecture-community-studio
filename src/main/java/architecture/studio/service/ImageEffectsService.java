@@ -20,12 +20,17 @@ public interface ImageEffectsService {
         SHARP , 
         BINARY,
         OILPAINTING, 
-        WATERCOLOR
+        WATERCOLOR,
+        FACE_DETECT
     }
+
+    public static final String IMAGE_ANNOTATION_DIR = "annotation";
 
     public static final String IMAGE_EFFECT_DIR= "effects";
 
     public File getImageEffectDir() ;
+    
+    public File getImageAnnotationDir() ;
     
     public void effect (File source , File target , Effects effect);
 
