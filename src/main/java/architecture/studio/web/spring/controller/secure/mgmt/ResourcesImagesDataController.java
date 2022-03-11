@@ -165,7 +165,7 @@ public class ResourcesImagesDataController {
      * @throws IOException
      */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-    @RequestMapping(value = "/images/upload_by_url.json", method = RequestMethod.POST)
+    @RequestMapping(value = "/images/upload_by_url.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE )
     @ResponseBody
     public Image uploadImageByUrl(@RequestBody UrlImageUploader upload, NativeWebRequest request)
 	    throws NotFoundException, Exception {
@@ -317,7 +317,7 @@ public class ResourcesImagesDataController {
 	 * @throws UnAuthorizedException
 	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-    @RequestMapping(value = "/images/upload.json", method = RequestMethod.POST)
+    @RequestMapping(value = "/images/upload.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<Image> upload(
     		@RequestParam(value = "objectType", defaultValue = "-1", required = false) Integer objectType,
@@ -370,7 +370,7 @@ public class ResourcesImagesDataController {
 	 * @throws UnAuthorizedException
 	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-    @RequestMapping(value = "/images/upload_image_and_link.json", method = RequestMethod.POST)
+    @RequestMapping(value = "/images/upload_image_and_link.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<ImageLink> uploadAndRetureLink(
     		@RequestParam(value = "objectType", defaultValue = "-1", required = false) Integer objectType,
@@ -407,7 +407,7 @@ public class ResourcesImagesDataController {
     } 
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/imagebrowser/{objectType:[\\p{Digit}]+}/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/imagebrowser/{objectType:[\\p{Digit}]+}/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getImagesByObjectType(
 		@RequestBody DataSourceRequest dataSourceRequest, 	
@@ -431,7 +431,7 @@ public class ResourcesImagesDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/imagebrowser/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/imagebrowser/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getImagesByObjectTypeAndObjectId(
 		@PathVariable Integer objectType,
@@ -456,7 +456,7 @@ public class ResourcesImagesDataController {
 	}	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/delete.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/images/delete.json", method = { RequestMethod.POST } , produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result deleteImages(@RequestBody List<DefaultImage> images, NativeWebRequest request) throws NotFoundException { 
 		
@@ -471,7 +471,7 @@ public class ResourcesImagesDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result removeImageAndLink (
 		@PathVariable Long imageId,
@@ -483,7 +483,7 @@ public class ResourcesImagesDataController {
 	}	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/cache/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/cache/delete.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result clearCache (
 		@PathVariable Long imageId,
@@ -494,7 +494,7 @@ public class ResourcesImagesDataController {
 	}	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/cache", method = { RequestMethod.DELETE})
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/cache", method = { RequestMethod.DELETE}, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
 	public Result clearCacheFilResult (
 		@PathVariable Long imageId,
@@ -505,7 +505,7 @@ public class ResourcesImagesDataController {
 	}	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/images/{imageId:[\\p{Digit}]+}/delete-link.json", "/images/{imageId:[\\p{Digit}]+}/link/delete.json"}, method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = {"/images/{imageId:[\\p{Digit}]+}/delete-link.json", "/images/{imageId:[\\p{Digit}]+}/link/delete.json"}, method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Result removeLink (
 		@PathVariable Long imageId,
@@ -517,7 +517,7 @@ public class ResourcesImagesDataController {
 	}	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Image getImage (
 		@PathVariable Long imageId,
@@ -547,7 +547,7 @@ public class ResourcesImagesDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/link.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/link.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ImageLink getImageLinkAndCreateIfNotExist (
 		@PathVariable Long imageId,
@@ -565,7 +565,7 @@ public class ResourcesImagesDataController {
 	
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/properties/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Property> getImageProperties (
 		@PathVariable Long imageId, 
@@ -577,7 +577,7 @@ public class ResourcesImagesDataController {
 
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/properties/update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/properties/update.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Property> updateImageProperties (
 		@PathVariable Long imageId, 
@@ -595,7 +595,7 @@ public class ResourcesImagesDataController {
 
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/properties/delete.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Property> deleteImageProperties (
 		@PathVariable Long imageId, 
@@ -607,6 +607,7 @@ public class ResourcesImagesDataController {
 		    properties.remove(property.getName());
 		}
 		imageService.saveOrUpdate(image);
+		
 		return Utils.toList(image.getProperties());
 	} 
 }
