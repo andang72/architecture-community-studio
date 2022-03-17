@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>architecture.community</groupId>
 	<artifactId>architecture-community-studio</artifactId>
-	<version>3.0.1</version>
+	<version>3.0.2</version>
 	<inceptionYear>2019</inceptionYear>
 	<name>architecture-community-studio</name>
 	<description>자바기반의 DATA API 개발도구(Community Version)</description>
@@ -37,7 +37,8 @@
 		<repository>
 			<id>podos</id>
 			<url>http://www.podosw.com/artifactory/repo</url>
-		</repository>	
+		</repository>	 
+ 
 	</repositories>	
 	
 	<distributionManagement>
@@ -407,18 +408,21 @@
 		    <version>6.9.0</version>
 		</dependency>
 
+		<!-- JCodec  -->	
+		<!-- library implementing a set of popular video and audio codecs -->
 		<dependency>
 			<groupId>org.jcodec</groupId>
 			<artifactId>jcodec</artifactId>
-			<version>0.2.3</version>
+			<version>0.2.5</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.jcodec</groupId>
 			<artifactId>jcodec-javase</artifactId>
-			<version>0.2.3</version>
+			<version>0.2.5</version>
 		</dependency>	
-		
+		<!-- End of JCodec  -->
+
 		<!-- DOCUMNET FOR MARKDOWN  -->	
 		<dependency>
 		    <groupId>com.atlassian.commonmark</groupId>
@@ -491,6 +495,7 @@
 		<!-- VIDEO TRANSCODING END -->	
 		
 		<!--  OPENCV START -->
+		<!-- opencv must build by system -->
 		<dependency>
 			<groupId>opencv</groupId>
 			<artifactId>opencv</artifactId>
@@ -499,6 +504,7 @@
 			<systemPath>${project.basedir}/lib/opencv/opencv-454.jar</systemPath>
 		</dependency>
 		<!--  OPENCV END -->
+		
 
 	</dependencies>
 	<build>

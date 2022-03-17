@@ -33,8 +33,13 @@
 	<beans:bean id="simpleEmailSendSerivce" class="architecture.studio.service.DefaultSendBulkEmailSerivce" init-method="initialize" />
 
 	<!-- ================================= -->
-	<!-- Image Effects Service			   -->
+	<!-- Image Effects And Vision Service  -->
 	<!-- ================================= -->
 	<beans:bean id="imageEffectsService" class="architecture.studio.service.OpenCvImageEffectsService"  />
+	<beans:bean id="visionService" class="architecture.studio.service.OpenCvVisionService"  />
 
+	<!-- ================================= -->
+	<!-- Streams 						   -->
+	<!-- ================================= -->
+	<beans:bean id="messageBodyFilter" class="architecture.community.streams.DefaultMessageBodyFilter"  />
 </beans:beans> 

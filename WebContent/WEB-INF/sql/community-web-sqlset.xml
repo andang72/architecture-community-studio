@@ -330,8 +330,8 @@
 	]]><dynamic><![CDATA[
 	<#if data.tags?? && (data.tags?size > 0) >
 	INNER JOIN AC_UI_OBJECT_TAG T2 
-	ON T2.OBJECT_TYPE = ( SELECT  SEQUENCER_ID FROM AC_UI_SEQUENCER WHERE NAME = 'IMAGE' )
-	AND T2.OBJECT_ID = IMAGE_ID
+	ON T2.OBJECT_TYPE = ( SELECT  SEQUENCER_ID FROM AC_UI_SEQUENCER WHERE NAME = 'ATTACHMENT' )
+	AND T2.OBJECT_ID = ATTACHMENT_ID
 	AND T2.TAG_ID IN (
 	<#list data.tags as tag >
 	${tag}<#if tag?is_last == false >,</#if>
@@ -341,7 +341,8 @@
 	<#if filter?? && ( filter.filters?size > 0 ) > WHERE 
 	<#list filter.filters as item >
 	<#if item?is_first == false > ${filter.logic} </#if>${ Utils.getRestrictionExpression( item ) } 
-	</#list></#if>
+	</#list></#if> 
+    <#if sort??  && ( sort?size > 0 ) > ORDER BY <#list sort as item > ${item.field} ${item.dir} </#list><#else> ORDER BY ATTACHMENT_ID DESC </#if> 
     ]]></dynamic></sql-query>
      
 	
