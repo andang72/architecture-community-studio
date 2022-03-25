@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -82,12 +83,33 @@ public class ServicesTagsDataController {
 		} 
 	}
 
+
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/delete.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/tags/{tagId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ContentTag deleteTag(@RequestBody DefaultContentTag tag, NativeWebRequest request) throws NotFoundException { 
+	public ContentTag deleteTag(
+		@PathVariable Long tagId, 
+		@RequestBody DefaultContentTag tag, 
+		NativeWebRequest request) throws NotFoundException { 
+
+
 		return tag;
 	}
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
+	@RequestMapping(value = "/tags/{tagId:[\\p{Digit}]+}", method = { RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Result delete (
+		@PathVariable Long tagId, 	
+		@RequestBody DefaultContentTag tag, 
+		NativeWebRequest request) throws NotFoundException { 
+		Result rs = Result.newResult();
+		if (tag.getTagId() > 0) { 
+			
+		}
+		return rs;
+	}
+
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/tags/0/objects/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )

@@ -361,7 +361,7 @@ public class DownloadDataController {
 							IOUtils.copy(input, response.getOutputStream());
 							response.flushBuffer();
 							
-						} catch (Exception e) {
+						} catch (Throwable e) {
 							log.warn(e.getMessage(), e);
 							noThumbnail = true;
 						}

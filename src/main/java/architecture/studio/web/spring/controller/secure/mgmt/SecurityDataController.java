@@ -355,7 +355,7 @@ public class SecurityDataController {
 	}
 
 	/**
-	 * USER & ROLE API
+	 * USER ROLE API
 	 ******************************************/
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM" })
 	@RequestMapping(value = { "/users/{userId:[\\p{Digit}]+}/roles", "/users/{userId:[\\p{Digit}]+}/roles/list.json" }, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)

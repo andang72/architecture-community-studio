@@ -31,7 +31,7 @@ import architecture.community.web.spring.controller.data.ResourceUtils;
 import architecture.community.web.util.ServletUtils;
 import architecture.ee.service.ConfigService;
 
-@Controller("studio-avatar-data-controller")
+@Controller("studio-resources-avatar-data-controller")
 public class AvatarDataController {
 
 	private Logger log = LoggerFactory.getLogger(AvatarDataController.class);

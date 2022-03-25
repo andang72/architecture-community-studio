@@ -260,7 +260,7 @@ private Logger log = LoggerFactory.getLogger(getClass());
 	}
 	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = {"/albumId/{albumId:[\\p{Digit}]+}/delete.json"}, method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = {"/albums/{albumId:[\\p{Digit}]+}/delete.json"}, method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Result deleteAlbum(
 		@PathVariable Long albumId, 

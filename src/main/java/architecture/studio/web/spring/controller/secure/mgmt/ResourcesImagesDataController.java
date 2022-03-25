@@ -186,7 +186,7 @@ public class ResourcesImagesDataController {
 			imageToUse = imageService.createImage( upload.getObjectType(), upload.getObjectId(), upload.getFileName(), contentType, file );
 		}
 		imageToUse.setUser(user);
-		imageToUse.getProperties().put("url", upload.getImageUrl().getPath());
+		imageToUse.getProperties().put("url", upload.getImageUrl().toString());
 		return imageService.saveImage(imageToUse);
 		
     }
@@ -269,8 +269,6 @@ public class ResourcesImagesDataController {
 		}
 		
     }
-    
-    
     
     public String getContentType(File file) {
     	String contentType = null;

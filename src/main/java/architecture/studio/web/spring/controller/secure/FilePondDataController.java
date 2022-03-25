@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.data;
+package architecture.studio.web.spring.controller.secure;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,6 +6,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -18,8 +19,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller; 
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +36,9 @@ import architecture.community.attachment.AttachmentService;
 import architecture.community.attachment.DefaultAttachment;
 import architecture.community.exception.NotFoundException;
 import architecture.community.exception.UnAuthorizedException;
+import architecture.community.image.DefaultImage;
+import architecture.community.image.Image;
+import architecture.community.image.ImageLink;
 import architecture.community.image.ImageService;
 import architecture.community.model.Models;
 import architecture.community.query.CustomQueryService;
@@ -40,14 +46,16 @@ import architecture.community.share.SharedLink;
 import architecture.community.share.SharedLinkService;
 import architecture.community.tag.TagService;
 import architecture.community.user.User;
+import architecture.community.user.UserTemplate;
 import architecture.community.util.SecurityHelper;
 import architecture.ee.util.StringUtils;
 
-@Controller("community-resources-filepond-data-controller")
+import architecture.community.web.spring.controller.data.Utils;
+
+@Controller("studio-resources-filepond-secure-data-controller")
 public class FilePondDataController {
 
 	private Logger log = LoggerFactory.getLogger(FilePondDataController.class); 
-
 
 	@Inject
 	@Qualifier("attachmentService")
@@ -69,14 +77,10 @@ public class FilePondDataController {
 	@Qualifier("tagService")
 	private TagService tagService;
 	
+
 	/**
+	 * /data/images/0/filepond
 	 * 
-	 * POST data/files/filepond
-	 * 
-	 * @param objectType
-	 * @param objectId
-	 * @param attachmentId
-	 * @param shared
 	 * @param request
 	 * @param headers
 	 * @return
@@ -84,16 +88,106 @@ public class FilePondDataController {
 	 * @throws IOException
 	 * @throws UnAuthorizedException
 	 */
-	@RequestMapping(value = "/data/files/filepond", method = RequestMethod.POST)
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER", "ROLE_USER"})
+    @RequestMapping(value = "/data/images/0/filepond", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> uploadImage( 
+    		@RequestHeader Map<String, String> headers,
+			MultipartHttpServletRequest request) throws NotFoundException, IOException, UnAuthorizedException {  
+		
+		headers.forEach((key, value) -> {
+	        log.info(String.format("Header '%s' = %s", key, value));
+	    });
+		
+		log.debug( "request parameters : {}" , request.getParameterMap() ); 
+		
+		User user = new UserTemplate(1L);
+		Principal principal = request.getUserPrincipal();
+		log.debug("user from security : {}, principal : {} ", user , principal != null ? principal.getName() : "anonymous");
+		
+		if(user.isAnonymous())
+			throw new UnAuthorizedException("No Authorized. Please signin first.");
+		
+		boolean shared = false;
+		StringBuilder sb = new StringBuilder();
+		List<Image> images = new ArrayList<Image>(); 
+		Iterator<String> names = request.getFileNames();		
+		while (names.hasNext()) {
+		    String fileName = names.next();
+		    MultipartFile mpf = request.getFile(fileName);
+		    InputStream is = mpf.getInputStream(); 
+		    log.debug("uploading name:{}, size:{}, type:{} ", mpf.getOriginalFilename(), mpf.getSize() , mpf.getContentType() );  
+		    Image image = imageService.createImage(0, 0L, mpf.getOriginalFilename(), mpf.getContentType(), is, (int) mpf.getSize());
+		    image.setUser(user);		    
+		    imageService.saveImage(image);  
+		    if( shared ) {
+				try {
+					imageService.getImageLink(image, true);
+					ImageLink link = imageService.getImageLink(image);
+					((DefaultImage)image).setImageLink( link );
+				} catch (Exception ignore) { 
+				} 
+		    }
+		    sb.append(image.getImageId());
+		    images.add(image);
+		} 
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.TEXT_PLAIN); 
+		return new ResponseEntity<String>(sb.toString(), responseHeaders, HttpStatus.OK);
+    }
+	
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER", "ROLE_USER"})
+    @RequestMapping(value = "/data/images/0/filepond", method = RequestMethod.DELETE)
+	@ResponseBody
+    public ResponseEntity<String> deleteImage ( @RequestHeader Map<String, String> headers, @RequestBody String body, NativeWebRequest request) throws NotFoundException, IOException, UnAuthorizedException {  
+		headers.forEach((key, value) -> {
+	        log.info(String.format("Header '%s' = %s", key, value));
+	    });
+		log.debug("request {}", body);
+		Long imageId = NumberUtils.toLong(StringUtils.defaultString(body, "0"), -1L);
+		
+		User user = SecurityHelper.getUser();
+		Principal principal = request.getUserPrincipal();
+		log.debug("user from security : {}, principal : {} ", user , principal != null ? principal.getName() : "anonymous");
+		
+		if(user.isAnonymous())
+			throw new UnAuthorizedException("No Authorized. Please signin first."); 
+		if( imageId > 0 ) { 
+			Image image = imageService.getImage(imageId); 
+			if( Utils.isAllowed(image.getUser(), user)) {
+				imageService.deleteImage(image);
+			}else {
+				throw new UnAuthorizedException("No Authorized."); 
+			}
+		}  
+		return ResponseEntity.ok("deleted");
+    }
+
+	/**
+	 * 
+	 * POST /data/files/filepond
+	 * 
+	 * @param objectType
+	 * @param objectId
+	 * @param attachmentId
+	 * @param share
+	 * @param request
+	 * @param headers
+	 * @return
+	 * @throws NotFoundException
+	 * @throws IOException
+	 * @throws UnAuthorizedException
+	 */
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER", "ROLE_USER"})
+    @RequestMapping(value = "/data/files/0/filepond", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> uploadFiles (    	
     	@RequestParam(value = "objectType", defaultValue = "0", required = false) Integer objectType,
     	@RequestParam(value = "objectId", defaultValue = "0", required = false) Long objectId,
     	@RequestParam(value = "attachmentId", defaultValue = "0", required = false) Long attachmentId,
-    	@RequestParam(value = "shared", defaultValue = "false", required = false) Boolean shared,
+    	@RequestParam(value = "share", defaultValue = "false", required = false) Boolean share,
     	MultipartHttpServletRequest request ) throws NotFoundException, IOException, UnAuthorizedException {  
 		
-				
 		User user = SecurityHelper.getUser();
 		
 		if(user.isAnonymous())
@@ -123,8 +217,8 @@ public class FilePondDataController {
 		    }
 		    attachment.setUser(user);		
 		    attachmentService.saveAttachment(attachment);		    
-		    if( shared ) {
-		    	SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId(), shared);
+		    if( share ) {
+		    	SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId(), share);
 		    	((DefaultAttachment) attachment ).setSharedLink(link);
 		    	//sb.append(link.getLinkId());
 		    }
@@ -138,7 +232,8 @@ public class FilePondDataController {
 		
     }
 	
-	@RequestMapping(value = "/data/files/filepond", method = RequestMethod.DELETE)
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER", "ROLE_USER"})
+    @RequestMapping(value = "/data/files/filepond", method = RequestMethod.DELETE)
 	@ResponseBody
     public ResponseEntity<String> deleteFiles ( 
     		@RequestBody String body, 
@@ -148,11 +243,13 @@ public class FilePondDataController {
 		
 		User user = SecurityHelper.getUser();
 		Principal principal = request.getUserPrincipal();
+
 		log.debug("user from security : {}, principal : {} ", user , principal != null ? principal.getName() : "anonymous");
 		
 		if(user.isAnonymous())
 			throw new UnAuthorizedException("No Authorized. Please signin first."); 
-		if( attachmentId > 0 ) { 			
+		
+			if( attachmentId > 0 ) { 			
 			Attachment attachment = attachmentService.getAttachment(attachmentId);
 			attachmentService.removeAttachment(attachment);
 			try {
