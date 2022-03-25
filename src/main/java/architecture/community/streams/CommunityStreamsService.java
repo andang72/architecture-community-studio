@@ -47,6 +47,7 @@ public class CommunityStreamsService implements StreamsService {
 	@Autowired( required = false) 
 	@Qualifier("tagService")
 	private TagService tagService;
+
 	
 	private com.google.common.cache.LoadingCache<Long, Streams> streamsCache = null;
 	private com.google.common.cache.LoadingCache<Long, StreamThread> threadCache = null;
@@ -63,14 +64,14 @@ public class CommunityStreamsService implements StreamsService {
 			}}
 		);
 		
-		threadCache = CacheBuilder.newBuilder().maximumSize(5000).expireAfterAccess(60 * 100, TimeUnit.MINUTES).build(		
+		threadCache = CacheBuilder.newBuilder().maximumSize(50000).expireAfterAccess(60 * 100, TimeUnit.MINUTES).build(		
 				new CacheLoader<Long, StreamThread>(){			
 					public StreamThread load(Long threadId) throws Exception { 
 						return streamsDao.getStreamThreadById(threadId);
 				}}
 			);
 		
-		messageCache = CacheBuilder.newBuilder().maximumSize(5000).expireAfterAccess(60 * 100, TimeUnit.MINUTES).build(		
+		messageCache = CacheBuilder.newBuilder().maximumSize(50000).expireAfterAccess(60 * 100, TimeUnit.MINUTES).build(		
 				new CacheLoader<Long, StreamMessage>(){			
 					public StreamMessage load(Long messageId) throws Exception { 
 						return streamsDao.getStreamMessageById(messageId);

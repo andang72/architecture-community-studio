@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -21,6 +22,7 @@ import architecture.community.model.Models;
 import architecture.community.streams.DefaultStreamMessage;
 import architecture.community.streams.DefaultStreamThread;
 import architecture.community.streams.DefaultStreams;
+import architecture.community.streams.MessageBodyFilter;
 import architecture.community.streams.MessageTreeWalker;
 import architecture.community.streams.StreamMessage;
 import architecture.community.streams.StreamThread;
@@ -47,10 +49,19 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 	@Inject
 	@Qualifier("propertyDao")
 	private PropertyDao propertyDao;
+
+
+	@Autowired( required = false) 
+	@Qualifier("messageBodyFilter")
+	private MessageBodyFilter messageBodyFilter;
 	
 	private String streamsPropertyTableName = "AC_UI_STREAMS_PROPERTY";
 	private String streamsPropertyPrimaryColumnName = "STREAM_ID";
 	
+	public boolean isMessageBodyFilterEnabled(){
+		return messageBodyFilter == null ? false : true ; 
+	}
+
 	private final RowMapper<Streams> streamsMapper = new RowMapper<Streams>() {		
 		public Streams mapRow(ResultSet rs, int rowNum) throws SQLException {			
 			DefaultStreams streams = new DefaultStreams(rs.getLong("STREAM_ID"));	
@@ -88,7 +99,12 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 			message.setObjectId(rs.getLong("OBJECT_ID"));
 			message.setUser(new UserTemplate(rs.getLong("USER_ID")));
 			message.setSubject(rs.getString("SUBJECT"));
-			message.setBody(rs.getString("BODY"));
+			logger.debug("Is message body filtering enabled : {}", isMessageBodyFilterEnabled());
+			if( isMessageBodyFilterEnabled() ){ 
+				message.setBody(messageBodyFilter.process(rs.getString("BODY")));
+			}else{
+				message.setBody(rs.getString("BODY"));
+			}
 			message.setKeywords(rs.getString("KEYWORDS"));
 			message.setCreationDate(rs.getTimestamp("CREATION_DATE"));
 			message.setModifiedDate(rs.getTimestamp("MODIFIED_DATE"));		
@@ -309,9 +325,10 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 			return thread;
 		}		
 		try {
-			thread = getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_BY_ID").getSql(), 
-					threadMapper, 
-					new SqlParameterValue(Types.NUMERIC, threadId ));
+			thread = getExtendedJdbcTemplate().queryForObject(
+				getBoundSql("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_BY_ID").getSql(), 
+				threadMapper, 
+				new SqlParameterValue(Types.NUMERIC, threadId ));
 		} catch (DataAccessException e) {
 			logger.error(CommunityLogLocalizer.format("013005", threadId), e);
 		}
@@ -333,9 +350,10 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 			return message;
 		}		
 		try {
-			message = getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_STREAMS.SELECT_STREAM_MESSAGE_BY_ID").getSql(), 
-					messageMapper, 
-					new SqlParameterValue(Types.NUMERIC, messageId ));
+			message = getExtendedJdbcTemplate().queryForObject(
+				getBoundSql("COMMUNITY_STREAMS.SELECT_STREAM_MESSAGE_BY_ID").getSql(), 
+				messageMapper, 
+				new SqlParameterValue(Types.NUMERIC, messageId ));
 		} catch (DataAccessException e) {
 			logger.error(CommunityLogLocalizer.format("013007", messageId), e);
 		}
