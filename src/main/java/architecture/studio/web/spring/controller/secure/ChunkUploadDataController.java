@@ -36,7 +36,7 @@ import architecture.community.image.ImageService;
 import architecture.community.user.User;
 import architecture.community.util.SecurityHelper;
 
-@Controller("studio-ckhuk-upload-secure-data-controller")
+@Controller("studio-chunk-upload-secure-data-controller")
 @RequestMapping("/data/secure/")
 public class ChunkUploadDataController {
     
@@ -113,6 +113,7 @@ public class ChunkUploadDataController {
 
         if(fileBlob.uploaded){
             Image imageToSave = imageService.createImage(objectType, objectId, fileName, getContentType(serverFile), serverFile);
+            imageToSave.setUser(user);
             imageService.saveOrUpdate(imageToSave);
             FileUtils.deleteDirectory(serverFile.getParentFile());
         }
