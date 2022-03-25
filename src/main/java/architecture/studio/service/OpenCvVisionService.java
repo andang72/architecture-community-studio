@@ -46,8 +46,10 @@ public class OpenCvVisionService implements VisionService {
     }
 
     public static final Size IMAGE_DATA_SIZE_300x300 = new Size(300, 300);
-    
     public static final Size IMAGE_DATA_SIZE_224X224 = new Size(224, 224); 
+
+    public static final Scalar COLOR_RED = new Scalar(0, 0, 255);
+    public static final Scalar COLOR_PINK = new Scalar(84, 33, 230);
 
     protected Logger log = LoggerFactory.getLogger(getClass().getName());
  
@@ -134,8 +136,7 @@ public class OpenCvVisionService implements VisionService {
         int frameWidth = frame.cols();
         int frameHeight = frame.rows();
         float confThreshold = 0.5f;
-        int personObjectCount = 0;
-        Scalar color= new Scalar(0, 0, 255) ; 
+        int personObjectCount = 0; 
 
         Mat blob = Dnn.blobFromImage(frame, 1.0, IMAGE_DATA_SIZE_300x300, new Scalar(104.0, 177.0, 123.0, 0), false, false);
         log.debug("blob blob : {}",blob ); 
@@ -168,8 +169,8 @@ public class OpenCvVisionService implements VisionService {
             Gender gender = predictGender(face);
             String age = predictAge(face);
             String label = String.format("%s(%s), %.2f%%", StringUtils.capitalize(gender.name().toLowerCase()), age, confidence * 100);
-            Imgproc.putText(frame, label, new Point(xLeftBottom, yLeftBottom - 10), Imgproc.FONT_HERSHEY_SIMPLEX, .9, color, 2);
-            Imgproc.rectangle(frame, rect, color, 3);
+            Imgproc.putText(frame, label, new Point(xLeftBottom, yLeftBottom - 10), Imgproc.FONT_HERSHEY_SIMPLEX, .9, COLOR_PINK, 2);
+            Imgproc.rectangle(frame, rect, COLOR_PINK, 3);
             //Imgproc.rectangle(frame, leftPosition, rightPosition, color, 3);
         }
         log.debug("detect persion : {}", personObjectCount);        
@@ -192,6 +193,7 @@ public class OpenCvVisionService implements VisionService {
                 double age_dist = prob.get(0, i)[0];  
                 output_indexes[i] = age_dist * i;
             } 
+            
             double apparentPredictions = Math.round( Arrays.stream(output_indexes).sum() * 100.0) / 100.0;
             log.debug("3. Apparent age : {}", Arrays.stream(output_indexes).sum()); 
 
@@ -212,7 +214,6 @@ public class OpenCvVisionService implements VisionService {
             MinMaxLocResult minMaxResutl = Core.minMaxLoc(prob); 
             //Value at (0,0) corresponds to the probability of the face being a male and the value at (0,1) is the probability of being female.
             log.debug("Gender prob : {} , total : {}, MinMaxLocResult - Max Loc:{} = Max:{}, Min Loc:{} = Min:{}", prob , prob.total(), minMaxResutl.maxLoc, minMaxResutl.maxVal, minMaxResutl.minLoc, minMaxResutl.minVal); 
-            
             if (minMaxResutl.maxLoc.x > 0 )
                 return Gender.MALE;
             else
@@ -222,6 +223,7 @@ public class OpenCvVisionService implements VisionService {
         }
         return Gender.NOT_RECOGNIZED;
     }
+
     
     private Mat detectFace(Mat frame, CascadeClassifier cascade1, CascadeClassifier cascade2) {
         Mat frameGray = new Mat();
@@ -234,7 +236,7 @@ public class OpenCvVisionService implements VisionService {
         List<Rect> listOfFaces = faces.toList();
         for (Rect face : listOfFaces) {
             Point center = new Point(face.x + face.width / 2, face.y + face.height / 2);
-            Imgproc.rectangle(frame, new Point(face.x, face.y), new Point(face.x + face.width, face.y + face.height), new Scalar(0, 0, 255),  3);
+            Imgproc.rectangle(frame, new Point(face.x, face.y), new Point(face.x + face.width, face.y + face.height), COLOR_PINK,  3);
             //Mat faceROI = frameGray.submat(face);
             // -- In each face, detect eyes
         }
