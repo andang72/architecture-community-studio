@@ -21,11 +21,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import architecture.community.album.Album;
+import architecture.community.album.AlbumContents;
+import architecture.community.album.AlbumImage;
+import architecture.community.album.AlbumService;
+import architecture.community.album.DefaultAlbum;
 import architecture.community.attachment.AttachmentService;
 import architecture.community.exception.NotFoundException;
 import architecture.community.exception.UnAuthorizedException;
-import architecture.community.image.Image;
 import architecture.community.image.DefaultImage;
+import architecture.community.image.Image;
 import architecture.community.image.ImageService;
 import architecture.community.model.Models;
 import architecture.community.query.CustomQueryService;
@@ -41,6 +46,7 @@ import architecture.community.user.UserManager;
 import architecture.community.user.UserNotFoundException;
 import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
+import architecture.community.web.model.DataSourceRequest.FilterDescriptor;
 import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
 import architecture.community.web.spring.controller.data.AbstractResourcesDataController;
@@ -71,6 +77,10 @@ public class MeDataController extends AbstractResourcesDataController {
 	@Qualifier("attachmentService")
 	private AttachmentService attachmentService;
 	
+	@Autowired
+	@Qualifier("albumService") 
+	private AlbumService albumService;
+		
 	@Autowired(required = false) 
 	@Qualifier("customQueryService")
 	private CustomQueryService customQueryService;
@@ -83,8 +93,66 @@ public class MeDataController extends AbstractResourcesDataController {
 	}
 
 	/**
+	 * ALBUM API 
+	******************************************/
+	@Secured({ "ROLE_USER" })
+	@RequestMapping(value = {"/data/users/me/albums", "/data/users/me/albums/list.json"}, method = { RequestMethod.POST, RequestMethod.GET })
+	@ResponseBody
+	public ItemList getAlbums(
+		@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
+		@RequestBody DataSourceRequest dataSourceRequest, 
+		NativeWebRequest request) {   
+		
+		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_ALBUM_BY_REQUEST");
+		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
+		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_ALBUM_IDS_BY_REQUEST");
+		
+		List<Long> items = customQueryService.list(dataSourceRequest, Long.class); 
+		List<Album> albums = new ArrayList<Album>(totalCount);
+		for( Long albumId : items ) {
+			try {
+				Album album = albumService.getAlbum(albumId);
+				if(  org.apache.commons.lang3.StringUtils.contains(fields, "contents") )
+					setCoverImageFromContents(album);
+				else
+					setCoverImage(album);
+				albums.add(album); 
+			} catch (NotFoundException e) {
+			}
+		} 
+		return new ItemList(albums, totalCount ); 
+	}
+
+	private void setCoverImageFromContents(Album album) {  
+		List<AlbumContents> list = albumService.getAlbumContents(album);
+		for( AlbumContents contents : list ) {
+			if( contents.isImage() ) {
+				try {
+					Image coverImage = imageService.getImage(contents.getContentId());
+					((DefaultAlbum)album).setCoverImage(coverImage);
+					break;
+				} catch (NotFoundException e) { 
+				}
+			}
+		}
+	}
+	
+	private void setCoverImage(Album album) { 
+		List<AlbumImage> list = albumService.getAlbumImages(album);
+		if( list.size() > 0 ) { 
+			AlbumImage img = list.get(0);
+			try {
+				Image coverImage = imageService.getImage(img.getImageId());
+				((DefaultAlbum)album).setCoverImage(coverImage);
+			} catch (NotFoundException e) { 
+			}
+		}
+	}
+
+	/**
 	 * IMAGE API 
 	******************************************/
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/data/users/me/images/list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public ItemList getImages(
@@ -102,6 +170,13 @@ public class MeDataController extends AbstractResourcesDataController {
 		
 		log.debug("fields link : {} , tags : {}", includeImageLink, includeTags);
 		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_IMAGE_BY_REQUEST");
+
+		FilterDescriptor userIdFilter = new FilterDescriptor();
+		userIdFilter.setField("USER_ID");
+		userIdFilter.setOperator("eq");
+		userIdFilter.setValue(user.getUserId());
+		dataSourceRequest.getFilter().getFilters().add( userIdFilter );
+
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
 		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_IMAGE_IDS_BY_REQUEST");
 		

@@ -116,7 +116,6 @@ private Logger log = LoggerFactory.getLogger(getClass());
 	}
 	
 	private void setCoverImage(Album album) { 
-		
 		List<AlbumImage> list = albumService.getAlbumImages(album);
 		if( list.size() > 0 ) { 
 			AlbumImage img = list.get(0);

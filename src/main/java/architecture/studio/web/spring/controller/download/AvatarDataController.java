@@ -1,4 +1,4 @@
-package architecture.studio.web.spring.controller;
+package architecture.studio.web.spring.controller.download;
 
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;

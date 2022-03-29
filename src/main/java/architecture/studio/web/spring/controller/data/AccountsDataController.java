@@ -1,4 +1,4 @@
-package architecture.studio.web.spring.controller;
+package architecture.studio.web.spring.controller.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
