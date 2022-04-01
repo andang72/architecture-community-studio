@@ -1,4 +1,4 @@
-package architecture.studio.web.spring.controller.secure.mgmt;
+package architecture.studio.web.spring.controller.data.secure.mgmt;
 
 import java.io.File;
 import java.io.FileInputStream;

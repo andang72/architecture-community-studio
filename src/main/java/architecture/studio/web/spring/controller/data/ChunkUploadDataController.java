@@ -1,4 +1,4 @@
-package architecture.studio.web.spring.controller.secure;
+package architecture.studio.web.spring.controller.data;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

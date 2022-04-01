@@ -29,7 +29,7 @@ import architecture.community.web.spring.controller.data.ResourceUtils;
 import architecture.community.web.util.ServletUtils;
 import architecture.ee.service.ConfigService;
 import architecture.ee.util.StringUtils;
-import architecture.studio.web.spring.controller.secure.mgmt.ResourcesAttachmentDataController;
+import architecture.studio.web.spring.controller.data.secure.mgmt.ResourcesAttachmentDataController;
 
 
 @Controller("community-secure-download-data-controller")
