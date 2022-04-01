@@ -288,9 +288,13 @@ public class DownloadDataController {
 	public void downloadFile(
 			@PathVariable("attachmentId") Long attachmentId,
 			@PathVariable("filename") String filename,
+			@RequestParam(value = "thumbnail", defaultValue = "false", required = false) boolean thumbnail,
+			@RequestParam(value = "width", defaultValue = "150", required = false) Integer width,
+			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		try {
 			Attachment attachment = attachmentService.getAttachment(attachmentId);
+			
 			if (attachment != null) {
 				if (!isAllowed(attachment))
 					throw new UnAuthorizedException(); 

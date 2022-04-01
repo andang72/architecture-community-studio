@@ -168,7 +168,6 @@ public class ResourcesStreamsDataController {
 			throws NotFoundException { 
 		return getStreamsProperties(streamId, request);
 	}
-	
 
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = {  "/streams/{streamId:[\\p{Digit}]+}/properties", "/streams/{streamId:[\\p{Digit}]+}/properties/update.json" }, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)

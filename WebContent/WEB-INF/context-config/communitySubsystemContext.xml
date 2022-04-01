@@ -253,4 +253,9 @@
 	<beans:bean id="commentService" class="architecture.community.comment.CommunityCommentService"  />	
 		
 				
+	<!-- ================================= -->
+    <!-- STREAMS						   -->
+    <!-- ================================= -->
+    <beans:bean id="messageBodyFilter" class="architecture.community.streams.DefaultMessageBodyFilter"  />	
+
 </beans:beans> 

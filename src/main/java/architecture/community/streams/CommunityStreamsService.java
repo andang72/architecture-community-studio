@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -57,6 +58,11 @@ public class CommunityStreamsService implements StreamsService {
 	
 	public CommunityStreamsService() { 
 		
+	}
+
+	@PostConstruct
+	public void initialize() {
+
 		streamsCache = CacheBuilder.newBuilder().maximumSize(50).expireAfterAccess(60 * 100, TimeUnit.MINUTES).build(		
 			new CacheLoader<Long, Streams>(){			
 				public Streams load(Long streamId) throws Exception { 
@@ -77,8 +83,8 @@ public class CommunityStreamsService implements StreamsService {
 						return streamsDao.getStreamMessageById(messageId);
 				}}
 			);
-	}
 
+	}
 	
 	private void fireEvent(Object event) {
 		if( communitySpringEventPublisher!= null)

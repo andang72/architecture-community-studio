@@ -163,9 +163,15 @@ public class FilePondDataController {
 		return ResponseEntity.ok("deleted");
     }
 
+    /**
+	 * 
+	 * FILEPOND API 
+	 *  
+	******************************************/
+
 	/**
 	 * 
-	 * POST /data/files/filepond
+	 * POST /data/files/0/filepond
 	 * 
 	 * @param objectType
 	 * @param objectId
@@ -232,8 +238,18 @@ public class FilePondDataController {
 		
     }
 	
+	/**
+	 * DELETE /data/files/0/filepond
+	 * 
+	 * @param body
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 * @throws IOException
+	 * @throws UnAuthorizedException
+	 */
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER", "ROLE_USER"})
-    @RequestMapping(value = "/data/files/filepond", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/data/files/0/filepond", method = RequestMethod.DELETE)
 	@ResponseBody
     public ResponseEntity<String> deleteFiles ( 
     		@RequestBody String body, 

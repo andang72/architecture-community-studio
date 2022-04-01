@@ -7,13 +7,19 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import architecture.community.attachment.AttachmentService;
 import architecture.community.comment.CommentService;
@@ -40,17 +42,17 @@ import architecture.community.streams.StreamThreadNotFoundException;
 import architecture.community.streams.Streams;
 import architecture.community.streams.StreamsNotFoundException;
 import architecture.community.streams.StreamsService;
-import architecture.community.user.User;
 import architecture.community.user.AvatarService;
+import architecture.community.user.User;
 import architecture.community.user.UserManager;
 import architecture.community.util.SecurityHelper;
+import architecture.community.viewcount.ViewCountService;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
 import architecture.ee.service.ConfigService;
 
-@Controller("community-streams-data-controller")
-@RequestMapping("/data/streams")
+@Controller("community-streams-data-controller") 
 public class StreamsDataController {
 	
 	private Logger log = LoggerFactory.getLogger(StreamsDataController.class);
@@ -83,56 +85,162 @@ public class StreamsDataController {
 	@Qualifier("customQueryService")
 	private CustomQueryService customQueryService;
 	
+	@Inject
+	@Qualifier("viewCountService")
+	private ViewCountService viewCountService;
+	
 	
 	public StreamsDataController() {
+
 	}
 
 	/**
 	 * 
-	 * /data/streams/{streamsId}/threads/list.json
+	 * POST /data/streams/{streamsId}/list.json
 	 * 
 	 * @param streamsId
 	 * @param request
 	 * @return
 	 * @throws StreamsNotFoundException
 	 */
-	@RequestMapping(value = "/list.json", method = { RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = { "/data/streams", "/data/streams/list.json" }, method = { RequestMethod.POST })
 	@ResponseBody
-	public ItemList listThread (
-			NativeWebRequest request) throws StreamsNotFoundException {	 
-		List<Streams> list = streamsService.getAllStreams(); 
-		return new ItemList(list, list.size());
+	public ItemList getStreams(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {  
+		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAMS_BY_REQUEST");
+		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
+		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAMS_IDS_BY_REQUEST"); 
+		List<Long> IDs = customQueryService.list(dataSourceRequest, Long.class); 
+		List<Streams> items = new ArrayList<Streams>(totalCount);
+		for( Long streamId : IDs ) {
+			try {
+				Streams streams = streamsService.getStreamsById(streamId);
+				items.add(streams); 
+			} catch (NotFoundException e) {
+			}
+		} 
+		return new ItemList(items, totalCount ); 
 	}
 	
 	/**
 	 * 
-	 * /data/streams/{streamsId}/threads/list.json
-	 * 
-	 * @param streamsId
+	 * @param streamId
 	 * @param request
 	 * @return
-	 * @throws StreamsNotFoundException
-	 */
-	@RequestMapping(value = "/{streamsId:[\\p{Digit}]+}/threads/list.json", method = { RequestMethod.POST, RequestMethod.GET})
+	 * @throws NotFoundException
+	 */ 
+	@RequestMapping(value = {"/data/streams/{streamId:[\\p{Digit}]+}"}, method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody
-	public ItemList listThread (@PathVariable Long streamsId, 
-			@RequestParam(value = "skip", defaultValue = "0", required = false) int skip,
-			@RequestParam(value = "page", defaultValue = "0", required = false) int page,
-			@RequestParam(value = "pageSize", defaultValue = "0", required = false) int pageSize, 
-			NativeWebRequest request) throws StreamsNotFoundException {	
+	public Streams getStreamsById(@PathVariable Long streamId, NativeWebRequest request) throws NotFoundException {  
+		return streamsService.getStreamsById(streamId);
+	} 
+ 
+	/**
+	 * POST /data/streams/{streamId}/threads
+	 * 
+	 * @param streamId
+	 * @param dataSourceRequest
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@RequestMapping(value = {"/data/streams/{streamId:[\\p{Digit}]+}/threads"}, method = { RequestMethod.POST },  produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public ItemList getStreamThreads(
+			@PathVariable Long streamId,  
+			@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
+			@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) throws NotFoundException {  
+		 
+		StopWatch watch = new StopWatch();
+		watch.start("select total"); 
+
+		boolean fullbody = org.apache.commons.lang3.StringUtils.contains(fields, "body");		
+		Streams streams = streamsService.getStreamsById(streamId);  
+		dataSourceRequest.getData().put("objectType",Models.STREAMS.getObjectType());
+		dataSourceRequest.getData().put("objectId", streams.getStreamId() ); 
+		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAM_THREAD_BY_REQUEST");
+
+		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
+
+		watch.stop();
+		watch.start("select IDs"); 
+
+		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_IDS_BY_REQUEST");  
+		List<Long> threadIDs = customQueryService.list(dataSourceRequest, Long.class);
 		
-		log.debug(" skip: {}, page: {}, pageSize: {}", skip, page, pageSize ); 
-		Streams streams = streamsService.getStreamsById(streamsId); 
-		List<StreamThread> list; 
-		int totalSize = streamsService.getStreamThreadCount(Models.STREAMS.getObjectType(), streams.getStreamId()); 
-		if( pageSize == 0 && page == 0){
-			list = streamsService.getStreamThreads(Models.STREAMS.getObjectType(), streams.getStreamId() );
-		}else{
-			list = streamsService.getStreamThreads(Models.STREAMS.getObjectType(),  streams.getStreamId(), skip, pageSize);
-		} 
-		return new ItemList(list, totalSize);
+		watch.stop();
+		watch.start("select Objects"); 
+
+		
+		List<StreamThread> list = new ArrayList<>(threadIDs.size());
+		for(long threadId : threadIDs) {
+			try {
+				list.add( new StreamThreadView( streamsService.getStreamThread(threadId) , fullbody) );
+			} catch (StreamThreadNotFoundException ignore){}
+		}
+
+		watch.stop();
+
+		log.info( watch.toString() );
+		
+		return new ItemList(list, totalCount);
+	}
+
+	/**
+	 * GET /data/threads/{threadId}
+	 * 
+	 * @param threadId
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@RequestMapping(value = "/data/threads/{threadId:[\\p{Digit}]+}", method = RequestMethod.GET)
+	@ResponseBody
+	public StreamThread geThread(@PathVariable Long threadId, NativeWebRequest request) throws NotFoundException {
+		if (threadId < 1) {
+			throw new StreamThreadNotFoundException();
+		}
+		return streamsService.getStreamThread(threadId);
 	}
 	
+	/**
+	 * GET /data/messages/{messageId}
+	 * @param messageId
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@RequestMapping(value = { "/data/messages/{messageId:[\\p{Digit}]+}" , "/data/messages/{messageId:[\\p{Digit}]+}/get.json" }, method = RequestMethod.GET)
+	@ResponseBody
+	public StreamMessage getMessage(@PathVariable Long messageId, NativeWebRequest request) throws NotFoundException {
+		if (messageId < 1) {
+			throw new StreamMessageNotFoundException();
+		}
+		return streamsService.getStreamMessage(messageId);
+	}	
+	
+	/**
+	 * POST /data/messages/{messageId}
+	 * 
+	 * @param newMessage
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@RequestMapping(value = { "/data/messages/{messageId:[\\p{Digit}]+}", "/data/messages/{messageId:[\\p{Digit}]+}/update.json" }, method = RequestMethod.POST)
+	@ResponseBody
+	public StreamMessage updateMessage(@RequestBody DefaultStreamMessage newMessage, NativeWebRequest request) throws NotFoundException { 
+		User user = SecurityHelper.getUser();	 
+		StreamMessage message = streamsService.getStreamMessage(newMessage.getMessageId());
+		message.setSubject(newMessage.getSubject());
+		message.setBody(newMessage.getBody());
+		streamsService.updateMessage(message); 
+		return message;
+	} 
+	 
+
+
+
+
 	/**
 	 * 
 	 * /data/streams/{streamsId}/threads/list.json
@@ -142,7 +250,7 @@ public class StreamsDataController {
 	 * @return
 	 * @throws StreamsNotFoundException
 	 */
-	@RequestMapping(value = "/me/threads/list.json", method = { RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = "/data/streams/me/threads/list.json", method = { RequestMethod.POST, RequestMethod.GET})
 	@ResponseBody
 	public ItemList listThread (
 			@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
@@ -170,7 +278,9 @@ public class StreamsDataController {
 		return new ItemList(list, totalCount);
 	}
 
-	@RequestMapping(value = "/me/threads/add.json", method = { RequestMethod.POST, RequestMethod.GET})
+
+
+	@RequestMapping(value = "/data/streams/me/threads/add.json", method = { RequestMethod.POST, RequestMethod.GET})
 	@ResponseBody
 	public StreamThread addThread (@RequestBody DefaultStreamMessage newMessage,  NativeWebRequest request) throws StreamsNotFoundException {	
 		User user = SecurityHelper.getUser();
@@ -186,7 +296,7 @@ public class StreamsDataController {
 		return null;
 	}
 	
-	@RequestMapping(value = "/me/threads/{threadId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = "/data/streams/me/threads/{threadId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET})
 	@ResponseBody
 	public Result deleteThread (
 			@PathVariable Long threadId,  NativeWebRequest request) throws NotFoundException {	
@@ -203,7 +313,7 @@ public class StreamsDataController {
 	}
 	
 	@Secured({ "ROLE_USER" })
-	@RequestMapping(value = "/me/messages/add.json", method = { RequestMethod.POST })
+	@RequestMapping(value = "/data/streams/me/messages/add.json", method = { RequestMethod.POST })
 	@ResponseBody
 	public StreamMessage addMessage(@RequestBody DefaultStreamMessage newMessage, NativeWebRequest request) { 
 		User user = SecurityHelper.getUser();
@@ -218,69 +328,8 @@ public class StreamsDataController {
 		}
 		return newMessage;
 	}
-	
-	
-	/**
-	 * GET /data/streams/threads/{threadId}
-	 * 
-	 * @param threadId
-	 * @param request
-	 * @return
-	 * @throws NotFoundException
-	 */
-	@RequestMapping(value = "/threads/{threadId:[\\p{Digit}]+}", method = RequestMethod.GET)
-	@ResponseBody
-	public StreamThread geThread(@PathVariable Long threadId, NativeWebRequest request) throws NotFoundException {
-		if (threadId < 1) {
-			throw new StreamThreadNotFoundException();
-		}
-		return streamsService.getStreamThread(threadId);
-	}
-	
-	/**
-	 * GET /data/streams/messages/{threadId}
-	 * @param messageId
-	 * @param request
-	 * @return
-	 * @throws NotFoundException
-	 */
-	@RequestMapping(value = "/messages/{messageId:[\\p{Digit}]+}", method = RequestMethod.GET)
-	@ResponseBody
-	public StreamMessage getMessage(@PathVariable Long messageId, NativeWebRequest request) throws NotFoundException {
-		if (messageId < 1) {
-			throw new StreamMessageNotFoundException();
-		}
-		return streamsService.getStreamMessage(messageId);
-	}	
-	
-	
-	
-	@RequestMapping(value = "/messages/{messageId:[\\p{Digit}]+}/get.json", method = RequestMethod.POST)
-	@ResponseBody
-	public StreamMessage getMessageById(@PathVariable Long messageId, NativeWebRequest request) throws NotFoundException {
-		if (messageId < 1) {
-			throw new StreamMessageNotFoundException();
-		}
-		StreamMessage message = streamsService.getStreamMessage(messageId);
-		//StreamThread thread = streamsService.getStreamThread(message.getThreadId()); 
-		return message;
-	}
-
-	@RequestMapping(value = "/messages/{messageId:[\\p{Digit}]+}/update.json", method = RequestMethod.POST)
-	@ResponseBody
-	public StreamMessage updateMessage(@RequestBody DefaultStreamMessage newMessage, NativeWebRequest request) throws NotFoundException { 
-		User user = SecurityHelper.getUser();	 
-		StreamMessage message = streamsService.getStreamMessage(newMessage.getMessageId());
-		message.setSubject(newMessage.getSubject());
-		message.setBody(newMessage.getBody());
-		streamsService.updateMessage(message);
-		
-		return message;
-	} 
-	
 
 	public static class StreamMessageView implements StreamMessage{
-		
 		
 		@JsonIgnore
 		private StreamMessage message ;
@@ -367,8 +416,7 @@ public class StreamsDataController {
 
 		@Override
 		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss.SSS+00:00" )
-		public Date getCreationDate() {
-			// TODO Auto-generated method stub
+		public Date getCreationDate() { 
 			return message.getCreationDate();
 		}
 
@@ -385,6 +433,7 @@ public class StreamsDataController {
 		@Override
 		public void setModifiedDate(Date modifiedDate) { 
 		}
+		
 		
 		public int getAttachmentsCount() {
 			if( message instanceof DefaultStreamMessage) {
@@ -410,18 +459,15 @@ public class StreamsDataController {
 		}
 	}
 	
-	public static class StreamThreadView implements StreamThread {
+	public static class StreamThreadView implements StreamThread { 
 
-		
-		private Long prevId;
-		
-		private Long nextId;
-		
+		private Long prevId; 
+		private Long nextId; 
 		@JsonIgnore
-		private StreamThread thread ;
-		
+		private StreamThread thread ; 
 		@JsonIgnore 
 		private boolean fullbody;
+
 		
 		public StreamThreadView(StreamThread thread, boolean fullbody) {
 			this.thread = thread;
@@ -501,6 +547,13 @@ public class StreamsDataController {
 		@JsonGetter("embedMediaCount")
 		public Integer getEmbedMediaCount() {
 			return ((DefaultStreamThread)thread).getEmbedMediaCount();
+		}
+
+		@JsonGetter("viewCount")
+		public int getViewCount() {
+			if (this.thread.getThreadId() < 1)
+				return -1; 
+			return ((DefaultStreamThread)thread).getViewCount();
 		}
 
 		public Long getPrevId() {
