@@ -4,9 +4,9 @@
 This is Project for [Java][java] based RESTful API Server and Web Console.
 
 - Realtime RESTful API & Page Create and deploy.
-- JWT based stateless session 
-- ROLE 기반의 접근 제어
-- Linux List User System
+- JWT based stateless session.
+- Role based access controls.
+- Linux List User System.
 
 ------
 ## Getting Started
