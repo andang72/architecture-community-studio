@@ -1,9 +1,9 @@
-# architecture-community-studio
+# RESTful API Architecture Studio Community
 ## Overview
 
-[Java][java] based RESTful API Studio.
+This is Project for [Java][java] based RESTful API Server and Web Console.
 
-- 실시간 웹 페이지 및 RESTful API 생성 및 배포
+- Realtime RESTful API & Page Create and deploy.
 - JWT based stateless session 
 - ROLE 기반의 접근 제어
 - Linux List User System
