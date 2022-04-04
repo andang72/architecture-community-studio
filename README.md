@@ -6,14 +6,13 @@
 - 실시간 웹 페이지 및 RESTful API 생성 및 배포
 - JWT based stateless session 
 - ROLE 기반의 접근 제어
-- 사용자 시스템 
+- Linux List User System
 
 ------
 ## Getting Started
 5.1.x 버전 부터는 Java 8+ 지원
 Spring 5.3.x 지원
 Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
-
 
 ## Core RESTful API
 /data/api/*
@@ -23,7 +22,6 @@ Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
 - ALLOW TO ROLE_USER
 /secure/data/api/*
 /secure/data/
-
 
 /display/view/*
 /display/pages/*
@@ -48,9 +46,10 @@ Java 11 이상을 사용하는 경우 Groovy 업데이트 필요.
 ## Java libraries used in this project:
 | Opensource | Version |
 |------------|---------|
-| architecture-ee | 5.3.1 |
-| springframework | 5.3.14 |
-| springframework security | 5.6.1  |
+| architecture-ee | 5.3.2 |
+| springframework | 5.3.18 |
+| springframework security | 5.6.2|
+| springframework Enterprise Integration | 5.5.10|
 | springframework oauth | 1.5.6 |
 | springframework mobile device | 1.1.5.RELEASE |
 | FasterXML | 2.9.9 |
@@ -68,6 +67,5 @@ Oracle 11g 이상
 
 ## TODO
 Spring Cloud 사용을 위해서는 5.0 버전 이상 사용이 필수적임.
-
 
 [java]: https://en.wikipedia.org/wiki/Java_(programming_language)

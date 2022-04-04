@@ -75,25 +75,27 @@ public class DownloadDataController {
 	private ViewCountService viewCountService;
 
 	private boolean isAllowed(Image image) throws NotFoundException {
-		User currentUser = SecurityHelper.getUser(); 
+		User currentUser = SecurityHelper.getUser();
 		ImageLink link = image.getImageLink();
-		if( link == null)
-		try {
-			link = imageService.getImageLink(image);
-		} catch (Throwable e) { } 
-		
+		if (link == null)
+			try {
+				link = imageService.getImageLink(image);
+			} catch (Throwable e) {
+			}
+
 		if (link != null && link.isPublicShared()) {
 			return true;
 		}
-		
-		if( image.getUser() != null && image.getUser().getUserId() > 0 && currentUser.getUserId() == image.getUser().getUserId() )
-		{
+
+		if (image.getUser() != null && image.getUser().getUserId() > 0
+				&& currentUser.getUserId() == image.getUser().getUserId()) {
 			return true;
 		}
 		if (SecurityHelper.isUserInRole("ROLE_DEVELOPER, ROLE_ADMINISTRATOR, ROLE_SYSTEM")) {
 			return true;
-		} 
-		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(), Models.IMAGE.getObjectClass(), image.getImageId()); 
+		}
+		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(),
+				Models.IMAGE.getObjectClass(), image.getImageId());
 		if (bundle != null && bundle.isRead())
 			return true;
 		return false;
@@ -101,19 +103,21 @@ public class DownloadDataController {
 
 	private boolean isAllowed(Attachment attachment) throws NotFoundException {
 		User currentUser = SecurityHelper.getUser();
-		
-		if( attachment.getUser() != null && attachment.getUser().getUserId() > 0 && currentUser.getUserId() == attachment.getUser().getUserId() )
-		{
+
+		if (attachment.getUser() != null && attachment.getUser().getUserId() > 0
+				&& currentUser.getUserId() == attachment.getUser().getUserId()) {
 			return true;
 		}
 		if (SecurityHelper.isUserInRole("ROLE_DEVELOPER, ROLE_ADMINISTRATOR, ROLE_SYSTEM")) {
 			return true;
 		}
-		SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId(), false);
+		SharedLink link = sharedLinkService.getSharedLink(Models.ATTACHMENT.getObjectType(),
+				attachment.getAttachmentId(), false);
 		if (link.isPublicShared()) {
 			return true;
 		}
-		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(), Models.ATTACHMENT.getObjectClass(), attachment.getAttachmentId());
+		PermissionsBundle bundle = aclService.getPermissionBundle(SecurityHelper.getAuthentication(),
+				Models.ATTACHMENT.getObjectClass(), attachment.getAttachmentId());
 		if (bundle.isRead())
 			return true;
 		return false;
@@ -141,17 +145,18 @@ public class DownloadDataController {
 	}
 
 	public static class EncodeContent {
-		int size ;
+		int size;
 		String contentType;
 		String base64;
-		public EncodeContent(String base64, String contentType, int size) { 
+
+		public EncodeContent(String base64, String contentType, int size) {
 			this.base64 = base64;
 			this.contentType = contentType;
 			this.size = size;
 		}
-		
+
 	}
-	
+
 	@RequestMapping(value = "/images/{linkId}", method = RequestMethod.GET)
 	@ResponseBody
 	public void downloadImageByLink(@PathVariable("linkId") String linkId,
@@ -160,16 +165,16 @@ public class DownloadDataController {
 			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
 			@RequestParam(value = "encode", defaultValue = "false", required = false) boolean encode,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		try { 
+		try {
 			Image image = imageService.getImageByImageLink(linkId);
 			// checking security ..
-			if (image != null) { 
-				if ( !thumbnail && !isAllowed(image))
-					throw new UnAuthorizedException();   
+			if (image != null) {
+				if (!thumbnail && !isAllowed(image))
+					throw new UnAuthorizedException();
 				InputStream input;
 				String contentType;
 				int contentLength;
-				
+
 				if (thumbnail) {
 					input = imageService.getImageThumbnailInputStream(image, width, height);
 					contentType = image.getThumbnailContentType();
@@ -178,26 +183,27 @@ public class DownloadDataController {
 					input = imageService.getImageInputStream(image);
 					contentType = image.getContentType();
 					contentLength = image.getSize();
-				} 
+				}
 				response.setContentType(contentType);
 				response.setContentLength(contentLength);
 				IOUtils.copy(input, response.getOutputStream());
-				response.flushBuffer(); 
-			} 
-		} catch (UnAuthorizedException uae ) {
-			response.setStatus( HttpStatus.UNAUTHORIZED.value() );
-			ResourceUtils.notAccessWithPermission(request, response);	
+				response.flushBuffer();
+			}
+		} catch (UnAuthorizedException uae) {
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			ResourceUtils.notAccessWithPermission(request, response);
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 			response.setStatus(HttpStatus.NOT_FOUND.value());
-			if(thumbnail )
+			if (thumbnail)
 				ResourceUtils.noThumbnails(request, response);
 			else
 				ResourceUtils.notAavaliable(request, response);
 		}
 	}
 
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/thumbnail", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/thumbnail", method = { RequestMethod.GET,
+			RequestMethod.POST })
 	@ResponseBody
 	public void downloadImageThumbnail(
 			@PathVariable("imageId") Long imageId,
@@ -205,30 +211,30 @@ public class DownloadDataController {
 			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		try {
-			if (imageId <= 0 ) {
+			if (imageId <= 0) {
 				throw new IllegalArgumentException();
 			}
-			
+
 			Image image = imageService.getImage(imageId);
-			
+
 			InputStream input = imageService.getImageThumbnailInputStream(image, width, height);
-			String contentType = image.getThumbnailContentType();	
-			int contentLength = image.getThumbnailSize();			
-			
+			String contentType = image.getThumbnailContentType();
+			int contentLength = image.getThumbnailSize();
+
 			response.setContentType(contentType);
 			response.setContentLength(contentLength);
 			IOUtils.copy(input, response.getOutputStream());
 			response.flushBuffer();
-			
+
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 			response.setStatus(HttpStatus.NOT_FOUND.value());
 			ResourceUtils.noThumbnails(request, response);
 		}
 	}
-	
 
-	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/{filename:.+}", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/images/{imageId:[\\p{Digit}]+}/{filename:.+}", method = { RequestMethod.GET,
+			RequestMethod.POST })
 	@ResponseBody
 	public void downloadImage(@PathVariable("imageId") Long imageId, @PathVariable("filename") String filename,
 			@RequestParam(value = "thumbnail", defaultValue = "false", required = false) boolean thumbnail,
@@ -243,25 +249,25 @@ public class DownloadDataController {
 			Image image = imageService.getImage(imageId);
 			log.debug("checking equals plain : {} , decoded : {} ",
 					org.apache.commons.lang3.StringUtils.equals(filename, image.getName()),
-					org.apache.commons.lang3.StringUtils.equals(ServletUtils.getEncodedFileName(filename), 
-					image.getName()));
-			
+					org.apache.commons.lang3.StringUtils.equals(ServletUtils.getEncodedFileName(filename),
+							image.getName()));
+
 			if (!isAllowed(image))
 				throw new UnAuthorizedException();
-			
+
 			InputStream input;
 			String contentType;
 			int contentLength;
 			if (width > 0 && width > 0 && thumbnail) {
 				input = imageService.getImageThumbnailInputStream(image, width, height);
-				if( input == null)
-					throw new ImageNotFoundException();  
+				if (input == null)
+					throw new ImageNotFoundException();
 				contentType = image.getThumbnailContentType();
 				contentLength = image.getThumbnailSize();
 			} else {
 				input = imageService.getImageInputStream(image);
-				if( input == null)
-					throw new ImageNotFoundException(); 
+				if (input == null)
+					throw new ImageNotFoundException();
 				contentType = image.getContentType();
 				contentLength = image.getSize();
 			}
@@ -269,20 +275,33 @@ public class DownloadDataController {
 			response.setContentLength(contentLength);
 			IOUtils.copy(input, response.getOutputStream());
 			response.flushBuffer();
-			
-		} catch (UnAuthorizedException uae ) {
-			response.setStatus( HttpStatus.UNAUTHORIZED.value() );
+
+		} catch (UnAuthorizedException uae) {
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			ResourceUtils.notAccessWithPermission(request, response);
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 			response.setStatus(HttpStatus.NOT_FOUND.value());
-			if(thumbnail )
+			if (thumbnail)
 				ResourceUtils.noThumbnails(request, response);
 			else
 				ResourceUtils.notAavaliable(request, response);
 		}
 	}
 
+	/**
+	 * download file by attachmentId and filename
+	 * GET /files/{attachmentId:[\\p{Digit}]+}/{filename:.+}
+	 * 
+	 * @param attachmentId
+	 * @param filename
+	 * @param thumbnail
+	 * @param width
+	 * @param height
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
 	@RequestMapping(value = "/files/{attachmentId:[\\p{Digit}]+}/{filename:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public void downloadFile(
@@ -292,64 +311,17 @@ public class DownloadDataController {
 			@RequestParam(value = "width", defaultValue = "150", required = false) Integer width,
 			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
+
 		try {
-			Attachment attachment = attachmentService.getAttachment(attachmentId);
-			
-			if (attachment != null) {
-				if (!isAllowed(attachment))
-					throw new UnAuthorizedException(); 
-				InputStream input;
-				String contentType;
-				int contentLength; 
-				input = attachmentService.getAttachmentInputStream(attachment);
-				if (viewCountService != null && configService.getApplicationBooleanProperty( CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false)) {
-					log.debug("add view count attachment '{}'", attachment.getAttachmentId());
-					viewCountService.addViewCount(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
-				} 
-				contentType = attachment.getContentType();
-				contentLength = attachment.getSize();
-				response.setContentType(contentType);
-				response.setContentLength(contentLength);
-				response.setHeader("contentDisposition", "attachment;filename=" + ServletUtils.getEncodedFileName(attachment.getName()));
-				IOUtils.copy(input, response.getOutputStream());
-				response.flushBuffer();
-			}
-		} catch (UnAuthorizedException uae ) {
-			response.setStatus( HttpStatus.UNAUTHORIZED.value() );
-			ResourceUtils.notAccessWithPermission(request, response);
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-			response.setStatus(HttpStatus.NOT_FOUND.value());
-			ResourceUtils.notAavaliable(request, response);
-		}
-	}	
-	
-	
-	@RequestMapping(value = "/files/{linkId}/{filename:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public void downloadFileByLink(
-			@PathVariable("linkId") String linkId,
-			@PathVariable("filename") String filename,
-			@RequestParam(value = "thumbnail", defaultValue = "false", required = false) boolean thumbnail,
-			@RequestParam(value = "width", defaultValue = "150", required = false) Integer width,
-			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		try { 
-			Long attachmentId = 0L;
-			if( NumberUtils.isDigits(linkId) ) {
-				attachmentId = NumberUtils.toLong(linkId); 
-			}else {
-				SharedLink link = sharedLinkService.getSharedLink(linkId);
-				attachmentId = link.getObjectId();
-			}
 			Attachment attachment = attachmentService.getAttachment(attachmentId);
 			if (attachment != null) {
 				if (!thumbnail && !isAllowed(attachment))
-					throw new UnAuthorizedException(); 
+					throw new UnAuthorizedException();
+				
 				InputStream input;
 				String contentType;
 				int contentLength;
-				if(thumbnail) {
+				if (thumbnail) {
 					boolean noThumbnail = false;
 					if (attachmentService.hasThumbnail(attachment)) {
 						ThumbnailImage thumbnailImage = new ThumbnailImage();
@@ -357,14 +329,12 @@ public class DownloadDataController {
 						thumbnailImage.setHeight(height);
 						try {
 							input = attachmentService.getAttachmentThumbnailInputStream(attachment, thumbnailImage);
-							if(input == null )
+							if (input == null)
 								throw new NotFoundException();
-							
 							response.setContentType(thumbnailImage.getContentType());
 							response.setContentLength((int) thumbnailImage.getSize());
 							IOUtils.copy(input, response.getOutputStream());
-							response.flushBuffer();
-							
+							response.flushBuffer(); 
 						} catch (Throwable e) {
 							log.warn(e.getMessage(), e);
 							noThumbnail = true;
@@ -373,15 +343,15 @@ public class DownloadDataController {
 					if (noThumbnail) {
 						ResourceUtils.noThumbnails(request, response);
 					}
-				}else {
-					input = attachmentService.getAttachmentInputStream(attachment); 
-					if( input == null )
+				} else {
+					input = attachmentService.getAttachmentInputStream(attachment);
+					if (input == null)
 						throw new NotFoundException();
-					
-					if (viewCountService != null && configService.getApplicationBooleanProperty(CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false)) {
+
+					if (viewCountService != null && configService.getApplicationBooleanProperty( CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false)) {
 						log.debug("add view count attachment '{}'", attachment.getAttachmentId());
 						viewCountService.addViewCount(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
-					} 
+					}
 					contentType = attachment.getContentType();
 					contentLength = attachment.getSize();
 					response.setContentType(contentType);
@@ -391,16 +361,119 @@ public class DownloadDataController {
 					response.flushBuffer();
 				}
 			}
-		} catch (UnAuthorizedException uae ) {
-			response.setStatus( HttpStatus.UNAUTHORIZED.value() );
+		} catch (UnAuthorizedException uae) {
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			ResourceUtils.notAccessWithPermission(request, response);
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 			response.setStatus(HttpStatus.NOT_FOUND.value());
 			ResourceUtils.notAavaliable(request, response);
 		}
-	}	
-	
+	}
+
+	/**
+	 * download file by shared link value and filename.
+	 * GET /download/files/{linkId}/filename:.+}
+	 * 
+	 * @param linkId
+	 * @param filename
+	 * @param thumbnail
+	 * @param width
+	 * @param height
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/files/{linkId}/{filename:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public void downloadFileByLink(
+			@PathVariable("linkId") String linkId,
+			@PathVariable("filename") String filename,
+			@RequestParam(value = "thumbnail", defaultValue = "false", required = false) boolean thumbnail,
+			@RequestParam(value = "width", defaultValue = "150", required = false) Integer width,
+			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		try {
+			Long attachmentId = 0L;
+			if (NumberUtils.isDigits(linkId)) {
+				attachmentId = NumberUtils.toLong(linkId);
+			} else {
+				SharedLink link = sharedLinkService.getSharedLink(linkId);
+				attachmentId = link.getObjectId();
+			}
+			Attachment attachment = attachmentService.getAttachment(attachmentId);
+			if (attachment != null) {
+				if (!thumbnail && !isAllowed(attachment))
+					throw new UnAuthorizedException();
+				InputStream input;
+				String contentType;
+				int contentLength;
+				if (thumbnail) {
+					boolean noThumbnail = false;
+					if (attachmentService.hasThumbnail(attachment)) {
+						ThumbnailImage thumbnailImage = new ThumbnailImage();
+						thumbnailImage.setWidth(width);
+						thumbnailImage.setHeight(height);
+						try {
+							input = attachmentService.getAttachmentThumbnailInputStream(attachment, thumbnailImage);
+							if (input == null)
+								throw new NotFoundException();
+							response.setContentType(thumbnailImage.getContentType());
+							response.setContentLength((int) thumbnailImage.getSize());
+							IOUtils.copy(input, response.getOutputStream());
+							response.flushBuffer();
+
+						} catch (Throwable e) {
+							log.warn(e.getMessage(), e);
+							noThumbnail = true;
+						}
+					}
+					if (noThumbnail) {
+						ResourceUtils.noThumbnails(request, response);
+					}
+				} else {
+					input = attachmentService.getAttachmentInputStream(attachment);
+					if (input == null)
+						throw new NotFoundException();
+
+					if (viewCountService != null && configService.getApplicationBooleanProperty(
+							CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false)) {
+						log.debug("add view count attachment '{}'", attachment.getAttachmentId());
+						viewCountService.addViewCount(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
+					}
+					contentType = attachment.getContentType();
+					contentLength = attachment.getSize();
+					response.setContentType(contentType);
+					response.setContentLength(contentLength);
+					response.setHeader("contentDisposition",
+							"attachment;filename=" + ServletUtils.getEncodedFileName(attachment.getName()));
+					IOUtils.copy(input, response.getOutputStream());
+					response.flushBuffer();
+				}
+			}
+		} catch (UnAuthorizedException uae) {
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			ResourceUtils.notAccessWithPermission(request, response);
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			response.setStatus(HttpStatus.NOT_FOUND.value());
+			ResourceUtils.notAavaliable(request, response);
+		}
+	}
+
+	/**
+	 * download file by shared link value.
+	 * GET /download/files/{linkId}
+	 * 
+	 * @param linkId
+	 * @param thumbnail
+	 * @param width
+	 * @param height
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
 	@RequestMapping(value = "/files/{linkId}", method = RequestMethod.GET)
 	@ResponseBody
 	public void downloadFileByLink(@PathVariable("linkId") String linkId,
@@ -408,10 +481,10 @@ public class DownloadDataController {
 			@RequestParam(value = "width", defaultValue = "150", required = false) Integer width,
 			@RequestParam(value = "height", defaultValue = "150", required = false) Integer height,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		try { 
+		try {
 			SharedLink link = sharedLinkService.getSharedLink(linkId);
 			Attachment attachment = attachmentService.getAttachment(link.getObjectId());
-			
+
 			// checking security ..
 			if (attachment != null) {
 				if (!thumbnail && !isAllowed(attachment))
@@ -431,7 +504,7 @@ public class DownloadDataController {
 							response.setContentLength((int) thumbnailImage.getSize());
 							IOUtils.copy(input, response.getOutputStream());
 							response.flushBuffer();
-						} catch ( Throwable e ) {
+						} catch (Throwable e) {
 							log.warn(e.getMessage(), e);
 							noThumbnail = true;
 						}
@@ -441,23 +514,25 @@ public class DownloadDataController {
 					}
 				} else {
 					input = attachmentService.getAttachmentInputStream(attachment);
-					if (viewCountService != null && configService.getApplicationBooleanProperty( CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false)) {
+					if (viewCountService != null && configService.getApplicationBooleanProperty(
+							CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false)) {
 						log.debug("add view count attachment '{}'", attachment.getAttachmentId());
 						viewCountService.addViewCount(Models.ATTACHMENT.getObjectType(), attachment.getAttachmentId());
 					}
-					
+
 					contentType = attachment.getContentType();
 					contentLength = attachment.getSize();
 					response.setContentType(contentType);
 					response.setContentLength(contentLength);
-					
+
 					IOUtils.copy(input, response.getOutputStream());
-					response.setHeader("contentDisposition", "attachment;filename=" + ServletUtils.getEncodedFileName(attachment.getName()));
+					response.setHeader("contentDisposition",
+							"attachment;filename=" + ServletUtils.getEncodedFileName(attachment.getName()));
 					response.flushBuffer();
 				}
 			}
-		} catch (UnAuthorizedException uae ) {
-			response.setStatus( HttpStatus.UNAUTHORIZED.value() );
+		} catch (UnAuthorizedException uae) {
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			ResourceUtils.notAccessWithPermission(request, response);
 		} catch (Throwable e) {
 			log.warn(e.getMessage(), e);
