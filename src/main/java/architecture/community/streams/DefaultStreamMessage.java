@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import architecture.community.attachment.AttachmentService;
 import architecture.community.comment.CommentService;
+import architecture.community.exception.NotFoundException;
 import architecture.community.model.Models;
 import architecture.community.model.PropertyModelObjectAwareSupport;
 import architecture.community.model.json.JsonDateSerializer;
@@ -35,12 +36,15 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 	private String keywords;
 	
 	private String tags;
+
+	private Integer attachmentsCount ;
 	
 	public DefaultStreamMessage() { 
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
 		this.messageId = UNKNOWN_OBJECT_ID; 
 		this.keywords = null;
 		this.tags = null;
+		this.attachmentsCount = null;
 	}
 
 	public DefaultStreamMessage(long messageId) {
@@ -48,6 +52,7 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 		this.messageId = messageId;
 		this.keywords = null;
 		this.tags = null;
+		this.attachmentsCount = null;
 	}
 
 	public DefaultStreamMessage(int objectType, long objectId, User user) {
@@ -63,6 +68,7 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 		this.modifiedDate = now;
 		this.keywords = null;
 		this.tags = null;
+		this.attachmentsCount = null;
 	}
 	
 
@@ -150,13 +156,17 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 	public void setParentMessageId(long parentMessageId) {
 		this.parentMessageId = parentMessageId;
 	}
-	
+
+	protected void setAttachmentsCount( Integer count ){
+		this.attachmentsCount = count;
+	}
+
 	public int getAttachmentsCount() {
-		if( threadId > 0 ){
+		if( threadId > 0  && attachmentsCount == null ){
 			AttachmentService attachmentService = CommunityContextHelper.getComponent(AttachmentService.class); 
 			return attachmentService.getAttachmentCount(Models.STREAMS_MESSAGE.getObjectType(), messageId);
 		}
-		return 0;		
+		return attachmentsCount;		
 	}
 	
 	public int getReplyCount (){
@@ -164,7 +174,7 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 			try { 
 				StreamsService streamsService = CommunityContextHelper.getComponent(StreamsService.class); 
 				return streamsService.getTreeWalker(streamsService.getStreamThread(threadId)).getChildCount(this);
-			} catch (StreamThreadNotFoundException e) {}
+			} catch (NotFoundException e) {}
 		}
 		return 0;
 	}

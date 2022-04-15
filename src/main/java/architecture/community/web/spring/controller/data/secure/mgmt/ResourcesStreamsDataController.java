@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -586,8 +585,8 @@ public class ResourcesStreamsDataController {
 	public Result deleteeMessage(
 			@PathVariable Long messageId, 
 			@RequestParam(value = "recursive", defaultValue = "true", required = false) boolean recursive,
-			NativeWebRequest request) throws NotFoundException { 
-		
+			NativeWebRequest request) throws NotFoundException {  
+				
 		Result result = Result.newResult();;
 		User user = SecurityHelper.getUser();	 
 		StreamMessage message = streamsService.getStreamMessage(messageId);

@@ -2,6 +2,7 @@ package architecture.community.streams;
 
 import java.util.List;
 
+import architecture.community.exception.NotFoundException;
 import architecture.community.user.User;
 
 public interface StreamsService {
@@ -76,7 +77,7 @@ public interface StreamsService {
 	
 	public abstract List<StreamMessage> getMessages(StreamThread thread);
 	
-	public abstract MessageTreeWalker getTreeWalker(StreamThread thread);	
+	public abstract MessageTreeWalker getTreeWalker(StreamThread thread) throws NotFoundException ;	
 	
 	public abstract void deleteThread(StreamThread thread) ;
 			

@@ -84,5 +84,3 @@ public enum Models {
 		return selected;
 	}
 }
-
-

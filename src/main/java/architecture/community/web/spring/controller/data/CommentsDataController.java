@@ -6,6 +6,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,20 +33,92 @@ import architecture.community.web.model.Result;
 import architecture.ee.util.StringUtils; 
 
 @Controller("community-comments-data-controller")
-@RequestMapping("/data/comments")
 public class CommentsDataController {
 
 	@Inject
 	@Qualifier("commentService")
 	private CommentService commentService;
 
+
+   /** 
+	* COMMENTS API
+	* OPJECT TYPE : 22 
+   ******************************************/
+	// ADD    : PUT    /data/object_type/{objectType:[\\p{Digit}]+}/object_id/{objectId:[\\p{Digit}]+}/comments
+    // LIST   : GET    /data/object_type/{objectType:[\\p{Digit}]+}/object_id/{objectId:[\\p{Digit}]+}/comments
+	// UPDATE : POST   /data/object_type/{objectType:[\\p{Digit}]+}/object_id/{objectId:[\\p{Digit}]+}/comments/0
+	// LIST   : GET    /data/object_type/{objectType:[\\p{Digit}]+}/object_id/{objectId:[\\p{Digit}]+}/comments/{commentId:[\\p{Digit}]+}/child
+	// DELETE : DELETE /data/object_type/{objectType:[\\p{Digit}]+}/object_id/{objectId:[\\p{Digit}]+}/comments/{commentId:[\\p{Digit}]+}
+
+	@Secured({ "ROLE_USER"})
+	@RequestMapping(value = "/data/object_type/{objectType:[\\p{Digit}]+}/object_id/{objectId:[\\p{Digit}]+}/comments", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ItemList getCommentsByObjectTypeAndObjectId(
+		@PathVariable Integer objectType, 
+		@PathVariable Long objectId, 
+		NativeWebRequest request) throws NotFoundException { 
+
+		ModelObjectTreeWalker walker = commentService.getCommentTreeWalker(objectType, objectId );
+		long parentId = -1L;
+		int totalSize = walker.getChildCount(parentId); 
+		List<Comment> list = walker.children(parentId, new ObjectLoader<Comment>() {
+			public Comment load(long commentId) throws NotFoundException {
+				return commentService.getComment(commentId);
+			}
+		});
+		return new ItemList(list, totalSize);
+	} 
+
+	@Secured({ "ROLE_USER"})
+	@RequestMapping(value = {"/data/object_type/{objectType:[\\p{Digit}]+}/object_id/{objectId:[\\p{Digit}]+}/comments/0"}, method = { RequestMethod.PUT} , produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public Result addComment(
+		@PathVariable Integer objectType, 
+		@PathVariable Long objectId, 
+		@RequestBody DataSourceRequest reqeustData,
+		HttpServletRequest request) {
+		Result result = Result.newResult();
+		try {
+			User user = SecurityHelper.getUser();
+			String address = request.getRemoteAddr();
+			String name = reqeustData.getDataAsString("name", null);
+			String email = reqeustData.getDataAsString("email", null);
+			String text = reqeustData.getDataAsString("text", null);
+			Long parentCommentId = reqeustData.getDataAsLong("parentCommentId", 0L); 
+			
+			Comment newComment = commentService.createComment(objectType, objectId, user, text );
+			newComment.setIPAddress(address);
+			if (!StringUtils.isNullOrEmpty(name)){
+				newComment.setName(name);
+			}	
+			if (!StringUtils.isNullOrEmpty(email)){
+				newComment.setEmail(email);
+			}
+			if (parentCommentId > 0) {
+				Comment parentComment = commentService.getComment(parentCommentId);
+				commentService.addComment(parentComment, newComment);
+			} else {
+				commentService.addComment(newComment);
+			}
+			result.setCount(1);
+		} catch (Exception e) {
+			result.setError(e);
+		}
+		return result;
+	}
+
+
+
+
+
 	/**
+	 * PUT /data/comments/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/add_simple.json
 	 * 
 	 * @return
 	 * @throws BoardMessageNotFoundException
 	 * @throws BoardNotFoundException
 	 */
-	@RequestMapping(value = "/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/add_simple.json", method = {RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/data/comments/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/add_simple.json", method = {RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Result addSimpleComments(
 			@PathVariable Integer objectType, 
@@ -72,7 +146,22 @@ public class CommentsDataController {
 		return result;
 	}
 
-	@RequestMapping(value = "/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/add.json", method = { RequestMethod.POST, RequestMethod.GET })
+
+
+	/**
+	 * PUT /data/comments/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/add.json
+	 * 
+	 * MESSAGE : 
+	 * 
+	 * 
+	 * @param objectType 
+	 * @param objectId
+	 * @param reqeustData
+	 * @param request
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/data/comments/{objectType:[\\p{Digit}]+}/{objectId:[\\p{Digit}]+}/add.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Result addCommentsWithDataSourceRequest(
 		@PathVariable Integer objectType, 
@@ -108,7 +197,7 @@ public class CommentsDataController {
 	}
 
 	
-	@RequestMapping(value = "/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/data/comments/list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public ItemList getComments(
 		@RequestParam(value = "objectType", defaultValue = "0", required = false) Integer objectType,
@@ -128,7 +217,7 @@ public class CommentsDataController {
 		return items;
 	}
 
-	@RequestMapping(value = "/{commentId:[\\p{Digit}]+}/list.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/data/comments/{commentId:[\\p{Digit}]+}/list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public ItemList getChildComments(
 		@RequestParam(value = "objectType", defaultValue = "0", required = false) Integer objectType,
@@ -147,7 +236,7 @@ public class CommentsDataController {
 	}
 
 	
-	@RequestMapping(value = "/0/save_or_update.json", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/data/comments/0/save_or_update.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Comment saveOrUpdateTagsObjects(@RequestBody DefaultComment comment, HttpServletRequest request) throws NotFoundException, UnAuthorizedException { 
 		User user = SecurityHelper.getUser();

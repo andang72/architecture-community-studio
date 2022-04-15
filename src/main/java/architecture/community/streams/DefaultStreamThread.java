@@ -70,9 +70,7 @@ public class DefaultStreamThread extends PropertyModelObjectAwareSupport impleme
 	public int getViewCount() {
 		if (threadId < 1)
 			return -1;
-
-		return CommunityContextHelper.getViewCountServive().getViewCount(Models.STREAMS_THREAD.getObjectType(),
-				threadId);
+		return CommunityContextHelper.getViewCountServive().getViewCount(Models.STREAMS_THREAD.getObjectType(), threadId);
 	}
 
 	public int getMessageCount() {
@@ -140,17 +138,19 @@ public class DefaultStreamThread extends PropertyModelObjectAwareSupport impleme
 	}
 
 	private String coverImgSrc = null;
-	
+	private boolean hasCoverImg = true;
+
 	public String getCoverImgSrc() {
-		if(this.coverImgSrc == null && this.rootMessage != null && StringUtils.isNotEmpty(rootMessage.getBody()))
+		if( hasCoverImg && this.coverImgSrc == null && this.rootMessage != null && StringUtils.isNotEmpty(rootMessage.getBody()))
 		{
 			Document doc = Jsoup.parse(this.rootMessage.getBody());
 			Elements eles = doc.select("img");
-			String src = null;
 			for( Element ele : eles ) { 				
-				coverImgSrc = ele.attr("src");
+				this.coverImgSrc = ele.attr("src"); 
 				break;
 			} 
+			if( StringUtils.isBlank( this.coverImgSrc ) )
+				this.hasCoverImg = false;
 		}
 		return coverImgSrc;
 	}

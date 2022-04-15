@@ -85,6 +85,7 @@ public class CommunityCommentService extends EventSupport implements CommentServ
 		if( comment.getCommentId() > 0){
 			commentDao.deleteComment(comment);
 			evictCaches(comment);
+			fireEvent(new CommentEvent(comment, CommentEvent.Type.DELETED));
 		}
 	}
 	
@@ -102,6 +103,7 @@ public class CommunityCommentService extends EventSupport implements CommentServ
 		comment.setModifiedDate(now);
 		commentDao.updateComment(comment);
 		evictCaches(comment);
+		fireEvent(new CommentEvent(comment, CommentEvent.Type.UPDATED)); 
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
@@ -117,7 +119,6 @@ public class CommunityCommentService extends EventSupport implements CommentServ
 		    commentDao.updateComment(originalComment);
 		    evictCaches(comment);
 		    fireEvent(new CommentEvent(originalComment, CommentEvent.Type.UPDATED, originalValue));
-		    
 		} catch (CommentNotFoundException e) {
 		}
 	}
@@ -164,6 +165,7 @@ public class CommunityCommentService extends EventSupport implements CommentServ
 		return comment;
 	}
 
+	
 	public ModelObjectTreeWalker getCommentTreeWalker(int objectType, long objectId) {
 		String key = getTreeWalkerCacheKey(objectType, objectId);
 		ModelObjectTreeWalker treeWalker;

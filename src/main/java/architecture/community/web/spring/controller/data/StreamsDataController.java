@@ -49,7 +49,6 @@ import architecture.community.util.SecurityHelper;
 import architecture.community.viewcount.ViewCountService;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
-import architecture.community.web.model.Result;
 import architecture.ee.service.ConfigService;
 
 @Controller("community-streams-data-controller") 
@@ -94,6 +93,11 @@ public class StreamsDataController {
 
 	}
 
+
+    /**
+	 * STREAMS API
+	******************************************/
+
 	/**
 	 * 
 	 * POST /data/streams/{streamsId}/list.json
@@ -135,7 +139,7 @@ public class StreamsDataController {
 	} 
  
 	/**
-	 * POST /data/streams/{streamId}/threads
+	 * LIST : POST /data/streams/{streamId}/threads
 	 * 
 	 * @param streamId
 	 * @param dataSourceRequest
@@ -151,16 +155,18 @@ public class StreamsDataController {
 			@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) throws NotFoundException {  
 		 
 		StopWatch watch = new StopWatch();
-		watch.start("select total"); 
+		watch.start("select total count");  
+		
+		boolean fullbody = StringUtils.contains(fields, "body");		
+		Streams streams = streamsService.getStreamsById(streamId);
 
-		boolean fullbody = org.apache.commons.lang3.StringUtils.contains(fields, "body");		
-		Streams streams = streamsService.getStreamsById(streamId);  
 		dataSourceRequest.getData().put("objectType",Models.STREAMS.getObjectType());
 		dataSourceRequest.getData().put("objectId", streams.getStreamId() ); 
 		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAM_THREAD_BY_REQUEST");
+		
+		log.debug("Find threads for objectType: {}, objectId: {} with option body : {}", Models.STREAMS.getObjectType(), streamId, fullbody );
 
-		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
-
+		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class); 
 		watch.stop();
 		watch.start("select IDs"); 
 
@@ -193,7 +199,7 @@ public class StreamsDataController {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	@RequestMapping(value = "/data/threads/{threadId:[\\p{Digit}]+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/data/threads/{threadId:[\\p{Digit}]+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public StreamThread geThread(@PathVariable Long threadId, NativeWebRequest request) throws NotFoundException {
 		if (threadId < 1) {
@@ -202,6 +208,36 @@ public class StreamsDataController {
 		return streamsService.getStreamThread(threadId);
 	}
 	
+
+	/**
+	 * create new thread into streams
+	 *  
+	 * CREATE : PUT /data/threads/0
+	 * 
+	 * @param streamId
+	 * @param newMessage
+	 * @param request
+	 * @return
+	 * @throws StreamsNotFoundException
+	 */
+	@Secured({"ROLE_USER"})
+	@RequestMapping(value = "/data/threads/0", method = { RequestMethod.POST, RequestMethod.PUT }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@ResponseBody
+	public StreamThread addThreadMessage ( @RequestBody DefaultStreamMessage newMessage,  NativeWebRequest request) throws StreamsNotFoundException {	
+		
+		User user = SecurityHelper.getUser();
+		if (newMessage.getThreadId() < 1 && newMessage.getMessageId() < 1) {
+
+			StreamMessage rootMessage = streamsService.createMessage(newMessage.getObjectType(), newMessage.getObjectId(), user);
+			rootMessage.setSubject(newMessage.getSubject());
+			rootMessage.setBody(newMessage.getBody());
+			StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(), rootMessage );
+			streamsService.addThread(rootMessage.getObjectType(), rootMessage.getObjectId(), thread);
+			return thread;
+		}
+		return null;
+	}
+
 	/**
 	 * GET /data/messages/{messageId}
 	 * @param messageId
@@ -236,98 +272,6 @@ public class StreamsDataController {
 		streamsService.updateMessage(message); 
 		return message;
 	} 
-	 
-
-
-
-
-	/**
-	 * 
-	 * /data/streams/{streamsId}/threads/list.json
-	 * 
-	 * @param fields
-	 * @param dataSourceRequest
-	 * @return
-	 * @throws StreamsNotFoundException
-	 */
-	@RequestMapping(value = "/data/streams/me/threads/list.json", method = { RequestMethod.POST, RequestMethod.GET})
-	@ResponseBody
-	public ItemList listThread (
-			@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
-			@RequestBody DataSourceRequest dataSourceRequest,
-			NativeWebRequest request) throws StreamsNotFoundException {	
-		
-		boolean fullbody = org.apache.commons.lang3.StringUtils.contains(fields, "body");
-		Streams streams = Utils.getStreamsByNameCreateIfNotExist(streamsService , Utils.ME_STREAM_NAME); 
-		
-		dataSourceRequest.getData().put("objectType",Models.STREAMS.getObjectType());
-		dataSourceRequest.getData().put("objectId", streams.getStreamId() );
-		
-		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAM_THREAD_BY_REQUEST");
-		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
-		
-		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_IDS_BY_REQUEST");
-		List<Long> threadIDs = customQueryService.list(dataSourceRequest, Long.class);
-		
-		List<StreamThread> list = new ArrayList<>(threadIDs.size());
-		for(long threadId : threadIDs) {
-			try {
-				list.add( new StreamThreadView( streamsService.getStreamThread(threadId) , fullbody ) );
-			} catch (StreamThreadNotFoundException ignore){}
-		}
-		return new ItemList(list, totalCount);
-	}
-
-
-
-	@RequestMapping(value = "/data/streams/me/threads/add.json", method = { RequestMethod.POST, RequestMethod.GET})
-	@ResponseBody
-	public StreamThread addThread (@RequestBody DefaultStreamMessage newMessage,  NativeWebRequest request) throws StreamsNotFoundException {	
-		User user = SecurityHelper.getUser();
-		Streams streams = Utils.getStreamsByNameCreateIfNotExist(streamsService , Utils.ME_STREAM_NAME); 
-		if (newMessage.getThreadId() < 1 && newMessage.getMessageId() < 1) {
-			StreamMessage rootMessage = streamsService.createMessage(Models.STREAMS.getObjectType(), streams.getStreamId(), user);
-			rootMessage.setSubject(newMessage.getSubject());
-			rootMessage.setBody(newMessage.getBody());
-			StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(), rootMessage );
-			streamsService.addThread(rootMessage.getObjectType(), rootMessage.getObjectId(), thread);
-			return thread;
-		}
-		return null;
-	}
-	
-	@RequestMapping(value = "/data/streams/me/threads/{threadId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST, RequestMethod.GET})
-	@ResponseBody
-	public Result deleteThread (
-			@PathVariable Long threadId,  NativeWebRequest request) throws NotFoundException {	
-		User user = SecurityHelper.getUser();
-		Result result = Result.newResult();
-		if (threadId > 0L) {
-			StreamThread thread = streamsService.getStreamThread(threadId);
-			if( thread.getRootMessage().getUser().getUserId() == user.getUserId() ) {
-				streamsService.deleteThread(thread);
-				result.setCount(1);
-			}
-		}
-		return result;
-	}
-	
-	@Secured({ "ROLE_USER" })
-	@RequestMapping(value = "/data/streams/me/messages/add.json", method = { RequestMethod.POST })
-	@ResponseBody
-	public StreamMessage addMessage(@RequestBody DefaultStreamMessage newMessage, NativeWebRequest request) { 
-		User user = SecurityHelper.getUser();
-		Streams streams = Utils.getStreamsByNameCreateIfNotExist(streamsService , Utils.ME_STREAM_NAME); 
-		if (newMessage.getThreadId() < 1 && newMessage.getMessageId() < 1) {
-			StreamMessage rootMessage = streamsService.createMessage(Models.STREAMS.getObjectType(), streams.getStreamId(), user);
-			rootMessage.setSubject(newMessage.getSubject());
-			rootMessage.setBody(newMessage.getBody());
-			StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(), rootMessage );
-			streamsService.addThread(rootMessage.getObjectType(), rootMessage.getObjectId(), thread);
-			return thread.getRootMessage();
-		}
-		return newMessage;
-	}
 
 	public static class StreamMessageView implements StreamMessage{
 		

@@ -406,6 +406,25 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 		);
 	}
  
+	public MessageTreeWalker getTreeWalker(long threadId, long messageId) {  
+		Integer total = getExtendedJdbcTemplate().queryForObject(
+			getBoundSql("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_MESSAGE_COUNT_BY_THREAD_ID").getSql(), 
+			Integer.class,
+			new SqlParameterValue(Types.NUMERIC, threadId) );
+
+		final LongTree tree = new LongTree(messageId, total );
+		
+		getExtendedJdbcTemplate().query(getBoundSql("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_MESSAGES_BY_THREAD_ID").getSql(), 
+				new RowCallbackHandler() {
+					public void processRow(ResultSet rs) throws SQLException {
+						long messageId = rs.getLong(1);
+						long parentMessageId = rs.getLong(2);
+						tree.addChild(parentMessageId, messageId);						
+					}}, 
+				new SqlParameterValue(Types.NUMERIC, threadId )); 
+		return new MessageTreeWalker( threadId , tree);
+	}
+
 	public MessageTreeWalker getTreeWalker(StreamThread thread) { 
 		final LongTree tree = new LongTree(thread.getRootMessage().getMessageId(), getMessageCount(thread));
 		getExtendedJdbcTemplate().query(getBoundSql("COMMUNITY_STREAMS.SELECT_STREAM_THREAD_MESSAGES_BY_THREAD_ID").getSql(), 

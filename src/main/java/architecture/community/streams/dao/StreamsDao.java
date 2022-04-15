@@ -55,6 +55,8 @@ public interface StreamsDao {
 	public abstract int getMessageCount(StreamThread thread);	
 	
 	public abstract MessageTreeWalker getTreeWalker(StreamThread thread) ;
+
+	public abstract MessageTreeWalker getTreeWalker(long threadId, long messageId);
 	
 	public abstract void updateParentMessage( long messageId, long newParentId );
 	

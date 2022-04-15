@@ -21,7 +21,6 @@ import architecture.community.user.dao.UserDao;
 import architecture.community.user.event.UserRemovedEvent;
 import architecture.ee.spring.event.EventSupport;
 import architecture.ee.util.StringUtils;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element; 
 
