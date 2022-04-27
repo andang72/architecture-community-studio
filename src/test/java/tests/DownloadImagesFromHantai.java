@@ -1,20 +1,12 @@
 package tests;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 
 import javax.inject.Inject;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.tika.Tika;
 import org.apache.tika.io.FilenameUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,25 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.NativeWebRequest;
 
-import architecture.community.exception.NotFoundException;
-import architecture.community.image.DefaultImage;
-import architecture.community.image.Image;
-import architecture.community.image.ImageLink;
 import architecture.community.image.ImageService;
-import architecture.community.model.Models;
 import architecture.community.query.CustomQueryService;
 import architecture.community.services.HttpClientService;
 import architecture.community.services.support.PooledHttpClientSupport.ResponseCallBack;
-import architecture.community.streams.StreamMessage;
-import architecture.community.streams.StreamThread;
-import architecture.community.streams.Streams;
 import architecture.community.streams.StreamsService;
 import architecture.community.user.User;
 import architecture.community.user.UserTemplate;
-import architecture.community.util.SecurityHelper;
 import architecture.community.web.spring.controller.annotation.ScriptData;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;

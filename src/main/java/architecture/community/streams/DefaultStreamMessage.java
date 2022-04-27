@@ -2,6 +2,8 @@ package architecture.community.streams;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -157,10 +159,12 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 		this.parentMessageId = parentMessageId;
 	}
 
+	@JsonIgnore
 	protected void setAttachmentsCount( Integer count ){
 		this.attachmentsCount = count;
 	}
 
+	@JsonGetter
 	public int getAttachmentsCount() {
 		if( threadId > 0  && attachmentsCount == null ){
 			AttachmentService attachmentService = CommunityContextHelper.getComponent(AttachmentService.class); 

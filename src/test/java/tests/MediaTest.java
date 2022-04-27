@@ -7,8 +7,7 @@ import org.springframework.http.MediaType;
 
 public class MediaTest {
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	public MediaTest() {
-		// TODO Auto-generated constructor stub
+	public MediaTest() { 
 	}
 	
 	@Test

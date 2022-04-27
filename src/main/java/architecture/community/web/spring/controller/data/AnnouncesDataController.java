@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import architecture.community.announce.Announce;
@@ -30,7 +31,7 @@ import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
 import architecture.ee.service.ConfigService;
 
-@Controller("community-announces-data-controller")
+@RestController("community-announces-data-controller")
 public class AnnouncesDataController {
 
 	@Autowired(required = false)
@@ -49,9 +50,7 @@ public class AnnouncesDataController {
 
 
 	@PreAuthorize("permitAll")
-	@RequestMapping(value = "/data/announces/{announceId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST,
-			RequestMethod.GET })
-	@ResponseBody
+	@RequestMapping(value = "/data/announces/{announceId:[\\p{Digit}]+}/get.json", method = { RequestMethod.POST, RequestMethod.GET }) 
 	public Announce getAnnounce(@PathVariable Long announceId, NativeWebRequest request)
 			throws AnnounceNotFoundException {
 
@@ -61,8 +60,7 @@ public class AnnouncesDataController {
 	}
 
 	@PreAuthorize("permitAll")
-	@RequestMapping(value = "/data/announces/list.json", method = { RequestMethod.POST, RequestMethod.GET })
-	@ResponseBody
+	@RequestMapping(value = "/data/announces/list.json", method = { RequestMethod.POST, RequestMethod.GET }) 
 	public ItemList getAnnounces(
 			@RequestParam(value = "objectType", defaultValue = "0", required = false) Integer objectType,
 			@RequestParam(value = "objectId", defaultValue = "0", required = false) Long objectId,

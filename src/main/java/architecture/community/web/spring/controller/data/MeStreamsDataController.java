@@ -1,25 +1,16 @@
 package architecture.community.web.spring.controller.data;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,29 +19,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import architecture.community.attachment.AttachmentService;
-import architecture.community.comment.CommentService;
 import architecture.community.exception.NotFoundException;
 import architecture.community.model.Models;
 import architecture.community.query.CustomQueryService;
 import architecture.community.streams.DefaultStreamMessage;
-import architecture.community.streams.DefaultStreamThread;
 import architecture.community.streams.StreamMessage;
-import architecture.community.streams.StreamMessageNotFoundException;
 import architecture.community.streams.StreamThread;
 import architecture.community.streams.StreamThreadNotFoundException;
 import architecture.community.streams.Streams;
 import architecture.community.streams.StreamsNotFoundException;
 import architecture.community.streams.StreamsService;
-import architecture.community.user.AvatarService;
 import architecture.community.user.User;
-import architecture.community.user.UserManager;
 import architecture.community.util.SecurityHelper;
-import architecture.community.viewcount.ViewCountService;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
-import architecture.ee.service.ConfigService;
 
 @Controller("community-me-streams-data-controller") 
 public class MeStreamsDataController {

@@ -1,8 +1,6 @@
 package tests;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,24 +34,24 @@ public class ImageMetaTest {
 	
 	private void printMetadata(File file) throws Exception  {
 		Metadata metadata = ImageMetadataReader.readMetadata(file);
-		
-		logger.debug("START ---------------------------");
+		System.out.println("====================" + file.getAbsolutePath());
+		System.out.println("------ExifThumbnailDirectory------");
 		ExifThumbnailDirectory tDir = metadata.getFirstDirectoryOfType(ExifThumbnailDirectory.class);
 		if( tDir != null )
 		for (Tag tag : tDir.getTags()) {
-		       // System.out.format("[%s] - %s = %s",
-		       //     directory.getName(), tag.getTagName(), tag.getDescription());
+		       System.out.format("[%s] - %s = %s \n",
+			   tDir.getName(), tag.getTagName(), tag.getDescription());
 		        
 		        logger.debug("[{}] - {} = {}", tDir.getName(), tag.getTagName(), tag.getDescription() );
 		}
 		
 		logger.debug("END ---------------------------");
-		
+		System.out.println("====================");
 		
 		for (Directory directory : metadata.getDirectories()) {
+			System.out.println("------------" + metadata.getDirectories() );
 		    for (Tag tag : directory.getTags()) {
-		       // System.out.format("[%s] - %s = %s",
-		       //     directory.getName(), tag.getTagName(), tag.getDescription());
+		       System.out.printf("[%s] - %s = %s \n",directory.getName(), tag.getTagName(), tag.getDescription());
 		        
 		        logger.debug("[{}] - {} = {}", directory.getName(), tag.getTagName(), tag.getDescription() );
 		    }

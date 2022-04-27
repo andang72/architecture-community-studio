@@ -7,8 +7,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 public class JavaMailSendTest {
  
- 
-    
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

@@ -1,8 +1,11 @@
 package tests;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -11,8 +14,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.junit.Test;
  
-public class Crypto2Test {
+public class AesCryptoTest {
  
     public static void main(String args[]) throws Exception {
         //String ciphertext =  "CocISsg6bM1nEyIYDA+kpKL1z3/kAugZvVg4QHaoNPxbd4qbqIdBFviiIrlLp79w"; 
@@ -34,5 +38,35 @@ public class Crypto2Test {
         return new String(decrypted, "UTF-8");
     }
  
+    @Test
+    public void testASE() throws Exception{
+        
+        //String originalString = "";
+        String key = "podonamu!@#45";
+        SecureRandom sr = SecureRandom.getInstance("SHA256PRNG"); //SHA1PRNG
+        sr.setSeed(key.getBytes());
+
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        kgen.init(128, sr);
+
+        // Generate the secret key specs.
+		SecretKey skey = kgen.generateKey();
+		String keyString = Hex.encodeHexString(skey.getEncoded());
+		SecretKeySpec skeySpec = new SecretKeySpec(skey.getEncoded(), "AES");
+		
+		Cipher cipher = Cipher.getInstance("AES");
+		//cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+
+        //byte[] encrypted = cipher.doFinal(originalString.getBytes());
+        //String encryptedString = Hex.encodeHexString(encrypted);
+
+        //System.out.println( encryptedString );
+        String encryptedString=  "30014d19ee773e16df38d863e7d2db3a";
+
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+        byte[] decrypted = cipher.doFinal(Hex.decodeHex(encryptedString.toCharArray()));
+        String decryptedString = new String(decrypted);
+        System.out.println( decryptedString );
+    }
  
 }

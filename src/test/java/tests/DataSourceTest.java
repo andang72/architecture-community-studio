@@ -26,7 +26,9 @@ import architecture.ee.spring.jdbc.ExtendedJdbcUtils.DB;
 @ContextConfiguration(locations = { 
 		"classpath:setup-context.xml"})
 
-
+/**
+ * do not commit ..
+ */
 public class DataSourceTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceTest.class);
@@ -46,24 +48,15 @@ public class DataSourceTest {
 		//Properties connectionProperties = getMysqlConnectionProperties("jdbc:mysql://222.122.47.9:3306/jasengdb?serverTimezone=Asia/Seoul", "u_jaseng", "Podoq23$" );
 		setupService.registerDataSourceBean("dataSource", connectionProperties);
 		DataSource dataSource = setupService.getComponent("dataSource", DataSource.class);
-		
 		setupService.testConnection(dataSource);  
-		
 		String catalog = null ;
 		String schema  = null ;
-		
-		
 		try {
-		
 			DB database = ExtendedJdbcUtils.extractDB(dataSource.getConnection());
 			if( database == DB.ORACLE ) {
 				logger.debug("this is oracle..."); 
 			} 
-
-		} catch (SQLException e1) {
-		
-		} 
-		
+		} catch (SQLException e1) {} 
 		if(opt)
 		try {
  

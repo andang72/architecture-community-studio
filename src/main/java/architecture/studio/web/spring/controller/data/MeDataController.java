@@ -95,7 +95,8 @@ public class MeDataController extends AbstractResourcesDataController {
 	/**
 	 * ALBUM API 
 	******************************************/
-	@Secured({ "ROLE_USER" })
+ 
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_USER"})
 	@RequestMapping(value = {"/data/users/me/albums", "/data/users/me/albums/list.json"}, method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public ItemList getAlbums(

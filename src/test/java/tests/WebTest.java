@@ -66,6 +66,7 @@ public class WebTest {
 		String source = "https://dcimg6.dcinside.co.kr/viewimage.php?id=2fb8d133f1db3eb362bdd9b10f&no=24b0d769e1d32ca73feb83fa11d02831b9f69be2ae2fc8e2b8c80de7dc94e75bcb241d181905a2b7c68e7f484dc696548dabe82f79820abfcd3188160e622d87afea36cf8e12fdb940cf875e2b46b662be375e";
 		try{ 
 			URL url = new URL(source);
+			System.out.println("url:" + url.toString());
 			downloadFromUrl(url);
 		} catch (Exception e ){
 			

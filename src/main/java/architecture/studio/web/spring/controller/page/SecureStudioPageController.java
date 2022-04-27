@@ -1,4 +1,4 @@
-package architecture.community.web.spring.controller.page;
+package architecture.studio.web.spring.controller.page;
 
 import java.io.IOException;
 
@@ -34,14 +34,14 @@ import architecture.ee.service.ConfigService;
  * @author donghyuck
  *
  */
-@Controller("community-secure-studio-controller")
+@Controller("studio-secure-page-controller")
 @RequestMapping("/secure/studio")
-public class SecuredStudioPageController {
+public class SecureStudioPageController {
 
-	public SecuredStudioPageController() {
+	public SecureStudioPageController() {
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(SecuredStudioPageController.class);
+	private static final Logger log = LoggerFactory.getLogger(SecureStudioPageController.class);
 	
 	@Autowired(required=false)
     @Qualifier("configService")
