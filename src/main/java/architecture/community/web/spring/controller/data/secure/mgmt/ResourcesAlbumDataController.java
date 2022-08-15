@@ -242,7 +242,7 @@ private Logger log = LoggerFactory.getLogger(getClass());
 	public Album saveOrUpdateAlbum(@RequestBody DefaultAlbum album, @PathVariable Long albumId,  NativeWebRequest request) throws NotFoundException {  
 		DefaultAlbum albumToUse = album;
 		if(albumToUse.getAlbumId() > 0  ) {
-			albumToUse = 	(DefaultAlbum)albumService.getAlbum(album.getAlbumId());
+			albumToUse = (DefaultAlbum)albumService.getAlbum(album.getAlbumId());
 			if( !StringUtils.isNullOrEmpty(album.getName()) )
 			{
 				albumToUse.setName(album.getName());

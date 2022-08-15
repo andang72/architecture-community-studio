@@ -198,10 +198,20 @@ public class ResourcesImagesDataController {
 		private URL imageUrl;
 		private long objectId = 0;
 		private boolean share = false;
+		private boolean wallpaper = false;
 
 		@JsonIgnore
 		private String contentType;
 	
+		
+		public boolean isWallpaper() {
+			return wallpaper;
+		}
+
+		public void setWallpaper(boolean wallpaper) {
+			this.wallpaper = wallpaper;
+		}
+
 		public long getImageId() {
 			return imageId;
 		}

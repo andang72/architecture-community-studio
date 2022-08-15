@@ -3,6 +3,7 @@ package architecture.community.web.spring.controller.data.secure.mgmt;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,8 +96,13 @@ public class ServiceAuditDataController {
 		*/
 		List<Map<String, Object>> items = customQueryService.list(dataSourceRequest);
 		for( Map<String, Object> row : items) {
-			Date date = (Date)row.get("AUD_DATE");
-			row.put("AUD_DATE", ServletUtils.getDataAsISO8601(date));
+			Object dateObj = row.getOrDefault("AUD_DATE", null);
+			if( dateObj != null){
+				LocalDateTime date = (LocalDateTime)dateObj;
+				row.put("AUD_DATE", date.toString());
+			} 
+			//Date date = (Date)row.get("AUD_DATE");
+			//row.put("AUD_DATE", ServletUtils.getDataAsISO8601(date));
 		}
 		return new ItemList(items, totalCount );
 	}		

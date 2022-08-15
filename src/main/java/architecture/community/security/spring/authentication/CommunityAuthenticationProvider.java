@@ -37,15 +37,14 @@ public class CommunityAuthenticationProvider extends DaoAuthenticationProvider i
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 	
-	protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-
-		if (authentication.getCredentials() == null)
-		    throw new BadCredentialsException(CommunityLogLocalizer.getMessage("010101")); 
-		
+	protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException { 
+		if (authentication.getCredentials() == null){
+			throw new BadCredentialsException(CommunityLogLocalizer.getMessage("010101")); 
+		} 
 		checkLicense(userDetails.getUsername());  
 		try {
 			CommuintyUserDetails user = (CommuintyUserDetails) userDetails;
-			if( user.getUser().isExternal() )
+			if( user.getUser().isExternal() && logger.isDebugEnabled())
 			{
 				logger.debug("This is external : {}. Auth not supported yet for external users.", user.getUsername() ); 
 			}
@@ -53,14 +52,15 @@ public class CommunityAuthenticationProvider extends DaoAuthenticationProvider i
 			UserActivityEvent event = new UserActivityEvent(this, user.getUser(), UserActivityEvent.ACTIVITY.SIGNIN );
 			if(applicationEventPublisher!= null) {
 				applicationEventPublisher.publishEvent( event );
-			}
-			
+			} 
 			if(eventBus!=null){
 				eventBus.post(event);
-			}
+			} 
 		} catch (Exception e) {
-		    logger.error(CommunityLogLocalizer.getMessage("010102"), e);
-		    throw new BadCredentialsException( messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+			if( logger.isErrorEnabled() ){
+				logger.error(CommunityLogLocalizer.getMessage("010102"), e);
+			} 
+		    throw new BadCredentialsException( messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), e);
 		} 
 		
 		logger.debug("additional authentication checks");

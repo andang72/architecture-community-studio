@@ -1,5 +1,6 @@
 package architecture.community.web.spring.controller.data;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -7,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.tika.Tika;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -50,4 +52,17 @@ public class ResourceUtils {
 			response.flushBuffer(); 
 		}
 	} 	
+
+	public static String getContentType(File file) {
+    	String contentType = null;
+	    if (contentType == null) {
+			Tika tika = new Tika();
+			try {
+			    contentType = tika.detect(file);
+			} catch (IOException e) {
+			    contentType = null;
+			}
+	    }
+	    return contentType;
+	}
 }

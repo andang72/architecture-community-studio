@@ -1,15 +1,19 @@
 package architecture.studio.web.spring.controller.data;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,8 +54,10 @@ import architecture.community.web.model.DataSourceRequest.FilterDescriptor;
 import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
 import architecture.community.web.spring.controller.data.AbstractResourcesDataController;
+import architecture.community.web.spring.controller.data.ResourceUtils;
+import architecture.studio.web.spring.controller.data.secure.mgmt.ResourcesImagesDataController.UrlImageUploader;
 
-@Controller("studio-me-secure-data-controller")
+@Controller("community-me-data-controller")
 public class MeDataController extends AbstractResourcesDataController {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -60,32 +66,31 @@ public class MeDataController extends AbstractResourcesDataController {
 	@Qualifier("userManager")
 	private UserManager userManager;
 
-
-	@Autowired(required = false) 
+	@Autowired(required = false)
 	@Qualifier("sharedLinkService")
-	private SharedLinkService sharedLinkService;	
-	
+	private SharedLinkService sharedLinkService;
+
 	@Autowired
-	@Qualifier("imageService") 
+	@Qualifier("imageService")
 	private ImageService imageService;
-	
-	@Autowired(required = false) 
+
+	@Autowired(required = false)
 	@Qualifier("streamsService")
 	private StreamsService streamsService;
-	
-	@Autowired(required = false) 
+
+	@Autowired(required = false)
 	@Qualifier("attachmentService")
 	private AttachmentService attachmentService;
-	
+
 	@Autowired
-	@Qualifier("albumService") 
+	@Qualifier("albumService")
 	private AlbumService albumService;
-		
-	@Autowired(required = false) 
+
+	@Autowired(required = false)
 	@Qualifier("customQueryService")
 	private CustomQueryService customQueryService;
-	
-	@Autowired( required = false) 
+
+	@Autowired(required = false)
 	@Qualifier("tagService")
 	private TagService tagService;
 
@@ -93,82 +98,84 @@ public class MeDataController extends AbstractResourcesDataController {
 	}
 
 	/**
-	 * ALBUM API 
-	******************************************/
- 
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_USER"})
-	@RequestMapping(value = {"/data/users/me/albums", "/data/users/me/albums/list.json"}, method = { RequestMethod.POST, RequestMethod.GET })
+	 * ALBUM API
+	 ******************************************/
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_USER" })
+	@RequestMapping(value = { "/data/users/me/albums", "/data/users/me/albums/list.json" }, method = {
+			RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public ItemList getAlbums(
-		@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
-		@RequestBody DataSourceRequest dataSourceRequest, 
-		NativeWebRequest request) {   
-		
+			@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
+			@RequestBody DataSourceRequest dataSourceRequest,
+			NativeWebRequest request) {
+
 		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_ALBUM_BY_REQUEST");
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
 		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_ALBUM_IDS_BY_REQUEST");
-		
-		List<Long> items = customQueryService.list(dataSourceRequest, Long.class); 
+
+		List<Long> items = customQueryService.list(dataSourceRequest, Long.class);
 		List<Album> albums = new ArrayList<Album>(totalCount);
-		for( Long albumId : items ) {
+		for (Long albumId : items) {
 			try {
 				Album album = albumService.getAlbum(albumId);
-				if(  org.apache.commons.lang3.StringUtils.contains(fields, "contents") )
+				if (org.apache.commons.lang3.StringUtils.contains(fields, "contents"))
 					setCoverImageFromContents(album);
 				else
 					setCoverImage(album);
-				albums.add(album); 
+				albums.add(album);
 			} catch (NotFoundException e) {
 			}
-		} 
-		return new ItemList(albums, totalCount ); 
+		}
+		return new ItemList(albums, totalCount);
 	}
 
-	private void setCoverImageFromContents(Album album) {  
+	private void setCoverImageFromContents(Album album) {
 		List<AlbumContents> list = albumService.getAlbumContents(album);
-		for( AlbumContents contents : list ) {
-			if( contents.isImage() ) {
+		for (AlbumContents contents : list) {
+			if (contents.isImage()) {
 				try {
 					Image coverImage = imageService.getImage(contents.getContentId());
-					((DefaultAlbum)album).setCoverImage(coverImage);
+					((DefaultAlbum) album).setCoverImage(coverImage);
 					break;
-				} catch (NotFoundException e) { 
+				} catch (NotFoundException e) {
 				}
 			}
 		}
 	}
-	
-	private void setCoverImage(Album album) { 
+
+	private void setCoverImage(Album album) {
 		List<AlbumImage> list = albumService.getAlbumImages(album);
-		if( list.size() > 0 ) { 
+		if (list.size() > 0) {
 			AlbumImage img = list.get(0);
 			try {
 				Image coverImage = imageService.getImage(img.getImageId());
-				((DefaultAlbum)album).setCoverImage(coverImage);
-			} catch (NotFoundException e) { 
+				((DefaultAlbum) album).setCoverImage(coverImage);
+			} catch (NotFoundException e) {
 			}
 		}
 	}
 
 	/**
-	 * IMAGE API 
-	******************************************/
+	 * IMAGE API
+	 ******************************************/
 	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/data/users/me/images/list.json", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public ItemList getImages(
-		@RequestBody DataSourceRequest dataSourceRequest, 
-		@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
-		Authentication authentication,
-		NativeWebRequest request) { 
-		
+			@RequestBody DataSourceRequest dataSourceRequest,
+			@RequestParam(value = "fields", defaultValue = "none", required = false) String fields,
+			Authentication authentication,
+			NativeWebRequest request) {
+
 		User user = SecurityHelper.getUser();
-		Principal principal = request.getUserPrincipal(); 
-		log.debug("user from security : {}, principal : {} , authentication : {}", user , principal != null ? principal.getName() : "anonymous", authentication);
-		
-		boolean includeImageLink = org.apache.commons.lang3.StringUtils.contains(fields, "link");  
-		boolean includeTags = org.apache.commons.lang3.StringUtils.contains(fields, "tags");  
-		
+		Principal principal = request.getUserPrincipal();
+		log.debug("user from security : {}, principal : {} , authentication : {}", user,
+				principal != null ? principal.getName() : "anonymous", authentication);
+
+		boolean includeImageLink = org.apache.commons.lang3.StringUtils.contains(fields, "link");
+		boolean includeTags = org.apache.commons.lang3.StringUtils.contains(fields, "tags");
+
 		log.debug("fields link : {} , tags : {}", includeImageLink, includeTags);
 		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_IMAGE_BY_REQUEST");
 
@@ -176,40 +183,85 @@ public class MeDataController extends AbstractResourcesDataController {
 		userIdFilter.setField("USER_ID");
 		userIdFilter.setOperator("eq");
 		userIdFilter.setValue(user.getUserId());
-		dataSourceRequest.getFilter().getFilters().add( userIdFilter );
+		dataSourceRequest.getFilter().getFilters().add(userIdFilter);
 
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
 		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_IMAGE_IDS_BY_REQUEST");
-		
+
 		List<Long> imageIDs = customQueryService.list(dataSourceRequest, Long.class);
-		List<Image> images = getImages( imageIDs, includeImageLink, includeTags);
-		return new ItemList(images, totalCount );
+		List<Image> images = getImages(imageIDs, includeImageLink, includeTags);
+		return new ItemList(images, totalCount);
 	}
 
-	protected List<Image> getImages (List<Long> imageIDs, boolean includeImageLink, boolean includeTags ){
+	protected List<Image> getImages(List<Long> imageIDs, boolean includeImageLink, boolean includeTags) {
 		List<Image> images = new ArrayList<Image>(imageIDs.size());
-		for( Long id : imageIDs ) {
+		for (Long id : imageIDs) {
 			try {
 				Image image = imageService.getImage(id);
-				if( includeImageLink ) {
+				if (includeImageLink) {
 					setImageLink(image, false);
 				}
-				if( includeTags && tagService!= null ) {
+				if (includeTags && tagService != null) {
 					String tags = tagService.getTagsAsString(Models.IMAGE.getObjectType(), image.getImageId());
-					((DefaultImage)image).setTags( tags );
+					((DefaultImage) image).setTags(tags);
 				}
 				images.add(image);
-				
+
 			} catch (NotFoundException e) {
 			}
 		}
 		return images;
 	}
-	
 
 	/**
-	 * PROFILE API 
-	******************************************/	
+	 * URL 로 이미지를 업로드 한다.
+	 * 
+	 * @param uploader
+	 * @param request
+	 * @return
+	 * @throws NotFoundException
+	 * @throws IOException
+	 */
+	@Secured({ "ROLE_USER" })
+	@RequestMapping(value = "/data/users/me/images/upload_by_url", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Image uploadImageByUrl(@RequestBody UrlImageUploader upload, NativeWebRequest request)
+			throws NotFoundException, Exception {
+
+		User user = SecurityHelper.getUser();
+		if( log.isDebugEnabled() ){
+			log.debug("downloading {}", upload.getFileName());
+		} 
+		File file = readFileFromUrl(upload.getImageUrl());
+		String contentType = ResourceUtils.getContentType(file);
+		Image imageToUse;
+		if (upload.getImageId() > 0) {
+			FileInputStream inputStream = new FileInputStream(file);
+			imageToUse = imageService.getImage(upload.getImageId());
+			((DefaultImage) imageToUse).setContentType(contentType);
+			((DefaultImage) imageToUse).setInputStream(inputStream);
+			((DefaultImage) imageToUse).setName(upload.getFileName());
+			imageToUse.setSize(IOUtils.toByteArray(inputStream).length);
+		} else {
+			imageToUse = imageService.createImage(upload.getObjectType(), upload.getObjectId(), upload.getFileName(),
+					contentType, file);
+		}
+		imageToUse.setUser(user);
+		imageToUse.getProperties().put("url", upload.getImageUrl().toString());
+		if (upload.isWallpaper()) {
+			imageToUse.getProperties().put("wallpaper", "true");
+		}
+		imageToUse = imageService.saveImage(imageToUse);
+		if (upload.isShare()) {
+			imageService.getImageLink(imageToUse, true);
+		}
+		return imageToUse;
+
+	}
+
+	/**
+	 * PROFILE API
+	 ******************************************/
 	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = { "/data/users/me", "/data/users/me/save-or-update.json" }, method = { RequestMethod.POST })
 	@ResponseBody

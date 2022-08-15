@@ -160,13 +160,17 @@ public class CommunityViewCountService extends EventSupport implements ViewCount
 	private void addCount(int entityType, long entityId, Cache cache, int amount) {
 		int count = -1;
 		String cacheKey = getCacheKey(entityType, entityId);
-		if (cache.get(cacheKey) != null)
+		if (cache.get(cacheKey) != null){
 			count = (Integer) cache.get(cacheKey).getObjectValue() ;
-		else
+		}else{
 			count = viewCountDao.getViewCount(entityType, entityId);
+		}
 		count += amount;
+
+		if( logger.isDebugEnabled() ){
+			logger.debug("view count ( objectType:{}, objectId: {} ) : {}", entityType, entityId, count );
+		}
 		cache.put( new Element(cacheKey, Integer.valueOf(count) ) );
-		
 		Map<String, ViewCountInfo> queueRef = queue;
 		synchronized (queueRef) {
 			queueRef.put(cacheKey, new ViewCountInfo(entityType, entityId, count));

@@ -50,6 +50,7 @@ import architecture.community.streams.StreamsService;
 import architecture.community.tag.TagService;
 import architecture.community.user.User;
 import architecture.community.user.UserTemplate;
+import architecture.community.util.SecuredCodeShield;
 import architecture.community.util.SecurityHelper;
 import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
@@ -245,11 +246,12 @@ public class MeStreamsResourcesDataController extends AbstractResourcesDataContr
     		MultipartHttpServletRequest request, 
     		@RequestHeader Map<String, String> headers) throws NotFoundException, IOException, UnAuthorizedException {  
 		
+		
 		headers.forEach((key, value) -> {
 	        log.info(String.format("Header '%s' = %s", key, value));
 	    });
-		
-		log.debug( "request parameters : {}" , request.getParameterMap() ); 
+
+		log.debug( "request parameters : {}" , SecuredCodeShield.shieldCRLF( request.getParameterMap().toString()) ); 
 		
 		User user = new UserTemplate(1L);
 		Principal principal = request.getUserPrincipal();
@@ -294,7 +296,7 @@ public class MeStreamsResourcesDataController extends AbstractResourcesDataContr
 		headers.forEach((key, value) -> {
 	        log.info(String.format("Header '%s' = %s", key, value));
 	    });
-		log.debug("request {}", body);
+		log.debug("request {}", SecuredCodeShield.shieldCRLF( body ) );
 		Long imageId = NumberUtils.toLong(StringUtils.defaultString(body, "0"), -1L);
 		
 		User user = SecurityHelper.getUser();

@@ -107,13 +107,16 @@ public class StreamsDataController {
 	 * @return
 	 * @throws StreamsNotFoundException
 	 */
-	@RequestMapping(value = { "/data/streams", "/data/streams/list.json" }, method = { RequestMethod.POST })
+	@RequestMapping(value = { "/data/streams/search", "/data/streams/list.json" }, method = { RequestMethod.POST })
 	@ResponseBody
 	public ItemList getStreams(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {  
+
 		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAMS_BY_REQUEST");
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class);
-		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAMS_IDS_BY_REQUEST"); 
+		
+		dataSourceRequest.setStatement("COMMUNITY_STREAMS.SELECT_STREAMS_IDS_BY_REQUEST");  
 		List<Long> IDs = customQueryService.list(dataSourceRequest, Long.class); 
+
 		List<Streams> items = new ArrayList<Streams>(totalCount);
 		for( Long streamId : IDs ) {
 			try {
@@ -164,7 +167,7 @@ public class StreamsDataController {
 		dataSourceRequest.getData().put("objectId", streams.getStreamId() ); 
 		dataSourceRequest.setStatement("COMMUNITY_STREAMS.COUNT_STREAM_THREAD_BY_REQUEST");
 		
-		log.debug("Find threads for objectType: {}, objectId: {} with option body : {}", Models.STREAMS.getObjectType(), streamId, fullbody );
+		log.debug("Find threads for objectType: {}, objectId: {} with include body options : {}", Models.STREAMS.getObjectType(), streamId, fullbody );
 
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class); 
 		watch.stop();

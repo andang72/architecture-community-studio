@@ -42,8 +42,7 @@ public class JdbcAlbumDao extends ExtendedJdbcDaoSupport implements AlbumDao {
 	private String albumPropertyTableName = "AC_UI_ALBUM_PROPERTY";
 	private String albumPropertyPrimaryColumnName = "ALBUM_ID";
 
-	private Logger logger = LoggerFactory.getLogger(getClass().getName());
-	
+	private Logger logger = LoggerFactory.getLogger(getClass().getName()); 
 
 	private final RowMapper<Album> albumMapper = new RowMapper<Album>() {
 		public Album mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -74,7 +73,7 @@ public class JdbcAlbumDao extends ExtendedJdbcDaoSupport implements AlbumDao {
 
 	@Override
 	public Album getById(long albumId) throws AlbumNotFoundException {
-		try {
+		try { 
 			return getExtendedJdbcTemplate().queryForObject(getBoundSql("COMMUNITY_WEB.SELECT_ALBUM_BY_ID").getSql(),
 					albumMapper, new SqlParameterValue(Types.NUMERIC, albumId));
 		} catch (DataAccessException e) {

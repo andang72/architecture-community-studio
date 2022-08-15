@@ -170,6 +170,8 @@ public class DefaultStreamMessage extends PropertyModelObjectAwareSupport implem
 			AttachmentService attachmentService = CommunityContextHelper.getComponent(AttachmentService.class); 
 			return attachmentService.getAttachmentCount(Models.STREAMS_MESSAGE.getObjectType(), messageId);
 		}
+		if( attachmentsCount == null)
+			return 0;
 		return attachmentsCount;		
 	}
 	

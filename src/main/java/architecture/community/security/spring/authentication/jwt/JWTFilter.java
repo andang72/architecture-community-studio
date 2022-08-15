@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import architecture.community.util.SecuredCodeShield;
 import architecture.community.web.util.ParamUtils;
 import architecture.ee.util.StringUtils;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -59,7 +61,9 @@ public class JWTFilter extends OncePerRequestFilter {
 		try {
 			String jwt = this.resolveToken(request);
 			if (!StringUtils.isNullOrEmpty(jwt)) {
-	 			logger.debug("jwt token : {}", jwt);
+				if(logger.isDebugEnabled()){
+	 				logger.debug("jwt token : {}", SecuredCodeShield.shieldCRLF(jwt.toString()) );
+				}
 				if (this.jwtTokenProvider.validateToken(jwt)) {
 					Authentication authentication;
 					if (userDetailsService != null) {
@@ -71,9 +75,13 @@ public class JWTFilter extends OncePerRequestFilter {
 				}
 			}
 		} catch (ExpiredJwtException eje) {
-			logger.info("Security exception for user {} - {}", eje.getClaims().getSubject(), eje.getMessage());
+			if(logger.isInfoEnabled()){
+				logger.info("Security exception for user {} - {}",  eje.getClaims().getSubject(), eje.getMessage());
+			}
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			logger.debug("Exception " + eje.getMessage(), eje);
+			if(logger.isDebugEnabled()){
+				logger.debug("Exception " + eje.getMessage(), eje);
+			}
 			return;
 		}
 		filterChain.doFilter(request, response);
@@ -82,25 +90,28 @@ public class JWTFilter extends OncePerRequestFilter {
 
 
 	private void resetAuthenticationAfterRequest() {
-		logger.debug("reset authentication as null.");
+		if(logger.isDebugEnabled()){
+			logger.debug("reset authentication as null.");
+		}
 		SecurityContextHolder.getContext().setAuthentication(null);
 	}
 
-	private String resolveToken(HttpServletRequest request) {
-		
+	/**
+	 * @param request
+	 * @return
+	 */
+	private String resolveToken(HttpServletRequest request) { 
 		String bearerToken = request.getHeader(JwtTokenProvider.HEADER_STRING);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
-			String jwt = bearerToken.substring(7, bearerToken.length());
-			return jwt;
-		}
-		
+			return bearerToken.substring(7, bearerToken.length());
+		} 
 		bearerToken = ParamUtils.getParameter(request, JwtTokenProvider.PARAM_STRING, null);
-		logger.debug("bearerToken:{}", bearerToken);
-		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
-			String jwt = bearerToken.substring(7, bearerToken.length());
-			return jwt;
+		if(logger.isDebugEnabled()){
+			logger.debug("bearerToken:{}", SecuredCodeShield.shieldCRLF(bearerToken));
 		}
-
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
+			return bearerToken.substring(7, bearerToken.length());
+		}
 		return null;
 	}
 }

@@ -200,6 +200,9 @@ public class ServletUtils {
 		return thisPath;
 	}
 
+	/*
+	 * Information Exposure Through An Error Message
+	 */
 	public static String getStackTrace(Exception e) {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);

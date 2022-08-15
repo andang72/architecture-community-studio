@@ -49,8 +49,7 @@ public abstract class AbstractScriptView extends ScriptSupport implements View {
 	protected void redirect (HttpServletRequest request, HttpServletResponse response, String dispatcherPath) throws Exception {
 		RequestDispatcher rd = getRequestDispatcher(request, dispatcherPath);
 		if (rd == null) {
-			throw new ServletException("Could not get RequestDispatcher for [" + dispatcherPath +
-					"]: Check that the corresponding file exists within your web application archive!");
+			throw new ServletException("Could not get RequestDispatcher for [" + dispatcherPath + "]: Check that the corresponding file exists within your web application archive!");
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("Forwarding to resource [" + dispatcherPath + "] in InternalResourceView '" + this.getClass().getName() + "'");

@@ -91,7 +91,6 @@ public class RESTfulAPIController {
 		return apiService != null;
 	}
 	
-	
 
 	@RequestMapping(value = "/{filename:.+}", method = { RequestMethod.POST, RequestMethod.GET })
     public Object api (

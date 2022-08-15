@@ -38,6 +38,7 @@ import architecture.community.share.SharedLink;
 import architecture.community.share.SharedLinkService;
 import architecture.community.user.User;
 import architecture.community.util.CommunityConstants;
+import architecture.community.util.SecuredCodeShield;
 import architecture.community.util.SecurityHelper;
 import architecture.community.viewcount.ViewCountService;
 import architecture.community.web.util.ServletUtils;
@@ -245,7 +246,7 @@ public class DownloadDataController {
 			if (imageId <= 0 && StringUtils.isNullOrEmpty(filename)) {
 				throw new IllegalArgumentException();
 			}
-			log.debug("name {} decoded {}.", filename, ServletUtils.getEncodedFileName(filename));
+			log.debug("filename: {} > encoded filename: {}.", SecuredCodeShield.shieldCRLF(filename), SecuredCodeShield.shieldCRLF(ServletUtils.getEncodedFileName(filename)));
 			Image image = imageService.getImage(imageId);
 			log.debug("checking equals plain : {} , decoded : {} ",
 					org.apache.commons.lang3.StringUtils.equals(filename, image.getName()),

@@ -43,6 +43,7 @@ public class SettingDataController {
 	/**
 	 * Application Config API 
 	******************************************/
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = { "/config", "/config.json"}, method = { RequestMethod.GET },  produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -80,7 +81,7 @@ public class SettingDataController {
 	
 	
 	/**
-	 * Security API 
+	 * Security Config API 
 	******************************************/
  
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})

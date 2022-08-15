@@ -1,4 +1,4 @@
-package architecture.studio.web.spring.controller.data.secure.mgmt;
+package architecture.community.web.spring.controller.data.secure.mgmt;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ import architecture.community.web.spring.controller.data.model.ServicesConfig;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;
 
-@Controller("studio-mgmt-services-viewcounts-secure-data-controller")
+@Controller("community-mgmt-services-viewcounts-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/services/viewcounts")
 public class ServicesViewCountDataController {
 	
@@ -78,11 +78,11 @@ public class ServicesViewCountDataController {
 	@ResponseBody
 	public ServicesConfig saveOrUpdate (
 			@RequestBody  ServicesConfig config, 
-			NativeWebRequest request) throws NotFoundException { 
-
-		log.debug("viewcounts : {}", config.isEnabled());
-		configService.setApplicationProperty( CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, Boolean.toString(config.isEnabled()));
-		
+			NativeWebRequest request) throws NotFoundException {  
+		if(log.isDebugEnabled()){
+			log.debug("viewcounts:{}", config.isEnabled());
+		}
+		configService.setApplicationProperty( CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, Boolean.toString(config.isEnabled())); 
 		return config;
 	}	
 	
@@ -93,10 +93,8 @@ public class ServicesViewCountDataController {
 			@RequestBody DataSourceRequest dataSourceRequest, 
 			NativeWebRequest request) throws NotFoundException { 
  
-		boolean enabled = configService.getApplicationBooleanProperty(CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false);
-		if( enabled ) {
-			
-		} 
+		//boolean enabled = configService.getApplicationBooleanProperty(CommunityConstants.SERVICES_VIEWCOUNT_ENABLED_PROP_NAME, false);
+
 		dataSourceRequest.setStatement("COMMUNITY_WEB.COUNT_VIEWCOUNT_BY_REQUEST");
 		int totalCount = customQueryService.queryForObject(dataSourceRequest, Integer.class); 
 		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_VIEWCOUNT_REQUEST");

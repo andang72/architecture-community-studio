@@ -1,5 +1,6 @@
-package architecture.studio.web.spring.controller.download;
+package architecture.community.web.spring.controller.download;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +32,7 @@ import architecture.community.web.spring.controller.data.ResourceUtils;
 import architecture.community.web.util.ServletUtils;
 import architecture.ee.service.ConfigService;
 
-@Controller("studio-resources-avatar-data-controller")
+@Controller("community-resources-avatar-data-controller")
 public class AvatarDataController {
 
 	private Logger log = LoggerFactory.getLogger(AvatarDataController.class);
@@ -100,7 +101,7 @@ public class AvatarDataController {
 			@RequestParam(value = "width", defaultValue = "0", required = false) Integer width,
 		    @RequestParam(value = "height", defaultValue = "0", required = false) Integer height,
 		    HttpServletRequest request,
-		    HttpServletResponse response) { 
+		    HttpServletResponse response) throws IOException { 
 		try {
 			
 			if(!hasAvatarImageInCache( username ))
@@ -129,10 +130,14 @@ public class AvatarDataController {
 				response.flushBuffer();
 			}
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			if( log.isWarnEnabled() )
+				log.warn(e.getMessage(), e);
+				
 			response.setStatus(301);
-			String url = ServletUtils.getContextPath(request) + configService.getApplicationProperty("components.download.images.no-avatar-url", "/images/no-avatar.png");
-			response.addHeader("Location", url);
+			//String url = ServletUtils.getContextPath(request) + configService.getApplicationProperty("components.download.images.no-avatar-url", "/images/no-avatar.png");
+			//response.addHeader("Location", url);
+			ResourceUtils.noAvatars(request, response);
 		}
 	}	
+
 }
