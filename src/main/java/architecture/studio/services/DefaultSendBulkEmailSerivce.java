@@ -1,4 +1,4 @@
-package architecture.studio.service;
+package architecture.studio.services;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -16,9 +16,9 @@ import com.google.common.cache.CacheLoader;
 
 import architecture.community.exception.NotFoundException;
 import architecture.community.user.UserManager;
-import architecture.studio.component.email.SendBulkEmail;
-import architecture.studio.component.email.SendEmail;
-import architecture.studio.component.email.dao.SimpleEmailSendDao;
+import architecture.studio.components.email.SendBulkEmail;
+import architecture.studio.components.email.SendEmail;
+import architecture.studio.components.email.dao.SimpleEmailSendDao;
 
 public class DefaultSendBulkEmailSerivce implements SendBulkEmailService {
 

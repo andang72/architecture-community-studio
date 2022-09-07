@@ -21,8 +21,8 @@ import architecture.community.user.AvatarImage;
 import architecture.community.user.Company;
 import architecture.community.user.Role;
 import architecture.community.user.User;
-import architecture.studio.component.email.SendBulkEmail;
-import architecture.studio.component.templates.Templates;
+import architecture.studio.components.email.SendBulkEmail;
+import architecture.studio.components.templates.Templates;
 
 public enum Models { 
 	

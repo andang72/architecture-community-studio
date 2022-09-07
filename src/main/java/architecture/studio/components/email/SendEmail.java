@@ -1,4 +1,4 @@
-package architecture.studio.component.email;
+package architecture.studio.components.email;
 
 public interface SendEmail {
 

@@ -1,4 +1,4 @@
-package architecture.studio.component.email;
+package architecture.studio.components.email;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -11,7 +11,7 @@ import architecture.community.model.json.JsonDateSerializer;
 import architecture.community.user.User;
 import architecture.community.user.UserTemplate;
 import architecture.community.user.model.json.JsonUserDeserializer;
-import architecture.studio.component.templates.Templates;
+import architecture.studio.components.templates.Templates;
 
 public class SendBulkEmail extends PropertyAwareSupport implements SendEmail  {
 	

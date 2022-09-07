@@ -158,8 +158,4 @@ public class UploadDataController  extends AbstractResourcesDataController {
 	    return image;
 	}
 	
-	/**
-	 * FilePond 
-	 */
-	
 }

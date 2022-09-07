@@ -1,4 +1,4 @@
-package architecture.studio.component.templates.dao;
+package architecture.studio.components.templates.dao;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -18,8 +18,8 @@ import architecture.community.user.UserTemplate;
 import architecture.ee.jdbc.property.dao.PropertyDao;
 import architecture.ee.jdbc.sequencer.SequencerFactory;
 import architecture.ee.spring.jdbc.ExtendedJdbcDaoSupport;
-import architecture.studio.component.templates.DefaultTemplates;
-import architecture.studio.component.templates.Templates;
+import architecture.studio.components.templates.DefaultTemplates;
+import architecture.studio.components.templates.Templates;
 
 public class JdbcTemplatesDao extends ExtendedJdbcDaoSupport implements TemplatesDao {
 

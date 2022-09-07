@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import architecture.community.image.Image;
 import architecture.community.image.ImageService;
 import architecture.community.web.spring.controller.data.ResourceUtils;
-import architecture.studio.service.ImageEffectsService;
-import architecture.studio.service.ImageEffectsService.Effects;;
+import architecture.studio.services.ImageEffectsService;
+import architecture.studio.services.ImageEffectsService.Effects;;
 
 @Controller("studio-media-image-effects-data-controller")
 @RequestMapping("/data/images")

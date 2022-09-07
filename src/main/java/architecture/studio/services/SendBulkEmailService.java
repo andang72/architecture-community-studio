@@ -1,10 +1,10 @@
-package architecture.studio.service;
+package architecture.studio.services;
 
 import java.io.IOException;
 
 import architecture.community.exception.NotFoundException;
-import architecture.studio.component.email.SendBulkEmail;
-import architecture.studio.component.email.SendEmail;
+import architecture.studio.components.email.SendBulkEmail;
+import architecture.studio.components.email.SendEmail;
 
 public interface SendBulkEmailService { 
 	

@@ -1,9 +1,9 @@
-package architecture.studio.component.templates.dao;
+package architecture.studio.components.templates.dao;
 
 import java.io.IOException;
 
 import architecture.community.exception.NotFoundException;
-import architecture.studio.component.templates.Templates;
+import architecture.studio.components.templates.Templates;
 
 public interface TemplatesDao {
  

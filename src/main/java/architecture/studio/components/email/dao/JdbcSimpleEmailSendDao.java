@@ -1,4 +1,4 @@
-package architecture.studio.component.email.dao;
+package architecture.studio.components.email.dao;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -18,9 +18,9 @@ import architecture.community.user.UserTemplate;
 import architecture.ee.jdbc.property.dao.PropertyDao;
 import architecture.ee.jdbc.sequencer.SequencerFactory;
 import architecture.ee.spring.jdbc.ExtendedJdbcDaoSupport;
-import architecture.studio.component.email.SendBulkEmail;
-import architecture.studio.component.email.SendEmail;
-import architecture.studio.component.templates.DefaultTemplates;
+import architecture.studio.components.email.SendBulkEmail;
+import architecture.studio.components.email.SendEmail;
+import architecture.studio.components.templates.DefaultTemplates;
 
 public class JdbcSimpleEmailSendDao extends ExtendedJdbcDaoSupport implements SimpleEmailSendDao {
  

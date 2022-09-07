@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import architecture.community.image.Image;
 import architecture.community.image.ImageService;
 import architecture.community.web.spring.controller.data.ResourceUtils;
-import architecture.studio.service.ImageEffectsService;
-import architecture.studio.service.VisionService;
+import architecture.studio.services.ImageEffectsService;
+import architecture.studio.services.VisionService;
 
 @Controller("studio-vision-data-controller")
 @RequestMapping("/data/images")

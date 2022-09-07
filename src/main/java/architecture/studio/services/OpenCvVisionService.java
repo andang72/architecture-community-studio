@@ -1,4 +1,4 @@
-package architecture.studio.service;
+package architecture.studio.services;
 
 import java.io.File;
 import java.text.DecimalFormat;

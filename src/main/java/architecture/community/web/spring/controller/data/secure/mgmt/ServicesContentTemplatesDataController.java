@@ -29,9 +29,9 @@ import architecture.community.web.model.DataSourceRequest;
 import architecture.community.web.model.ItemList;
 import architecture.community.web.model.Result;
 import architecture.ee.util.StringUtils;
-import architecture.studio.component.templates.DefaultTemplates;
-import architecture.studio.component.templates.Templates;
-import architecture.studio.service.TemplatesService;
+import architecture.studio.components.templates.DefaultTemplates;
+import architecture.studio.components.templates.Templates;
+import architecture.studio.services.TemplatesService;
 
 @Controller("community-mgmt-services-content-templates-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/services/content")

@@ -1,11 +1,11 @@
-package architecture.studio.service;
+package architecture.studio.services;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 import architecture.community.exception.NotFoundException;
-import architecture.studio.component.templates.Templates;
+import architecture.studio.components.templates.Templates;
 
 public interface TemplatesService {
 	

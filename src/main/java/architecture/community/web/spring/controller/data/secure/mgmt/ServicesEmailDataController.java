@@ -35,10 +35,10 @@ import architecture.community.web.spring.controller.data.Utils;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;
 import architecture.ee.util.StringUtils;
-import architecture.studio.component.email.SendBulkEmail;
-import architecture.studio.component.templates.DefaultTemplates;
-import architecture.studio.component.templates.Templates;
-import architecture.studio.service.SendBulkEmailService;
+import architecture.studio.components.email.SendBulkEmail;
+import architecture.studio.components.templates.DefaultTemplates;
+import architecture.studio.components.templates.Templates;
+import architecture.studio.services.SendBulkEmailService;
 
 @Controller("community-mgmt-services-email-secure-data-controller")
 @RequestMapping("/data/secure/mgmt/services/mail")

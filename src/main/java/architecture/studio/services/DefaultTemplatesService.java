@@ -1,4 +1,4 @@
-package architecture.studio.service;
+package architecture.studio.services;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,8 +22,8 @@ import architecture.community.exception.NotFoundException;
 import architecture.community.user.UserManager;
 import architecture.community.web.spring.freemarker.FreemarkerTemplateBuilder;
 import architecture.ee.service.Repository;
-import architecture.studio.component.templates.Templates;
-import architecture.studio.component.templates.dao.TemplatesDao;
+import architecture.studio.components.templates.Templates;
+import architecture.studio.components.templates.dao.TemplatesDao;
 import freemarker.template.Template;
 
 public class DefaultTemplatesService implements TemplatesService {

@@ -1,4 +1,4 @@
-package architecture.studio.component.templates;
+package architecture.studio.components.templates;
 
 import java.util.Date;
 
