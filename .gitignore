@@ -1,0 +1,13 @@
+/target/
+/bin/
+.DS_Store
+.settings/org.eclipse.core.resources.prefs
+/WebContent/WEB-INF/lib/
+.classpath
+.project
+/.apt_generated_tests/
+/WebContent/WEB-INF/bundles/
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.m2e.core.prefs
+WebContent/WEB-INF/download/
+WebContent/WEB-INF/groovy-script/
