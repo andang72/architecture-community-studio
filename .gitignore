@@ -9,5 +9,6 @@
 /WebContent/WEB-INF/bundles/
 .settings/org.eclipse.jdt.core.prefs
 .settings/org.eclipse.m2e.core.prefs
-WebContent/WEB-INF/download/
-WebContent/WEB-INF/groovy-script/
+/WebContent/WEB-INF/download/
+/WebContent/WEB-INF/groovy-script/
+/WebContent/WEB-INF/startup-config.xml
