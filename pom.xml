@@ -24,10 +24,11 @@
 		<project.dependency.framework.version>5.3.2</project.dependency.framework.version>
 		<project.dependency.spring.version>5.3.18</project.dependency.spring.version>
 		<project.dependency.spring-integration.version>5.5.10</project.dependency.spring-integration.version>
-		<project.dependency.spring-security.version>[5.6.4,)</project.dependency.spring-security.version>
+		<project.dependency.spring-security.version>[5.6.7,)</project.dependency.spring-security.version>
 		<project.dependency.slf4j.version>1.7.32</project.dependency.slf4j.version>
 		<project.dependency.log4j.version>2.17.0</project.dependency.log4j.version>
-	
+		<project.dependency.jackson.version>[2.9.10.5,)</project.dependency.jackson.version>
+
 		<!-- JAVA 1.8.x 에서는 주석처리 필요 (javadocExecutable) -->
 		<!-- <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable> -->
 		<snippetsDirectory>${project.build.directory}/generated-snippets</snippetsDirectory>
@@ -197,6 +198,7 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
+			<scope>provided</scope>
 		</dependency>
 		<!-- SERVLET/JSP END -->
 
@@ -282,12 +284,21 @@
 			<version>1</version>
 		</dependency>
 
+		<!-- TEST START -->
 		<dependency>
 		  <groupId>junit</groupId>
 		  <artifactId>junit</artifactId>
 		  <version>[4.13.1,)</version>
 		  <scope>test</scope>
 		</dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.23.4</version>
+            <scope>test</scope>
+        </dependency>
+		<!-- TEST END -->
 
 		<!-- SITEMESH START -->
 		<!-- https://mvnrepository.com/artifact/org.sitemesh/sitemesh -->
@@ -338,9 +349,8 @@
 		</dependency>
  		<!-- APACHE POI END -->
 
-		<!--   CACHE START -->
-		
-					<dependency>
+		<!--  EH CACHE START -->
+		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
 			<version>2.10.9.2</version>
@@ -385,7 +395,7 @@
 		<dependency>
 		<groupId>org.jsoup</groupId>
 		<artifactId>jsoup</artifactId>
-		<version>[1.14.2,)</version>
+		<version>[1.15.3,)</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/net.sf.javamusictag/jid3lib -->
@@ -495,19 +505,32 @@
 			<version>3.2.0</version>
 		</dependency>		
 		<!-- VIDEO TRANSCODING END -->	
-		
+
+		<!-- hwplib END -->	 
+		<dependency>
+			<groupId>kr.dogfoot</groupId>
+			<artifactId>hwplib</artifactId>
+			<version>1.1.1</version>
+		</dependency> 
+        <!-- hwplib END -->	
+
 		<!--  OPENCV START -->
-		<!-- opencv must build by system -->
+		<!-- opencv must build by running system. this is only for compile -->
 		<dependency>
 			<groupId>opencv</groupId>
 			<artifactId>opencv</artifactId>
-			<version>4.5.4</version>
+			<version>4.6.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/opencv/opencv-454.jar</systemPath>
+			<systemPath>${project.basedir}/lib/opencv/opencv-460.jar</systemPath>
 		</dependency>
-		<!--  OPENCV END -->
-		
-
+		<!--  OPENCV END --> 
+		<!--  fastjson START -->
+	    <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
+        </dependency>	
+		<!--  fastjson END -->
 	</dependencies>
 	<build>
 		<plugins>
