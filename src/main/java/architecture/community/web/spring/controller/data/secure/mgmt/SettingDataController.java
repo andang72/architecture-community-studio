@@ -30,7 +30,7 @@ import architecture.ee.service.ConfigService;
 @RequestMapping("/data/secure/mgmt/settings")
 public class SettingDataController {
 
-	private static final Logger log = LoggerFactory.getLogger(ConfigDataController.class);
+	private static final Logger log = LoggerFactory.getLogger(ApplicationPropsDataController.class);
 	
 	@Inject
 	@Qualifier("configService")

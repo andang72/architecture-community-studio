@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
@@ -27,7 +29,7 @@ import architecture.community.tag.event.TagChangeEvent;
 import architecture.ee.component.event.PropertyChangeEvent.Type;
 import architecture.ee.util.StringUtils;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element; 
+import net.sf.ehcache.Element;
 
 public class DefaultTagService implements TagService {
 
@@ -48,28 +50,28 @@ public class DefaultTagService implements TagService {
 	@Inject
 	@Qualifier("tagContentCache")
 	private Cache tagContentCache;
- 
-	@Autowired(required=false)
+
+	@Autowired(required = false)
 	private ApplicationEventPublisher applicationEventPublisher;
-	
-	//@Inject
-	//@Qualifier("tagSetManager")
-	//private TagSetManager tagSetManager;
- 
+
+	// @Inject
+	// @Qualifier("tagSetManager")
+	// private TagSetManager tagSetManager;
+
 	private final TagHelper tagHelper = new TagHelper(this);
 
-	public DefaultTagService() { 
+	public DefaultTagService() {
 	}
-	
+
 	@PostConstruct
-	public void initialize() { 
-		
+	public void initialize() {
+
 	}
 
 	@PreDestroy
-	public void destroy() { 
+	public void destroy() {
 	}
- 
+
 	public ContentTag createTag(String name) {
 		try {
 			return getTag(name);
@@ -77,11 +79,11 @@ public class DefaultTagService implements TagService {
 			DefaultContentTag newTag = new DefaultContentTag(-1L, name.toLowerCase(), new Date());
 			tagDao.createContentTag(newTag);
 			if (newTag.getTagId() > 0) {
-				tagCache.put( new Element( newTag.getTagId(), newTag ) );
-				tagIdCache.put( new Element( newTag.getName().toLowerCase(), newTag.getTagId() ) );
+				tagCache.put(new Element(newTag.getTagId(), newTag));
+				tagIdCache.put(new Element(newTag.getName().toLowerCase(), newTag.getTagId()));
 			}
-			
-			if(applicationEventPublisher!=null) {
+
+			if (applicationEventPublisher != null) {
 				applicationEventPublisher.publishEvent(new TagChangeEvent(this, Type.ADDED, newTag));
 			}
 			// fire event;
@@ -91,7 +93,7 @@ public class DefaultTagService implements TagService {
 
 	@Override
 	public ContentTag getTag(String name) throws TagNotFoundException {
-		if (StringUtils.isEmpty(name)) {
+		if (!StringUtils.hasText(name)) {
 			throw new TagNotFoundException("Tag with null value is not valid.");
 		}
 		return getTag(getTagId(name));
@@ -104,57 +106,58 @@ public class DefaultTagService implements TagService {
 		} else {
 			ContentTag tag = tagDao.getContentTagByName(name);
 			if (tag == null) {
-				throw new TagNotFoundException(new StringBuilder().append("No tag with name '").append(name).append("' exists.").toString());
+				throw new TagNotFoundException( new StringBuilder().append("No tag with name '").append(name).append("' exists.").toString());
 			} else {
-				tagCache.put( new Element( tag.getTagId(), tag) );
-				tagIdCache.put( new Element( tag.getName().toLowerCase(), tag.getTagId() ) );
+				tagCache.put(new Element(tag.getTagId(), tag));
+				tagIdCache.put(new Element(tag.getName().toLowerCase(), tag.getTagId()));
 				return tag.getTagId();
 			}
 		}
 	}
- 
+
 	public ContentTag getTag(long tagId) throws TagNotFoundException {
 		ContentTag tag;
 		if (tagCache.get(tagId) != null) {
 			tag = (ContentTag) tagCache.get(tagId).getObjectValue();
 		} else {
 			tag = tagDao.getContentTagById(tagId);
- 
+
 			if (tag == null)
 				throw new TagNotFoundException();
-			tagCache.put( new Element( tag.getTagId(), tag)) ;
-			tagIdCache.put( new Element( tag.getName().toLowerCase(), tag.getTagId() ) );
+			tagCache.put(new Element(tag.getTagId(), tag));
+			tagIdCache.put(new Element(tag.getName().toLowerCase(), tag.getTagId()));
 		}
 		return tag;
 	}
- 
+
 	public void addTag(ContentTag tag, int objectType, long objectId) throws UnAuthorizedException {
 		if (objectType < 0 || objectId < 0L)
 			throw new IllegalStateException();
-		
+
 		synchronized (getLock(objectType, objectId)) {
 			List<Long> tags = getTagIds(objectType, objectId);
 			int index = tags.indexOf(Long.valueOf(tag.getTagId()));
 			if (index < 0) {
 				tags.add(Long.valueOf(tag.getTagId()));
-				tagContentCache.put( new Element(new ModelObjectKey(objectType, objectId), tags) );
+				tagContentCache.put(new Element(new ModelObjectKey(objectType, objectId), tags));
 			}
 		}
-		
+
 		tagDao.addTag(tag.getTagId(), objectType, objectId);
-		if(applicationEventPublisher!=null) {
-			applicationEventPublisher.publishEvent(new TagChangeEvent(this, Type.ADDED, tag, objectType , objectId ));
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new TagChangeEvent(this, Type.ADDED, tag, objectType, objectId));
 		}
 	}
 
 	private Object getLock(int objectType, long objectId) {
-		return LockUtils.intern( (new StringBuilder()).append("tagmgr-").append(objectType).append(",").append(objectId).toString()) ;
+		return LockUtils.intern(
+				(new StringBuilder()).append("tagmgr-").append(objectType).append(",").append(objectId).toString());
 	}
 
 	public String getCacheKey(int objectType, long objectId) {
-		return LockUtils.intern((new StringBuilder()).append("t-").append(objectType).append("-").append(objectId).toString());
+		return LockUtils
+				.intern((new StringBuilder()).append("t-").append(objectType).append("-").append(objectId).toString());
 	}
-
 
 	private List<Long> getTagIds(int objectType, long objectId) {
 		List<Long> tagIds;
@@ -166,21 +169,43 @@ public class DefaultTagService implements TagService {
 				tagIds = (List<Long>) tagContentCache.get(cacheKey).getObjectValue();
 			} else {
 				tagIds = tagDao.getTagIds(objectType, objectId);
-				tagContentCache.put( new Element( cacheKey, tagIds ) );
+				tagContentCache.put(new Element(cacheKey, tagIds));
 			}
 		}
 		return tagIds;
+	}
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public void updateTag(ContentTag contenttag) {
+		long tagId = contenttag.getTagId();
+		if( tagId > 0 && !StringUtils.isNullOrEmpty(contenttag.getName()) )
+		{
+			tagDao.updateContentTag(tagId, contenttag.getName());
+			tagCache.remove(tagId);
+			tagIdCache.remove(contenttag.getName().toLowerCase()) ;
+		}
+	}
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public void removeTag(ContentTag contenttag) {
+		long tagId = contenttag.getTagId();
+		if( tagId > 0 )
+		{
+			tagDao.deleteContentTag(tagId);
+			tagCache.remove(tagId);
+			tagIdCache.remove(contenttag.getName().toLowerCase()) ;
+		}
 	}
 
 	@Override
 	public void setTags(String tags, int objectType, long objectId) {
 		try {
 			tagHelper.setTags(tags, objectType, objectId);
-		} catch (UnAuthorizedException e) { 
+		} catch (UnAuthorizedException e) {
 			e.printStackTrace();
 		}
 	}
- 
+
 	public List<ContentTag> getTags(int objectType, long objectId) {
 		List<Long> tagIds = getTagIds(objectType, objectId);
 		List<ContentTag> tags = new ArrayList<ContentTag>(tagIds.size());
@@ -220,7 +245,7 @@ public class DefaultTagService implements TagService {
 			int index = tags.indexOf(Long.valueOf(tag.getTagId()));
 			if (index >= 0) {
 				tags.remove(index);
-				tagContentCache.put( new Element( getCacheKey(objectType, objectId), tags ) );
+				tagContentCache.put(new Element(getCacheKey(objectType, objectId), tags));
 			} else {
 				throw new IllegalArgumentException("Tag is not associated with this object");
 			}
@@ -228,15 +253,16 @@ public class DefaultTagService implements TagService {
 
 		// fire event..
 		removeTagFromDb(tag, objectType, objectId);
-		if(applicationEventPublisher!=null) {
-			applicationEventPublisher.publishEvent(new TagChangeEvent(this, Type.REMOVED, tag, objectType , objectId ));
-		} 
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new TagChangeEvent(this, Type.REMOVED, tag, objectType, objectId));
+		}
 	}
 
 	private void removeTagFromDb(ContentTag tag, int objectType, long objectId) {
 		tagDao.removeTag(tag.getTagId(), objectType, objectId);
 		if (tagContentCache.get(getCacheKey(objectType, objectId)) != null)
-			((List<Long>) tagContentCache.get(getCacheKey(objectType, objectId)).getObjectValue()).remove(Long.valueOf(tag.getTagId()));
+			((List<Long>) tagContentCache.get(getCacheKey(objectType, objectId)).getObjectValue())
+					.remove(Long.valueOf(tag.getTagId()));
 		/*
 		 * if(tagDao.countTags(tag.getTagId()) <= 0 &&
 		 * !tagSetManager.getTagSetsTagBelongsTo(tag).hasNext()) {
@@ -247,30 +273,31 @@ public class DefaultTagService implements TagService {
 		 * }
 		 */
 	}
- 
+
 	public void removeAllTags(int objectType, long objectId) throws UnAuthorizedException {
 		if (objectType < 0 || objectId < 0L)
 			throw new IllegalStateException();
-		
+
 		synchronized (getLock(objectType, objectId)) {
-			List<ContentTag> contentTags = new ImmutableList.Builder<ContentTag>().addAll(getTags(objectType, objectId)).build();
+			List<ContentTag> contentTags = new ImmutableList.Builder<ContentTag>().addAll(getTags(objectType, objectId))
+					.build();
 			for (ContentTag tag : contentTags) {
 				List<Long> tags = getTagIds(objectType, objectId);
 				int index = tags.indexOf(Long.valueOf(tag.getTagId()));
 				if (index >= 0) {
 					tags.remove(index);
 					tagDao.removeTag(tag.getTagId(), objectType, objectId);
-				}else {
+				} else {
 					throw new IllegalArgumentException("Tag is not associated with this object");
 				}
 			}
-			
-			tagContentCache.remove(getCacheKey(objectType, objectId));			
+
+			tagContentCache.remove(getCacheKey(objectType, objectId));
 		}
 	}
-	
-	public TagDelegator getTagDelegator(Category category) { 
-		return new DefaultTagDelegator( Models.CATEGORY.getObjectType(), category.getCategoryId(), this); 
+
+	public TagDelegator getTagDelegator(Category category) {
+		return new DefaultTagDelegator(Models.CATEGORY.getObjectType(), category.getCategoryId(), this);
 	}
-	
+
 }

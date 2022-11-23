@@ -3,8 +3,8 @@ package tests;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import architecture.community.exception.NotFoundException;
+import architecture.community.web.gateway.annotation.ScriptData;
 import architecture.community.web.model.ItemList;
-import architecture.community.web.spring.controller.annotation.ScriptData;
 
 public class AnnotationDataViewTest {
 

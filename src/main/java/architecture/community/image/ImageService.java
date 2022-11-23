@@ -111,11 +111,15 @@ public interface ImageService {
 	/** IMAGE API **/
 	
 	public abstract Image createImage(int objectType, long objectId, String name, String contentType, File file);
+
+	public abstract Image createImage(int objectType, long objectId, String name, String description, String contentType, File file);
 	
 	public abstract Image createImage(int objectType, long objectId, String name, String contentType, InputStream inputStream);
 	
 	public abstract Image createImage(int objectType, long objectId, String name, String contentType, InputStream inputStream, int size);
 	
+	public abstract Image createImage(int objectType, long objectId, String name, String description, String contentType, InputStream inputStream, int size);
+
 	public abstract void saveOrUpdate( Image image );
 	
 	public abstract Image saveImage( Image image );

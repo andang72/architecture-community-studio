@@ -18,8 +18,6 @@ public interface CommunityAclService extends MutableAclService {
 	
 	public <T> void getFinalGrantedPermissions(  Authentication authentication, Class<T> clazz, Serializable identifier, PermissionsSetter setter ) ;
 	
-	
-	
 	public <T> boolean isPermissionGrantedFinally(Authentication authentication, Class<T> clazz, Serializable identifier, List<Permission> permissions) ;
 	
 	/**
@@ -54,7 +52,6 @@ public interface CommunityAclService extends MutableAclService {
 	public <T> boolean isPermissionGranted(Class<T> clazz, Serializable identifier, UserDetails user, Permission... permissions);
 	
 	public <T> boolean isPermissionGrantedToAnonymous(Class<T> clazz, Serializable identifier, Permission... permissions) ;
-	
  
 	public <T> void addAnonymousPermission(Class<T> clazz, Serializable identifier, Permission permission) ;
  

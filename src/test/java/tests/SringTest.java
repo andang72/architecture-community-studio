@@ -1,5 +1,6 @@
 package tests;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 
@@ -9,14 +10,14 @@ public class SringTest {
     public void testStringFormat(){
         
         String str = "39b280e88576d7.jpeg";
- 
 
         System.out.println( str.lastIndexOf("."));
         System.out.println( str.substring(0, str.lastIndexOf(".") ));
         System.out.println( str.substring( str.lastIndexOf(".") ));
 
-        
-        
+        String text = "123**&!!asdf#\n";
+        System.out.println(text.replaceAll("[\r\n]","") );
+        System.out.println( RegExUtils.replaceAll(text, "[\r\n]+","" ));
     }
 
     @Test

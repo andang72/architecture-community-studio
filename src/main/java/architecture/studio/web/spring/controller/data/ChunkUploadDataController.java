@@ -4,13 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.tika.Tika;
@@ -28,11 +22,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
- 
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import architecture.community.exception.NotFoundException;
-import architecture.community.exception.UnAuthorizedException; 
-import architecture.community.image.Image; 
-import architecture.community.image.ImageService;   
+import architecture.community.exception.UnAuthorizedException;
+import architecture.community.image.Image;
+import architecture.community.image.ImageService;
 import architecture.community.user.User;
 import architecture.community.util.SecurityHelper;
 
@@ -133,7 +130,6 @@ public class ChunkUploadDataController {
 	    }
 	    return contentType;
 	}
-
 
     protected File getFile(String uploadUid, String fileName){
         File root = imageService.getImageTempDir();

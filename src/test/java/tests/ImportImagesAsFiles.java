@@ -18,7 +18,7 @@ import architecture.community.query.CustomQueryService;
 import architecture.community.query.dao.CustomQueryJdbcDao;
 import architecture.community.services.database.CommunityExportService;
 import architecture.community.services.database.ImageDef;
-import architecture.community.web.spring.controller.annotation.ScriptData;
+import architecture.community.web.gateway.annotation.ScriptData;
 import architecture.ee.util.StringUtils;
 
 public class ImportImagesAsFiles  {

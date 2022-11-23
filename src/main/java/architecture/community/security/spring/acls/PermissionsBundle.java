@@ -7,6 +7,7 @@ public class PermissionsBundle {
 	protected boolean create = false;
 	protected boolean delete = false;
 	protected boolean admin = false;
+	
 	protected boolean createThread = false;
 	protected boolean createThreadMessage = false;
 	protected boolean createAttachment = false;

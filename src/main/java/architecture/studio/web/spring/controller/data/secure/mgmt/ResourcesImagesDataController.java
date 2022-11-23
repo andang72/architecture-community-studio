@@ -151,6 +151,9 @@ public class ResourcesImagesDataController {
 		{
 			imageToUse.setObjectId(image.getObjectId());
 		}
+		if( !StringUtils.isNullOrEmpty( image.getDescription() ) && !StringUtils.equals(imageToUse.getDescription(), image.getDescription()) ){
+			imageToUse.setDescription(image.getDescription());
+		}
 		imageService.saveOrUpdate(imageToUse); 
 		return imageToUse;
 	}
@@ -181,9 +184,10 @@ public class ResourcesImagesDataController {
 			((DefaultImage)imageToUse).setContentType(contentType);
 	    	((DefaultImage)imageToUse).setInputStream(inputStream); 
 	    	((DefaultImage)imageToUse).setName(upload.getFileName());
+			((DefaultImage)imageToUse).setDescription(upload.getDescription());
 	    	imageToUse.setSize(IOUtils.toByteArray(inputStream).length);
 		}else {
-			imageToUse = imageService.createImage( upload.getObjectType(), upload.getObjectId(), upload.getFileName(), contentType, file );
+			imageToUse = imageService.createImage( upload.getObjectType(), upload.getObjectId(), upload.getFileName(), upload.description, contentType, file );
 		}
 		imageToUse.setUser(user);
 		imageToUse.getProperties().put("url", upload.getImageUrl().toString());
@@ -199,11 +203,20 @@ public class ResourcesImagesDataController {
 		private long objectId = 0;
 		private boolean share = false;
 		private boolean wallpaper = false;
+		private String description = null;
 
 		@JsonIgnore
 		private String contentType;
 	
 		
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
 		public boolean isWallpaper() {
 			return wallpaper;
 		}
@@ -314,6 +327,10 @@ public class ResourcesImagesDataController {
 	} 
 	
 	/**
+	 * IMAGE UPLOAD API 
+	******************************************/
+
+	/**
 	 * 이미지를 생성 / 업데이트 한다. 
 	 * @param objectType
 	 * @param objectId
@@ -358,11 +375,6 @@ public class ResourcesImagesDataController {
 		}			
 		return list;
     }
-
-
-	/**
-	 * IMAGE UPLOAD API 
-	******************************************/
 	
 	/**
 	 * 이미지를 생성 / 업데이트 하고 동시에 타 모듈에서 이미지를 보여주기 위한 링크키를 생성하여 리턴한다. 

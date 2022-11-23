@@ -26,7 +26,7 @@ public class DownloadImageFromUrlTest {
 			 //api.getParameters();
 
 			
-			URL url = new URL("https://image.dcinside.com/download.php?no=24b0d769e1d32ca73feb83fa11d02831b9f69be2ae2fc8e2b8c80ee7de95e75b0091899aab42e8370825206eb79712e7c58a955e3c027b297af5df5e2a10f4421dd2a9f16f2b095d76dd210876c33577101cb9a7&f_no=20220201_161813.jpg");
+			URL url = new URL("https://byline.network/wp-content/uploads/2018/05/Dog-original.jpg");
 			File image = readFileFromUrl( url );
 			String contentType = getContentType(image);
 			System.out.println( contentType );

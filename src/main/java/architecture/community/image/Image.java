@@ -39,6 +39,9 @@ public interface Image extends PropertyModelObjectAware {
 
     public void setModifiedDate(Date modifiedDate);
 	
+		
+	public String getDescription() ;
+	public void setDescription(String description);
 	
 	/**
 	 * 이미지 ContentType 값

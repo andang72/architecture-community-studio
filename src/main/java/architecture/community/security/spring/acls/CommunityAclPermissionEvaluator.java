@@ -21,7 +21,10 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
-
+/**
+ * custom permission evaluator.
+ * 
+ */
 public class CommunityAclPermissionEvaluator implements PermissionEvaluator {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -44,10 +47,8 @@ public class CommunityAclPermissionEvaluator implements PermissionEvaluator {
 	public boolean hasPermission(Authentication authentication, Object domainObject, Object permission) {
 		if (domainObject == null) {
 			return false;
-		}
-
-		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
-
+		} 
+		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject); 
 		return checkPermission(authentication, objectIdentity, permission);
 	}
 
@@ -61,11 +62,10 @@ public class CommunityAclPermissionEvaluator implements PermissionEvaluator {
 		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
 		List<Permission> requiredPermission = resolvePermission(permission);
 
-		final boolean debug = logger.isDebugEnabled();
-
+		final boolean debug = logger.isDebugEnabled(); 
 		if (debug) {
 			logger.debug("Sids:{}, Perms:{}" , sids , requiredPermission );	
-			logger.debug("Checking permission '" + permission + "' for object '" + oid + "'");
+			logger.debug("Checking permission <{}}> for object <{}}>" , permission, oid);
 		}
 
 		try {

@@ -34,7 +34,7 @@ import architecture.ee.util.LocaleUtils;
 @RequestMapping("/data/secure/mgmt")
 public class LocaleDataController {
 
-	private static final Logger log = LoggerFactory.getLogger(ConfigDataController.class);
+	private static final Logger log = LoggerFactory.getLogger(ApplicationPropsDataController.class);
 	
 	@Inject
 	@Qualifier("configService")

@@ -142,13 +142,28 @@ public class DefaultStreamThread extends PropertyModelObjectAwareSupport impleme
 
 	public String getCoverImgSrc() {
 		if( hasCoverImg && this.coverImgSrc == null && this.rootMessage != null && StringUtils.isNotEmpty(rootMessage.getBody()))
-		{
+		{ 
 			Document doc = Jsoup.parse(this.rootMessage.getBody());
 			Elements eles = doc.select("img");
 			for( Element ele : eles ) { 				
 				this.coverImgSrc = ele.attr("src"); 
 				break;
 			} 
+
+			if( StringUtils.isBlank( this.coverImgSrc ) ){ 
+				Elements eles2 = doc.select("figure.media div[data-oembed-url]");
+				for( Element ele : eles2 ) { 
+					String src =  ele.attr("data-oembed-url");
+					if( StringUtils.startsWithIgnoreCase(src, "https://youtu.be/"))
+					{  
+						String id = StringUtils.remove(src, "https://youtu.be/");
+						StringBuilder sb = new StringBuilder("https://img.youtube.com/vi/").append(id).append("/0.jpg");
+						this.coverImgSrc = sb.toString() ;
+						break;
+					}
+				}
+			}
+
 			if( StringUtils.isBlank( this.coverImgSrc ) )
 				this.hasCoverImg = false;
 		}

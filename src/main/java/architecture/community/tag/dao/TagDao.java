@@ -3,6 +3,7 @@ package architecture.community.tag.dao;
 import java.util.List;
 
 import architecture.community.tag.ContentTag;
+import architecture.community.tag.TagNotFoundException;
 
 public interface TagDao {
 
@@ -16,10 +17,12 @@ public interface TagDao {
 
     public ContentTag getContentTagById(long tagId);
 
-    public ContentTag getContentTagByName(String name);
+    public ContentTag getContentTagByName(String name) throws TagNotFoundException;
 
     public void createContentTag(ContentTag tag);
 
     public void deleteContentTag(long tagId);
+
+    public void updateContentTag(long tagId, String name);
 
 }

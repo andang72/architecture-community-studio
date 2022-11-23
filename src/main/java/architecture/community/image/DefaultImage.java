@@ -63,6 +63,8 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 	private Image coverImage;	
 	
 	private Boolean _new;
+
+	private String description;
 	
 	public DefaultImage() {
 		super(UNKNOWN_OBJECT_TYPE, UNKNOWN_OBJECT_ID);
@@ -111,6 +113,14 @@ public class DefaultImage extends PropertyModelObjectAwareSupport implements Ima
 	}
 	
 	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public Integer getOrder() {
 		return order;
 	}

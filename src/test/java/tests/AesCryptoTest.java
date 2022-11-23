@@ -1,6 +1,5 @@
 package tests;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 
@@ -43,7 +42,7 @@ public class AesCryptoTest {
         
         //String originalString = "";
         String key = "podonamu!@#45";
-        SecureRandom sr = SecureRandom.getInstance("SHA256PRNG"); //SHA1PRNG
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG"); //SHA1PRNG
         sr.setSeed(key.getBytes());
 
         KeyGenerator kgen = KeyGenerator.getInstance("AES");
@@ -67,6 +66,26 @@ public class AesCryptoTest {
         byte[] decrypted = cipher.doFinal(Hex.decodeHex(encryptedString.toCharArray()));
         String decryptedString = new String(decrypted);
         System.out.println( decryptedString );
+    }
+
+    @Test
+    public void testASE2() throws Exception {
+        String iv  = "1d6798fae3c1-88f" ;// "1d6798fae3c1-88ff-4724-28e2-0bcbe9c1";
+       // String iv = key.substring(0, 16);
+        SecretKeySpec keySpec = new SecretKeySpec(iv.getBytes("UTF-8"), "AES");
+        System.out.println(iv);
+        String plainText = "hrd";
+        Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        c.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(iv.getBytes()));
+        byte[] encrypted = c.doFinal(plainText.getBytes("UTF-8"));
+        String encryptedString = new String(Base64.encodeBase64(encrypted));
+        System.out.println(encryptedString);
+
+        
+        c.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(iv.getBytes()));
+        byte[] decoded = Base64.decodeBase64(encryptedString);
+        String decodedString = new String(c.doFinal(decoded), "UTF-8");
+        System.out.println(decodedString);
     }
  
 }

@@ -89,7 +89,7 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 			image.setName(rs.getString("FILE_NAME"));
 			String normalized = java.text.Normalizer.normalize(image.getName(), Normalizer.Form.NFC);
 			image.setName(normalized);
-
+			image.setDescription(rs.getString("DESCRIPTION"));
 			image.setSize(rs.getInt("FILE_SIZE"));
 			image.setUser(new UserTemplate(rs.getLong("USER_ID")));
 			image.setContentType(rs.getString("CONTENT_TYPE"));
@@ -138,6 +138,7 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 					new SqlParameterValue(Types.INTEGER, image.getObjectType()),
 					new SqlParameterValue(Types.NUMERIC, image.getObjectId()),
 					new SqlParameterValue(Types.VARCHAR, image.getName()),
+					new SqlParameterValue(Types.VARCHAR, image.getDescription()),
 					new SqlParameterValue(Types.INTEGER, image.getSize()),
 					new SqlParameterValue(Types.VARCHAR, image.getContentType()),
 					new SqlParameterValue(Types.NUMERIC, image.getUser().getUserId()),
@@ -155,9 +156,9 @@ public class JdbcImageDao extends ExtendedJdbcDaoSupport implements ImageDao {
 				new SqlParameterValue(Types.INTEGER, image.getObjectType()),
 				new SqlParameterValue(Types.INTEGER, image.getObjectId()),
 				new SqlParameterValue(Types.VARCHAR, image.getName()),
+				new SqlParameterValue(Types.VARCHAR, image.getDescription()),
 				new SqlParameterValue(Types.INTEGER, image.getSize()),
 				new SqlParameterValue(Types.VARCHAR, image.getContentType()),
-				// new SqlParameterValue(Types.DATE, image.getCreationDate()),
 				new SqlParameterValue(Types.DATE, image.getModifiedDate()),
 				new SqlParameterValue(Types.NUMERIC, image.getImageId()));
 

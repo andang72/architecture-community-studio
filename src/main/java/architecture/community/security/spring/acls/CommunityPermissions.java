@@ -19,6 +19,7 @@ public class CommunityPermissions extends BasePermission {
 	public static final CommunityPermissions CREATE_ATTACHMENT = new CommunityPermissions("CREATE_ATTACHMENT", 1 << 9 , 'F');	//512 
 	public static final CommunityPermissions CREATE_IMAGE = new CommunityPermissions("CREATE_IMAGE", 1 << 10 , 'I'); //1024
 	
+	
 	private static final CommunityPermissions [] permissions = {
 		READ,
 		WRITE,

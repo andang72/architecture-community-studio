@@ -36,7 +36,7 @@ import architecture.community.streams.Streams;
 import architecture.community.streams.StreamsService;
 import architecture.community.user.User;
 import architecture.community.user.UserTemplate;
-import architecture.community.web.spring.controller.annotation.ScriptData;
+import architecture.community.web.gateway.annotation.ScriptData;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;
 
@@ -89,9 +89,9 @@ public class DownloadImagesFromUrl {
 
 		StringBuilder sb = new StringBuilder();
 
-		for (int i = 31; i <= 40; i++) {
-
-			String serviceUrl = String.format("https://mangahentai.me/manga-hentai/lucky-guy/chapter-%s/", i);
+		for (int i = 1; i <= 10; i++) {
+//https://bonmanga.com/manga/keep-this-a-secret-from-mom/chapter-1/
+			String serviceUrl = String.format("https://bonmanga.com/manga/keep-this-a-secret-from-mom/chapter-%s/", i);
 			String downloadDir = String.format("/lucky-guy/chapter-%s", i);
 
 			Response res = communityHttpClientService.get(serviceUrl, null, new ResponseCallBack<Response>() {

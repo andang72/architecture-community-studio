@@ -170,8 +170,7 @@ public class MeDataController extends AbstractResourcesDataController {
 
 		User user = SecurityHelper.getUser();
 		Principal principal = request.getUserPrincipal();
-		log.debug("user from security : {}, principal : {} , authentication : {}", user,
-				principal != null ? principal.getName() : "anonymous", authentication);
+		log.debug("user from security : {}, principal : {} , authentication : {}", user, principal != null ? principal.getName() : "anonymous", authentication);
 
 		boolean includeImageLink = org.apache.commons.lang3.StringUtils.contains(fields, "link");
 		boolean includeTags = org.apache.commons.lang3.StringUtils.contains(fields, "tags");

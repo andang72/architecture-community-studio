@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import architecture.community.web.spring.view.script.AbstractDataView;
+import architecture.community.web.gateway.view.script.AbstractDataView;
 
 public class DataViewTest extends AbstractDataView {
 

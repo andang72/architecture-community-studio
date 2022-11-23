@@ -55,8 +55,7 @@ public class ServicesEditor {
 	}
 	
 	public static interface ServicesConfigCallback {
-		
-		@Nullable
+		 
 		public void saveOrUpdate ( XmlProperties properteis );
 		
 	}

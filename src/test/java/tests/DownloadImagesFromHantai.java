@@ -24,7 +24,7 @@ import architecture.community.services.support.PooledHttpClientSupport.ResponseC
 import architecture.community.streams.StreamsService;
 import architecture.community.user.User;
 import architecture.community.user.UserTemplate;
-import architecture.community.web.spring.controller.annotation.ScriptData;
+import architecture.community.web.gateway.annotation.ScriptData;
 import architecture.ee.service.ConfigService;
 import architecture.ee.service.Repository;
 
@@ -62,7 +62,7 @@ public class DownloadImagesFromHantai {
 	@ScriptData
 	public Object download (HttpServletRequest request, HttpServletResponse response ) throws Exception {  
 		
-		String title = "the-lucky-guy-2-manga0002";
+		String title = "keep-this-a-secret-from-mom";
 		java.util.List list = new java.util.ArrayList();
 		
 		for ( int i = 43 ;  i <= 47 ; i ++ ) {			
@@ -73,8 +73,9 @@ public class DownloadImagesFromHantai {
 	    //value.put("q", "Seoul");
 	    
 		
-		String serviceUrl = "https://mangahentai.me/manga-hentai/"+ title +"/chapter-" + i + "/"; 
-	
+		//String serviceUrl = "https://mangahentai.me/manga-hentai/"+ title +"/chapter-" + i + "/"; 
+		String serviceUrl = "https://bonmanga.com/manga/"+ title +"/chapter-" + i + "/";  
+
         row.put("page", serviceUrl );
         
 		Document doc = communityHttpClientService.get(serviceUrl, null, new ResponseCallBack<Document>(){

@@ -73,6 +73,8 @@ public class UploadDataController  extends AbstractResourcesDataController {
 	private TagService tagService;	
 	
 	
+	private static final Lock lock = new ReentrantLock();
+	
 	/**
 	 * 이미지를 생성 / 업데이트 하고 동시에 타 모듈에서 이미지를 보여주기 위한 링크키를 생성하여 리턴한다. 
 	 * (링크키는 없는 경우에만 생성된다.)
@@ -120,7 +122,6 @@ public class UploadDataController  extends AbstractResourcesDataController {
 		return list ; 
     } 
 	
-	private static final Lock lock = new ReentrantLock();
 	
 	/**
 	 * 

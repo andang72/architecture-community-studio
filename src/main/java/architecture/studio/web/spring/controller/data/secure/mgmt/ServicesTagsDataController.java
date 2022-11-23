@@ -3,6 +3,7 @@ package architecture.studio.web.spring.controller.data.secure.mgmt;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,162 +40,186 @@ public class ServicesTagsDataController {
 
 	@Autowired
 	@Qualifier("repository")
-	private Repository repository;	
-	
-	@Autowired( required = false) 
+	private Repository repository;
+
+	@Autowired(required = false)
 	@Qualifier("configService")
 	private ConfigService configService;
-	
-	@Autowired( required = false) 
+
+	@Autowired(required = false)
 	@Qualifier("customQueryService")
 	private CustomQueryService customQueryService;
-	
-	@Autowired( required = false) 
+
+	@Autowired(required = false)
 	@Qualifier("tagService")
 	private TagService tagService;
-	
+
 	/**
-	 * TAG API 
-	******************************************/	
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
+	 * TAG API
+	 ******************************************/
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/list.json", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getTags(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {
-		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_CONTENT_TAGS"); 
-		
+		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_CONTENT_TAGS");
+
 		List<DefaultContentTag> list = customQueryService.list(dataSourceRequest, new RowMapper<DefaultContentTag>() {
 			public DefaultContentTag mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return new DefaultContentTag(rs.getLong(1), rs.getString(2), rs.getTimestamp(3));
 			}
-		}); 
-		return new ItemList(list, list.size()); 
-	}	
-	
+		});
+		return new ItemList(list, list.size());
+	}
 
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/create.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/0/create.json", method = {
+			RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ContentTag saveOrUpdate(@RequestBody DefaultContentTag tag, NativeWebRequest request) throws NotFoundException { 
-		if (tag.getTagId() > 0) { 
-			return tag; 
+	public ContentTag createTag(@RequestBody DefaultContentTag tag, NativeWebRequest request)
+			throws NotFoundException {
+		if (tag.getTagId() > 0) {
+			return tag;
 		} else {
-			return tagService.createTag(tag.getName()); 
-		} 
+			return tagService.createTag(tag.getName());
+		}
 	}
 
-
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/{tagId:[\\p{Digit}]+}/delete.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/0/save-or-update.json", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ContentTag deleteTag(
-		@PathVariable Long tagId, 
-		@RequestBody DefaultContentTag tag, 
-		NativeWebRequest request) throws NotFoundException { 
+	public ContentTag saveOrUpdate(@RequestBody DefaultContentTag tag, NativeWebRequest request)
+			throws NotFoundException {
+		if (tag.getTagId() > 0) { 
+			tagService.updateTag(tag);
+			return tag;
+		} else {
+			return tagService.createTag(tag.getName());
+		}
+	}	
 
-
-		return tag;
-	}
-
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/{tagId:[\\p{Digit}]+}", method = { RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/{tagId:[\\p{Digit}]+}/delete.json", method = {
+			RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Result delete (
-		@PathVariable Long tagId, 	
-		@RequestBody DefaultContentTag tag, 
-		NativeWebRequest request) throws NotFoundException { 
+	public Result deleteTag(
+			@PathVariable Optional<Long> tagId,
+			@RequestBody DefaultContentTag tag,
+			NativeWebRequest request) throws NotFoundException {
 		Result rs = Result.newResult();
 		if (tag.getTagId() > 0) { 
-			
+			ContentTag tagToUse = tagService.getTag(tag.getTagId());
+			tagService.removeTag(tagToUse);
 		}
 		return rs;
 	}
 
-	
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/list.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/{tagId:[\\p{Digit}]+}", method = {
+			RequestMethod.DELETE }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Result delete(
+			@PathVariable Long tagId,
+			@RequestBody DefaultContentTag tag,
+			NativeWebRequest request) throws NotFoundException {
+		Result rs = Result.newResult();
+		if (tag.getTagId() > 0) {
+			ContentTag tagToUse = tagService.getTag(tag.getTagId());
+			tagService.removeTag(tagToUse);
+		}
+		return rs;
+	}
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/0/objects/list.json", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ItemList getTagObjects(@RequestBody DataSourceRequest dataSourceRequest, NativeWebRequest request) {
 		dataSourceRequest.setStatement("COMMUNITY_WEB.SELECT_TAG_OBJECTS");
-		 List<TagObject> list = customQueryService.list(dataSourceRequest, new RowMapper<TagObject>() {
+		List<TagObject> list = customQueryService.list(dataSourceRequest, new RowMapper<TagObject>() {
 			public TagObject mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return new TagObject(rs.getInt(1), rs.getLong(2), rs.getLong(3));
 			}
-		}); 
-		return new ItemList(list, list.size()); 
-	}	 
- 
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/create.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public TagObject createTagObject(@RequestBody TagObject tagObject, NativeWebRequest request) throws NotFoundException, UnAuthorizedException {
-		
-		if( tagObject.getTagId() > 0 ) {
-			ContentTag tag = tagService.getTag(tagObject.getTagId());
-			tagService.addTag(tag, tagObject.objectType, tagObject.objectId );
-		}
-		return tagObject;
+		});
+		return new ItemList(list, list.size());
 	}
 
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/add.json", method = { RequestMethod.POST, RequestMethod.GET },produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public Result addTagObject(@RequestBody TagsObjects tagsObjects, NativeWebRequest request) throws NotFoundException, UnAuthorizedException {
-		Result result = Result.newResult();
-		for( Long tagId : tagsObjects.tagIds)
-		{
-			ContentTag tag = tagService.getTag(tagId);
-			for( Long objectId : tagsObjects.objectIds) {
-				tagService.addTag(tag, tagsObjects.objectType, objectId );
-				result.setCount(result.getCount() + 1);
-			}
-		}
-		return result;
-	}
-
-	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
-	@RequestMapping(value = "/tags/0/objects/save-or-update.json", method = { RequestMethod.POST, RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE )
-	@ResponseBody
-	public Result saveOrUpdateTagsObjects(@RequestBody TagsObjects tagsObjects, NativeWebRequest request) throws NotFoundException, UnAuthorizedException {
-		
-		Result result = Result.newResult(); 
-		for( Long objectId : tagsObjects.objectIds) {
-			tagService.removeAllTags(tagsObjects.objectType, objectId);
-		}
-		for( Long tagId : tagsObjects.tagIds) {
-			ContentTag tag = tagService.getTag(tagId);
-			for( Long objectId : tagsObjects.objectIds) {
-				tagService.addTag(tag, tagsObjects.objectType, objectId );
-				result.setCount(result.getCount() + 1);
-			}
-		}
-		return result;
-	}
-	
-	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
-	@RequestMapping(value = "/tags/0/objects/delete.json", method = { RequestMethod.POST, RequestMethod.GET },produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/tags/0/objects/create.json", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public TagObject removeTagObject(@RequestBody TagObject tagObject, NativeWebRequest request)
-			throws NotFoundException, UnAuthorizedException { 
+	public TagObject createTagObject(@RequestBody TagObject tagObject, NativeWebRequest request)
+			throws NotFoundException, UnAuthorizedException {
+
 		if (tagObject.getTagId() > 0) {
 			ContentTag tag = tagService.getTag(tagObject.getTagId());
-			tagService.removeTag(tag, tagObject.objectType, tagObject.objectId );
-		} 
+			tagService.addTag(tag, tagObject.objectType, tagObject.objectId);
+		}
 		return tagObject;
-	}	
-	
-	
+	}
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/0/objects/add.json", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Result addTagObject(@RequestBody TagsObjects tagsObjects, NativeWebRequest request)
+			throws NotFoundException, UnAuthorizedException {
+		Result result = Result.newResult();
+		for (Long tagId : tagsObjects.tagIds) {
+			ContentTag tag = tagService.getTag(tagId);
+			for (Long objectId : tagsObjects.objectIds) {
+				tagService.addTag(tag, tagsObjects.objectType, objectId);
+				result.setCount(result.getCount() + 1);
+			}
+		}
+		return result;
+	}
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/0/objects/save-or-update.json", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Result saveOrUpdateTagsObjects(@RequestBody TagsObjects tagsObjects, NativeWebRequest request)
+			throws NotFoundException, UnAuthorizedException {
+
+		Result result = Result.newResult();
+		for (Long objectId : tagsObjects.objectIds) {
+			tagService.removeAllTags(tagsObjects.objectType, objectId);
+		}
+		for (Long tagId : tagsObjects.tagIds) {
+			ContentTag tag = tagService.getTag(tagId);
+			for (Long objectId : tagsObjects.objectIds) {
+				tagService.addTag(tag, tagsObjects.objectType, objectId);
+				result.setCount(result.getCount() + 1);
+			}
+		}
+		return result;
+	}
+
+	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER" })
+	@RequestMapping(value = "/tags/0/objects/delete.json", method = { RequestMethod.POST,
+			RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public TagObject removeTagObject(@RequestBody TagObject tagObject, NativeWebRequest request)
+			throws NotFoundException, UnAuthorizedException {
+		if (tagObject.getTagId() > 0) {
+			ContentTag tag = tagService.getTag(tagObject.getTagId());
+			tagService.removeTag(tag, tagObject.objectType, tagObject.objectId);
+		}
+		return tagObject;
+	}
+
 	public static class TagsObjects implements java.io.Serializable {
-		
+
 		private int objectType;
 		private List<Long> objectIds;
-		private List<Long> tagIds; 
+		private List<Long> tagIds;
 
 		public TagsObjects() {
-			
+
 		}
-		
+
 		public int getObjectType() {
 			return objectType;
 		}
@@ -218,14 +243,14 @@ public class ServicesTagsDataController {
 		public void setTagIds(List<Long> tagIds) {
 			this.tagIds = tagIds;
 		}
-		
+
 	}
-	
+
 	public static class TagObject implements java.io.Serializable {
-		
+
 		private int objectType;
 		private long objectId;
-		private long tagId; 
+		private long tagId;
 
 		public TagObject() {
 			super();
@@ -263,9 +288,9 @@ public class ServicesTagsDataController {
 		}
 
 		public String getKey() {
-			return tagId + "_" + objectType + "_" + objectId ;
+			return tagId + "_" + objectType + "_" + objectId;
 		}
- 
+
 	}
-	
+
 }

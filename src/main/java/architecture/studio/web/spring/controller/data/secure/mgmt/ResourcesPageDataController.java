@@ -236,6 +236,7 @@ public class ResourcesPageDataController {
 		return Utils.toList(properties);
 	}
 
+	
 	@Secured({ "ROLE_ADMINISTRATOR", "ROLE_SYSTEM", "ROLE_DEVELOPER"})
 	@RequestMapping(value = "/pages/{pageId:[\\p{Digit}]+}/properties/update.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE )
 	@ResponseBody

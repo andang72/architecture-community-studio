@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import architecture.community.model.Models;
 import architecture.community.tag.ContentTag;
 import architecture.community.tag.DefaultContentTag;
+import architecture.community.tag.TagNotFoundException;
 import architecture.community.tag.dao.TagDao;
 import architecture.ee.jdbc.property.dao.PropertyDao;
 import architecture.ee.jdbc.sequencer.SequencerFactory;
@@ -49,15 +50,13 @@ public class JdbcTagDao extends ExtendedJdbcDaoSupport implements TagDao {
 
 	/**
 	 * @param tagPropertyTableName
-	 *            설정할 tagPropertyTableName
 	 */
 	public void setTagPropertyTableName(String tagPropertyTableName) {
 		this.tagPropertyTableName = tagPropertyTableName;
 	}
 
 	/**
-	 * @param tagPropertyPrimaryColumnName
-	 *            설정할 tagPropertyPrimaryColumnName
+	 * @param tagPropertyPrimaryColumnName 
 	 */
 	public void setTagPropertyPrimaryColumnName(String tagPropertyPrimaryColumnName) {
 		this.tagPropertyPrimaryColumnName = tagPropertyPrimaryColumnName;
@@ -96,13 +95,13 @@ public class JdbcTagDao extends ExtendedJdbcDaoSupport implements TagDao {
 				new SqlParameterValue(Types.NUMERIC, tagId));
 	}
 
-	public ContentTag getContentTagByName(String name) {
+	public ContentTag getContentTagByName(String name) throws TagNotFoundException {
 		try {
 			return getExtendedJdbcTemplate().queryForObject(
 					getBoundSql("COMMUNITY_WEB.SELECT_CONTENT_TAG_BY_NAME").getSql(), conentTagRowMapper,
 					new SqlParameterValue(Types.VARCHAR, name));
 		} catch (EmptyResultDataAccessException e) {
-			return null;
+			throw new TagNotFoundException(e);
 		}
 	}
 
@@ -125,9 +124,18 @@ public class JdbcTagDao extends ExtendedJdbcDaoSupport implements TagDao {
 	}
 
 	public void deleteContentTag(long tagId) {
-		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_CONTENT_TAG").getSql(), new SqlParameterValue(Types.NUMERIC, tagId));
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_CONTENT_TAG").getSql(), 
+		new SqlParameterValue(Types.NUMERIC, tagId));
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.DELETE_OBJECT_TAG").getSql(), 
+		new SqlParameterValue(Types.NUMERIC, tagId));
 	}
 	
+	public void updateContentTag(long tagId, String name ) {
+		getExtendedJdbcTemplate().update(getBoundSql("COMMUNITY_WEB.UPDATE_CONTENT_TAG").getSql(),
+				new SqlParameterValue(Types.VARCHAR, name),
+				new SqlParameterValue(Types.NUMERIC, tagId));
+	}
+
 	public long getNextTagId(){		
 		return sequencerFactory.getNextValue(Models.TAG.getObjectType(), Models.TAG.name());
 	}

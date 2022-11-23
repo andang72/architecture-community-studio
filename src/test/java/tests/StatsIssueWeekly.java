@@ -16,7 +16,7 @@ import org.springframework.dao.DataAccessException;
 import architecture.community.query.CustomTransactionCallback;
 import architecture.community.query.CustomTransactionCallbackWithoutResult;
 import architecture.community.query.dao.CustomQueryJdbcDao;
-import architecture.community.web.spring.view.script.AbstractDataView;
+import architecture.community.web.gateway.view.script.AbstractDataView;
 
 /**
 * StatsIssueWeekly

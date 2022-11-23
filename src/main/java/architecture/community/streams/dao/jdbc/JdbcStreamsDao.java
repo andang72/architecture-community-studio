@@ -54,6 +54,11 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 	@Autowired( required = false) 
 	@Qualifier("messageBodyFilter")
 	private MessageBodyFilter messageBodyFilter;
+
+	@Autowired( required = false) 
+	@Qualifier("lazyloadMessageBodyFilter")
+	private MessageBodyFilter lazyloadMessageBodyFilter;
+
 	
 	private String streamsPropertyTableName = "AC_UI_STREAMS_PROPERTY";
 	private String streamsPropertyPrimaryColumnName = "STREAM_ID";
@@ -61,6 +66,11 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 	public boolean isMessageBodyFilterEnabled(){
 		return messageBodyFilter == null ? false : true ; 
 	}
+
+	public boolean isLazyloadMessageBodyFilterEnabled(){
+		return lazyloadMessageBodyFilter == null ? false : true ; 
+	}
+
 
 	private final RowMapper<Streams> streamsMapper = new RowMapper<Streams>() {		
 		public Streams mapRow(ResultSet rs, int rowNum) throws SQLException {			
@@ -105,6 +115,11 @@ public class JdbcStreamsDao extends ExtendedJdbcDaoSupport implements StreamsDao
 			}else{
 				message.setBody(rs.getString("BODY"));
 			}
+			logger.debug("Is message body lazyload filtering enabled : {}", isLazyloadMessageBodyFilterEnabled());
+			if( isLazyloadMessageBodyFilterEnabled() ){
+				message.setBody(lazyloadMessageBodyFilter.process(message.getBody()));
+			}
+
 			message.setKeywords(rs.getString("KEYWORDS"));
 			message.setCreationDate(rs.getTimestamp("CREATION_DATE"));
 			message.setModifiedDate(rs.getTimestamp("MODIFIED_DATE"));		
