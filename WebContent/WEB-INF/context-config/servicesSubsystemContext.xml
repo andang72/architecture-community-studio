@@ -20,4 +20,9 @@
  	
 	<lang:groovy id="auditTrailService" script-source="/WEB-INF/groovy-script/services/customAuditTrailService.groovy" refresh-check-delay="10"></lang:groovy>
 
+	<!-- ================================= -->
+	<!-- Youtube 						   -->
+	<!-- ================================= -->
+	<beans:bean id="youtubeService" class="architecture.studio.services.YoutubeService"  />
+
 </beans:beans> 

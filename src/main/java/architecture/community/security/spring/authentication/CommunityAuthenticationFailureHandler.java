@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.ui.ModelMap;
@@ -25,9 +26,9 @@ public class CommunityAuthenticationFailureHandler extends SimpleUrlAuthenticati
 	public CommunityAuthenticationFailureHandler() { 
 	}
 
+
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException exception) throws IOException, ServletException {
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 		
 		logger.debug("no savend request");			
 		if (ServletUtils.isAcceptJson(request)) {
@@ -40,6 +41,7 @@ public class CommunityAuthenticationFailureHandler extends SimpleUrlAuthenticati
 		return;
 		
 	}
+
 
 	protected void handleJsonRequest(HttpServletRequest request, HttpServletResponse response, AuthenticationException  exception) throws IOException, ServletException{
 		Result result = Result.newResult();
