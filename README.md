@@ -1,4 +1,4 @@
-# RESTful API Architecture Studio Community
+# RESTful API Architecture Studio Community ![version](https://img.shields.io/badge/version-3.0.2-blue.svg)
 ## Overview
 
 This is Project for [Java][java] based RESTful API Server and Web Console.
