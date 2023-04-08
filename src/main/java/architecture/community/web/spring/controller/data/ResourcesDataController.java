@@ -94,7 +94,6 @@ public class ResourcesDataController extends AbstractResourcesDataController {
 		List<Long> items = customQueryService.list(dataSourceRequest, Long.class);
 		List<Attachment> attachments = getAttachments(items, includeLink, includeTags);
 		return new ItemList(attachments, totalCount);
-
 	}
 
 	// @RequestMapping(value = "/data/resources/{objectTypeName}/{objectId:[\\p{Digit}]+}/files", method = {

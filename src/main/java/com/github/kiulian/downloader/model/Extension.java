@@ -1,5 +1,6 @@
 package com.github.kiulian.downloader.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 
 public class Extension {
     // video
@@ -30,18 +31,22 @@ public class Extension {
         this.value = value;
     }
 
+    @JsonGetter
     public String value() {
         return value;
     }
 
+    @JsonGetter
     public boolean isAudio() {
         return this.equals(M4A) || this.equals(WEBM);
     }
 
+    @JsonGetter
     public boolean isVideo() {
         return this.equals(MPEG4) || this.equals(WEBM) || this.equals(_3GP) || this.equals(FLV);
     }
 
+    @JsonGetter
     public boolean isSubtitle() {
         return this.equals(SUBRIP) || this.equals(TRANSCRIPT_V1) || this.equals(TRANSCRIPT_V2)
                 || this.equals(TRANSCRIPT_V3) || this.equals(TTML) || this.equals(WEBVTT) || this.equals(JSON3);

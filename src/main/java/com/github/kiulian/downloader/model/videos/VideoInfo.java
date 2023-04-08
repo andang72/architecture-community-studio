@@ -3,15 +3,16 @@ package com.github.kiulian.downloader.model.videos;
 
 
 
-import com.github.kiulian.downloader.model.Filter;
-import com.github.kiulian.downloader.model.videos.formats.AudioFormat;
-import com.github.kiulian.downloader.model.videos.formats.VideoWithAudioFormat;
-import com.github.kiulian.downloader.model.videos.formats.Format;
-import com.github.kiulian.downloader.model.videos.formats.VideoFormat;
-import com.github.kiulian.downloader.model.subtitles.SubtitlesInfo;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.github.kiulian.downloader.model.Filter;
+import com.github.kiulian.downloader.model.subtitles.SubtitlesInfo;
+import com.github.kiulian.downloader.model.videos.formats.AudioFormat;
+import com.github.kiulian.downloader.model.videos.formats.Format;
+import com.github.kiulian.downloader.model.videos.formats.VideoFormat;
+import com.github.kiulian.downloader.model.videos.formats.VideoWithAudioFormat;
 
 public class VideoInfo {
 
@@ -25,14 +26,17 @@ public class VideoInfo {
         this.subtitlesInfo = subtitlesInfo;
     }
 
+    @JsonGetter
     public VideoDetails details() {
         return videoDetails;
     }
 
+    @JsonGetter
     public List<Format> formats() {
         return formats;
     }
 
+    @JsonGetter
     public List<SubtitlesInfo> subtitlesInfo() {
         return subtitlesInfo;
     }

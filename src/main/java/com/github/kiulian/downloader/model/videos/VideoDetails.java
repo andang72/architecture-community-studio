@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.kiulian.downloader.YoutubeException;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.github.kiulian.downloader.model.AbstractVideoDetails;
 
 public class VideoDetails extends AbstractVideoDetails {
@@ -40,26 +40,32 @@ public class VideoDetails extends AbstractVideoDetails {
         return !isLive() && !(isLiveContent && lengthSeconds() == 0);
     }
 
+    @JsonGetter
     public List<String> keywords() {
         return keywords;
     }
 
+    @JsonGetter
     public String description() {
         return shortDescription;
     }
 
+    @JsonGetter
     public long viewCount() {
         return viewCount;
     }
 
+    @JsonGetter
     public int averageRating() {
         return averageRating;
     }
 
+    @JsonGetter
     public boolean isLiveContent() {
         return isLiveContent;
     }
 
+    @JsonGetter
     public String liveUrl() {
         return liveUrl;
     }

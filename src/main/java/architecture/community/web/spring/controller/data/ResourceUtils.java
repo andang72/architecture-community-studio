@@ -31,6 +31,12 @@ public class ResourceUtils {
 		ClassPathResource resource = new ClassPathResource(IMAGES_NOT_AVAILABLE);
 		image (resource, PNG_CONTENT_TYPE, request, response);
 	}
+
+	public static Resource notAavaliableResource() throws IOException {
+		ClassPathResource resource = new ClassPathResource(IMAGES_NOT_AVAILABLE);
+		return resource;
+	}
+	
 	
 	public static void noThumbnails(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ClassPathResource resource = new ClassPathResource(IMAGES_NO_THUMBNAIL);
@@ -41,6 +47,7 @@ public class ResourceUtils {
 		ClassPathResource resource = new ClassPathResource(IMAGES_NO_AVATAR);
 		image (resource, PNG_CONTENT_TYPE, request, response);
 	} 
+	
 	
 	public static void image (Resource resource, String contentType,  HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if( resource.exists() ) {

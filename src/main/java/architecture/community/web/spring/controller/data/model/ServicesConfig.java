@@ -1,6 +1,7 @@
 package architecture.community.web.spring.controller.data.model;
 
 public class ServicesConfig implements java.io.Serializable {  
+	
 	boolean enabled ;
 
 	public boolean isEnabled() {

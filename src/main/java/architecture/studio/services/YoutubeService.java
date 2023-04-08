@@ -35,16 +35,13 @@ public class YoutubeService {
 
     }
 
-    public File downloadVideoFile(VideoInfo video) {
-        Format format = video.bestAudioFormat();// video.bestVideoWithAudioFormat();
-        Response<File> responseFile = downloader
-                .downloadVideoFile(new RequestVideoFileDownload(format).saveTo(getYoutubeDownlaodDir()));
+    public File downloadVideoFile(Format format , File saveTo) { 
+        Response<File> responseFile = downloader.downloadVideoFile(new RequestVideoFileDownload(format).saveTo(saveTo));
         return responseFile.data();
     }
 
     public VideoInfo getVideoInfo(String videoId) throws NotFoundException {
-        Response<VideoInfo> response = downloader.getVideoInfo(
-                new RequestVideoInfo(videoId));
+        Response<VideoInfo> response = downloader.getVideoInfo( new RequestVideoInfo(videoId));
         return response.data();
     }
 

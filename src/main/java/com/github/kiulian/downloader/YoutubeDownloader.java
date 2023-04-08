@@ -1,7 +1,6 @@
 package com.github.kiulian.downloader;
 
 
-
 import static com.github.kiulian.downloader.model.Utils.createOutDir;
 
 import java.io.File;

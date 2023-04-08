@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +73,7 @@ public class CommunityLInkService implements SharedLinkService , InitializingBea
 		SharedLink link ;
 		try {
 			link = sharedLinkDao.getSharedLinkByObjectTypeAndObjectId(objectType, objectId);
-		} catch (Exception e) {
+		} catch (EmptyResultDataAccessException e) {
 			log.debug("fail to get link ..", e);			
 			if(createIfNotExist) {
 				link = new SharedLink(RandomStringUtils.random(64, true, true), true, objectType, objectId );

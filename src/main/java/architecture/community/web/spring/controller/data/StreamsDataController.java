@@ -252,7 +252,6 @@ public class StreamsDataController {
 	 * @return
 	 * @throws StreamsNotFoundException
 	 */
-	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/data/threads/0", method = { RequestMethod.POST,
 			RequestMethod.PUT }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -260,14 +259,13 @@ public class StreamsDataController {
 			throws StreamsNotFoundException {
 
 		User user = SecurityHelper.getUser();
-		if (newMessage.getThreadId() < 1 && newMessage.getMessageId() < 1) {
+		log.debug("create new thread by {} ({})", user.getUserId() , SecurityHelper.isUserInRole("ROLE_USER"));
 
-			StreamMessage rootMessage = streamsService.createMessage(newMessage.getObjectType(),
-					newMessage.getObjectId(), user);
+		if (newMessage.getThreadId() < 1 && newMessage.getMessageId() < 1) {
+			StreamMessage rootMessage = streamsService.createMessage(newMessage.getObjectType(), newMessage.getObjectId(), user);
 			rootMessage.setSubject(newMessage.getSubject());
 			rootMessage.setBody(newMessage.getBody());
-			StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(),
-					rootMessage);
+			StreamThread thread = streamsService.createThread(rootMessage.getObjectType(), rootMessage.getObjectId(), rootMessage);
 			streamsService.addThread(rootMessage.getObjectType(), rootMessage.getObjectId(), thread);
 			return thread;
 		}

@@ -4,6 +4,7 @@ package com.github.kiulian.downloader.model.videos.formats;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.github.kiulian.downloader.model.Extension;
 
 public abstract class Format {
@@ -66,44 +67,55 @@ public abstract class Format {
         }
     }
 
+    @JsonGetter
     public abstract String type();
 
+    @JsonGetter
     public boolean isAdaptive() {
         return isAdaptive;
     }
 
+    @JsonGetter
     public String clientVersion() {
         return clientVersion;
     }
 
+    @JsonGetter
     public Itag itag() {
         return itag;
     }
 
+    @JsonGetter
     public Integer bitrate() {
         return bitrate;
     }
 
+    @JsonGetter
     public String mimeType() {
         return mimeType;
     }
 
+    @JsonGetter
     public String url() {
         return url;
     }
 
+    @JsonGetter
     public Long contentLength() {
         return contentLength;
     }
 
+    @JsonGetter
     public long lastModified() {
         return lastModified;
     }
 
+    @JsonGetter
     public Long duration() {
         return approxDurationMs;
     }
 
+    @JsonGetter
     public Extension extension() {
         return extension;
     }

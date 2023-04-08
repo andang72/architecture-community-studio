@@ -63,6 +63,7 @@ GrapesJS https://github.com/artf/grapesjs
 
 ## Supported Database 
 MySQL 8.x
+
 Oracle 11g 이상 
 
 ## TODO

@@ -4,6 +4,7 @@ package com.github.kiulian.downloader.model;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonGetter;
 
 public abstract class AbstractVideoDetails {
 
@@ -31,26 +32,32 @@ public abstract class AbstractVideoDetails {
         thumbnails = Utils.parseThumbnails(json.getJSONObject("thumbnail"));
     }
 
+    @JsonGetter
     public String videoId() {
         return videoId;
     }
 
+    @JsonGetter
     public String title() {
         return title;
     }
 
+    @JsonGetter
     public int lengthSeconds() {
         return lengthSeconds;
     }
 
+    @JsonGetter
     public List<String> thumbnails() {
         return thumbnails;
     }
 
+    @JsonGetter
     public String author() {
         return author;
     }
 
+    @JsonGetter
     public boolean isLive() {
         return isLive;
     }

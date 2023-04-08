@@ -104,11 +104,12 @@ public class DownloadDataController {
 
 	private boolean isAllowed(Attachment attachment) throws NotFoundException {
 		User currentUser = SecurityHelper.getUser();
-
+		log.debug("Checking owner {} == current {}", attachment.getUser().getUserId() , currentUser.getUserId() );
 		if (attachment.getUser() != null && attachment.getUser().getUserId() > 0
 				&& currentUser.getUserId() == attachment.getUser().getUserId()) {
 			return true;
 		}
+		log.debug("Checking roles {}", currentUser);
 		if (SecurityHelper.isUserInRole("ROLE_DEVELOPER, ROLE_ADMINISTRATOR, ROLE_SYSTEM")) {
 			return true;
 		}
@@ -385,7 +386,8 @@ public class DownloadDataController {
 	 * @param response
 	 * @throws IOException
 	 */
-	@RequestMapping(value = "/files/{linkId}/{filename:.+}", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/files/{linkId:}/{filename:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public void downloadFileByLink(
 			@PathVariable("linkId") String linkId,
@@ -525,10 +527,8 @@ public class DownloadDataController {
 					contentLength = attachment.getSize();
 					response.setContentType(contentType);
 					response.setContentLength(contentLength);
-
 					IOUtils.copy(input, response.getOutputStream());
-					response.setHeader("contentDisposition",
-							"attachment;filename=" + ServletUtils.getEncodedFileName(attachment.getName()));
+					response.setHeader("contentDisposition", "attachment;filename=" + ServletUtils.getEncodedFileName(attachment.getName()));
 					response.flushBuffer();
 				}
 			}
